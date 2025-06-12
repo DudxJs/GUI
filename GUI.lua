@@ -463,7 +463,8 @@ function DudxJsGUI:AddTab(tabName)
         -- Na função AddLabel:
 local label = Instance.new("TextLabel", contentScroll)
 label.AutomaticSize = Enum.AutomaticSize.Y
-label.Size = UDim2.new(1, -40, 0, 0) -- Altura 0 pois é auto
+label.Size = UDim2.new(1, -40, 0, 0) 
+-- Altura 0 pois é auto
 label.BackgroundTransparency = 1
 label.TextColor3 = Color3.new(1, 1, 1)
 label.Text = text or ""
