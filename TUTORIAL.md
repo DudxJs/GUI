@@ -1,6 +1,6 @@
-# DudxGUI - Tutorial de Uso
+# DudxJsGUI - Tutorial de Uso
 
-DudxGUI é uma biblioteca de interface Roblox fácil, poderosa e inspirada em OrionLib. Permite criar GUIs sofisticadas com tabs, botões, switches, campos de texto, labels e dropdowns em poucas linhas!
+DudxJsGUI é uma biblioteca de interface Roblox fácil, poderosa e inspirada em OrionLib. Permite criar GUIs sofisticadas com tabs, botões, switches, campos de texto, labels e dropdowns em poucas linhas!
 
 ---
 
@@ -19,7 +19,7 @@ loadstring(game:HttpGet("https://raw.githubusercontent.com/DudxJs/GUI/main/GUI.l
 ### 1. Criando o GUI
 
 ```lua
-local gui = _G.DudxGUI:New("Título do Meu Painel")
+local gui = _G.DudxJsGUI:New("Título do Meu Painel")
 ```
 
 ---
@@ -68,7 +68,7 @@ end)
 ### 6. Adicionando Label (texto informativo)
 
 ```lua
-tab:AddLabel("Bem-vindo ao DudxGUI!")
+tab:AddLabel("Bem-vindo ao DudxJsGUI!")
 ```
 
 ---
@@ -88,7 +88,7 @@ end)
 ```lua
 loadstring(game:HttpGet("https://raw.githubusercontent.com/DudxJs/GUI/main/GUI.lua"))()
 
-local gui = _G.DudxGUI:New("Meu Painel Top")
+local gui = _G.DudxJsGUI:New("Meu Painel Top")
 
 local tabScripts = gui:AddTab("Scripts")
 tabScripts:AddButton("Executar Script 1", function() print("Executado 1!") end)
@@ -97,7 +97,7 @@ tabScripts:AddInput("Nickname", "Digite aqui", function(txt) print("Nick:", txt)
 tabScripts:AddDropdown("Escolher", {"A", "B", "C"}, function(sel) print("Selecionou:", sel) end)
 
 local tabInfo = gui:AddTab("Info")
-tabInfo:AddLabel("Este painel foi criado usando DudxGUI!")
+tabInfo:AddLabel("Este painel foi criado usando DudxJsGUI!")
 
 ```
 

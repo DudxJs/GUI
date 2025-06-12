@@ -1,8 +1,8 @@
---[[ DudxGUI - Interface Roblox estilo OrionLib
+--[[ DudxJsGUI - Interface Roblox estilo OrionLib
     - Criação fácil de Gui, Tabs, Botões, Switches e Inputs!
     - Uso:
         loadstring(game:HttpGet("URL_DO_SEU_GUI.lua"))()
-        local gui = _G.DudxGUI:New("Meu Título")
+        local gui = _G.DudxJsGUI:New("Meu Título")
         local aba = gui:AddTab("Exemplo")
         aba:AddButton("Dizer Olá", function() print("Olá!") end)
         aba:AddSwitch("Ativar Algo", function(on) print("Switch:", on) end)
@@ -15,8 +15,8 @@ local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
 
 -- CLASSE PRINCIPAL
-local DudxGUI = {}
-DudxGUI.__index = DudxGUI
+local DudxJsGUI = {}
+DudxJsGUI.__index = DudxJsGUI
 
 -- Utilitário para criar UICorner
 local function roundify(obj, rad)
@@ -27,11 +27,11 @@ local function roundify(obj, rad)
 end
 
 -- Cria a base inteira do GUI
-function DudxGUI:New(title)
-    local self = setmetatable({}, DudxGUI)
+function DudxJsGUI:New(title)
+    local self = setmetatable({}, DudxJsGUI)
     -- ScreenGui
     self._gui = Instance.new("ScreenGui")
-    self._gui.Name = "DudxGUI"
+    self._gui.Name = "DudxJsGUI"
     self._gui.ResetOnSpawn = false
     self._gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
     -- MainFrame
@@ -81,7 +81,7 @@ function DudxGUI:New(title)
     local Title = Instance.new("TextLabel", TopBar)
     Title.Size = UDim2.new(1, -40, 1, 0)
     Title.Position = UDim2.new(0, 10, 0, 0)
-    Title.Text = title or "DudxGUI"
+    Title.Text = title or "DudxJsGUI"
     Title.TextColor3 = Color3.new(1, 1, 1)
     Title.TextXAlignment = Enum.TextXAlignment.Left
     Title.BackgroundTransparency = 1
@@ -131,7 +131,7 @@ function DudxGUI:New(title)
 end
 
 -- Cria uma Tab com página e rolagem
-function DudxGUI:AddTab(tabName)
+function DudxJsGUI:AddTab(tabName)
     local self = self
     local tab = {}
     -- Botão lateral
@@ -481,9 +481,9 @@ function DudxGUI:AddTab(tabName)
     return tab
 end
 
-function DudxGUI:Destroy()
+function DudxJsGUI:Destroy()
     if self._gui then self._gui:Destroy() end
 end
 
 -- Exporta
-_G.DudxGUI = DudxGUI
+_G.DudxJsGUI = DudxJsGUI
