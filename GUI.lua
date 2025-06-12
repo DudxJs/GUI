@@ -460,3 +460,12 @@ local function InfoText(text, parent, order)
     label.TextYAlignment = Enum.TextYAlignment.Top
     return label
 end
+
+_G.MenuFrame = MenuFrame
+_G.ContentFrame = ContentFrame
+_G.createMenuButton = createMenuButton
+_G.Btn = Btn
+_G.SwitchBtn = SwitchBtn
+_G.TextBoxBtn = TextBoxBtn
+_G.DropdownBtn = DropdownBtn
+_G.InfoText = InfoText
