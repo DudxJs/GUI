@@ -172,7 +172,7 @@ local function createMenuButton(name, order, menuParent, contentParent)
     return button, page, contentScroll
 end
 
-local function createContentButton(name, order, parent, onClick)
+local function Btn(name, order, parent, onClick)
     local btn = Instance.new("TextButton", parent)
     btn.Size = UDim2.new(1, 0, 0, 32)
     btn.LayoutOrder = order
@@ -203,8 +203,8 @@ local function createContentButton(name, order, parent, onClick)
     return btn
 end
 
-local function createSwitchButton(name, order, parent, onSwitch)
-    local btn = createContentButton(name, order, parent)
+local function SwitchBtn(name, order, parent, onSwitch)
+    local btn = Btn(name, order, parent)
     local switch = Instance.new("Frame")
     switch.Size = UDim2.new(0, 40, 0, 20)
     switch.Position = UDim2.new(1, -50, 0.5, -10)
@@ -235,7 +235,7 @@ local function createSwitchButton(name, order, parent, onSwitch)
     return btn
 end
 
-local function createInputField(order, parent, labelText, placeholder, onInput)
+local function TextBoxBtn(order, parent, labelText, placeholder, onInput)
     local inputContainer = Instance.new("Frame", parent)
     inputContainer.Size = UDim2.new(1, 0, 0, 32)
     inputContainer.LayoutOrder = order
@@ -291,7 +291,7 @@ end
 
 -- Dropdown corrigido: lista aparece logo abaixo do botão (ou acima se não couber) e abre ao clicar em qualquer lugar do botão.
 
-local function createDropdown(order, parent, title, itemList, onSelect)
+local function DropdownBtn(order, parent, title, itemList, onSelect)
     -- Use TextButton para detectar clicks em todo o botão!
     local dropdownContainer = Instance.new("TextButton", parent)
     dropdownContainer.Size = UDim2.new(1, 0, 0, 32)
@@ -446,7 +446,7 @@ local function createDropdown(order, parent, title, itemList, onSelect)
     return dropdownContainer
 end
 
-local function createInfoLabel(text, parent, order)
+local function InfoText(text, parent, order)
     local label = Instance.new("TextLabel", parent)
     label.Size = UDim2.new(1, -40, 0, 100)
     label.LayoutOrder = order
