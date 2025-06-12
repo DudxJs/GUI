@@ -306,6 +306,160 @@ function DudxGUI:AddTab(tabName)
         tab._order = tab._order + 1
         return inputContainer, inputBox
     end
+    
+        function tab:AddDropdown(text, items, callback)
+        local dropdownContainer = Instance.new("TextButton", contentScroll)
+        dropdownContainer.Size = UDim2.new(1, 0, 0, 32)
+        dropdownContainer.LayoutOrder = tab._order
+        dropdownContainer.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        dropdownContainer.BorderSizePixel = 0
+        dropdownContainer.AutoButtonColor = true
+        dropdownContainer.Text = ""
+        roundify(dropdownContainer, 6)
+        local ddPadding = Instance.new("UIPadding", dropdownContainer)
+        ddPadding.PaddingLeft  = UDim.new(0, 8)
+        ddPadding.PaddingRight = UDim.new(0, 8)
+
+        -- Layout horizontal interno
+        local ddLayout = Instance.new("UIListLayout", dropdownContainer)
+        ddLayout.FillDirection = Enum.FillDirection.Horizontal
+        ddLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+        ddLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+        ddLayout.Padding = UDim.new(0, 8)
+
+        -- Grupo esquerda (seta e label)
+        local leftGroup = Instance.new("Frame", dropdownContainer)
+        leftGroup.BackgroundTransparency = 1
+        leftGroup.Size = UDim2.new(0.55, 0, 1, 0)
+        leftGroup.LayoutOrder = 1
+        local leftLayout = Instance.new("UIListLayout", leftGroup)
+        leftLayout.FillDirection = Enum.FillDirection.Horizontal
+        leftLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+        leftLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+        leftLayout.Padding = UDim.new(0, 4)
+
+        -- Seta
+        local arrowBtn = Instance.new("TextLabel", leftGroup)
+        arrowBtn.Size = UDim2.new(0, 20, 1, 0)
+        arrowBtn.BackgroundTransparency = 1
+        arrowBtn.Text = "V"
+        arrowBtn.TextColor3 = Color3.new(1, 1, 1)
+        arrowBtn.Font = Enum.Font.SourceSans
+        arrowBtn.TextSize = 18
+        arrowBtn.LayoutOrder = 1
+
+        -- Texto
+        local labelTitle = Instance.new("TextLabel", leftGroup)
+        labelTitle.Size = UDim2.new(1, -20, 1, 0)
+        labelTitle.BackgroundTransparency = 1
+        labelTitle.Text = text or "Dropdown"
+        labelTitle.TextColor3 = Color3.new(1, 1, 1)
+        labelTitle.Font = Enum.Font.SourceSans
+        labelTitle.TextSize = 16
+        labelTitle.TextXAlignment = Enum.TextXAlignment.Left
+        labelTitle.LayoutOrder = 2
+
+        -- Caixa à direita (selecionado)
+        local selectedBox = Instance.new("Frame", dropdownContainer)
+        selectedBox.Size = UDim2.new(0.43, 0, 0.8, 0)
+        selectedBox.BackgroundColor3 = Color3.fromRGB(55, 55, 55)
+        selectedBox.BorderSizePixel = 0
+        selectedBox.LayoutOrder = 2
+        roundify(selectedBox, 4)
+        local selectedLabel = Instance.new("TextLabel", selectedBox)
+        selectedLabel.Size = UDim2.new(1, -10, 1, 0)
+        selectedLabel.Position = UDim2.new(0, 5, 0, 0)
+        selectedLabel.BackgroundTransparency = 1
+        selectedLabel.Text = ""
+        selectedLabel.TextColor3 = Color3.new(1, 1, 1)
+        selectedLabel.Font = Enum.Font.SourceSans
+        selectedLabel.TextSize = 16
+        selectedLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+        -- Lista oculta
+        local gui = dropdownContainer:FindFirstAncestorOfClass("ScreenGui")
+        local listFrame = Instance.new("ScrollingFrame")
+        listFrame.Visible = false
+        listFrame.ZIndex = 50
+        listFrame.Size = UDim2.new(0, 150, 0, 150)
+        listFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+        listFrame.BorderSizePixel = 0
+        listFrame.ScrollBarThickness = 6
+        listFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+        roundify(listFrame, 6)
+        local padTop = Instance.new("UIPadding", listFrame)
+        padTop.PaddingTop = UDim.new(0, 8)
+        local padBot = Instance.new("UIPadding", listFrame)
+        padBot.PaddingBottom = UDim.new(0, 8)
+        local lfLayout = Instance.new("UIListLayout", listFrame)
+        lfLayout.SortOrder = Enum.SortOrder.LayoutOrder
+        lfLayout.Padding = UDim.new(0, 4)
+
+        -- Atualiza lista
+        local function atualizarLista()
+            for _, child in ipairs(listFrame:GetChildren()) do
+                if child:IsA("TextButton") then child:Destroy() end
+            end
+            local totalHeight = 0
+            for idx, nome in ipairs(items) do
+                local item = Instance.new("TextButton", listFrame)
+                item.Size = UDim2.new(1, -16, 0, 32)
+                item.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+                item.BorderSizePixel = 0
+                item.Text = "   " .. tostring(nome)
+                item.TextColor3 = Color3.new(1, 1, 1)
+                item.Font = Enum.Font.SourceSans
+                item.TextSize = 16
+                item.TextXAlignment = Enum.TextXAlignment.Left
+                item.ZIndex = 51
+                item.LayoutOrder = idx
+                roundify(item, 6)
+                item.MouseButton1Click:Connect(function()
+                    selectedLabel.Text = nome
+                    listFrame.Visible = false
+                    arrowBtn.Text = "V"
+                    if callback then callback(nome) end
+                end)
+                totalHeight = totalHeight + 32 + 4
+            end
+            listFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
+            listFrame.Size = UDim2.new(0, dropdownContainer.AbsoluteSize.X, 0, math.min(150, totalHeight))
+        end
+
+        -- Mostra lista
+        local function showList()
+            if not listFrame.Parent then
+                listFrame.Parent = gui
+            end
+            atualizarLista()
+            local absPos = dropdownContainer.AbsolutePosition
+            local absSize = dropdownContainer.AbsoluteSize
+            local viewport = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1920,1080)
+            local listHeight = listFrame.AbsoluteSize.Y > 0 and listFrame.AbsoluteSize.Y or 150
+            local yBelow = absPos.Y + absSize.Y
+            local yAbove = absPos.Y - listHeight
+            local posY = (yBelow + listHeight > viewport.Y) and yAbove or yBelow
+            listFrame.Position = UDim2.new(0, absPos.X, 0, posY)
+            listFrame.Size = UDim2.new(0, absSize.X, 0, math.min(150, listFrame.CanvasSize.Y.Offset))
+            listFrame.Visible = not listFrame.Visible
+            arrowBtn.Text = listFrame.Visible and "∧" or "V"
+        end
+
+        -- Fecha lista ao clicar fora
+        UserInputService.InputBegan:Connect(function(input)
+            if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                if listFrame.Visible and not dropdownContainer:IsAncestorOf(input.Target) and input.Target ~= listFrame and not listFrame:IsAncestorOf(input.Target) then
+                    listFrame.Visible = false
+                    arrowBtn.Text = "V"
+                end
+            end
+        end)
+
+        dropdownContainer.MouseButton1Click:Connect(function() showList() end)
+        tab._order = tab._order + 1
+        return dropdownContainer
+    end
+    
     function tab:AddLabel(text)
         local label = Instance.new("TextLabel", contentScroll)
         label.Size = UDim2.new(1, -40, 0, 100)
