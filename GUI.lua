@@ -452,8 +452,7 @@ function DudxJsGUI:AddTab(tabName)
                     listFrame.Visible = false
                     arrowBtn.Text = "V"
                 end
-            end
-        end)
+            end        end)
 
         dropdownContainer.MouseButton1Click:Connect(function() showList() end)
         tab._order = tab._order + 1
