@@ -460,11 +460,6 @@ function DudxJsGUI:AddTab(tabName)
         return dropdownContainer
     end
     
-    function tab:AddLabel(text)
-        local label = Instance.new("TextLabel", contentScroll)
-        label.Size = UDim2.new(1, -40, 0, 100)
-        label.LayoutOrder = tab._order
-        label.BackgroundTransparency = 1
         label.TextColor3 = Color3.new(1, 1, 1)
         label.Text = text or ""
         label.Font = Enum.Font.SourceSans
@@ -479,7 +474,6 @@ function DudxJsGUI:AddTab(tabName)
     table.insert(self._tabs, tab)
     self._tabOrder = self._tabOrder + 1
     return tab
-end
 
 function DudxJsGUI:Destroy()
     if self._gui then self._gui:Destroy() end
