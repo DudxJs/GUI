@@ -113,6 +113,6 @@ tabInfo:AddLabel("Este painel foi criado usando DudxGUI!")
 
 ## Suporte
 
-Dúvidas ou sugestões? Abra uma issue no repositório ou me chame no Discord!
+Dúvidas ou sugestões? Abra uma issue no repositório!
 
 ---
