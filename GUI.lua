@@ -461,20 +461,29 @@ function DudxJsGUI:AddTab(tabName)
     end
     
     function tab:AddLabel(text)
-        local label = Instance.new("TextLabel", contentScroll)
-        label.Size = UDim2.new(1, -40, 0, 100)
-        label.LayoutOrder = tab._order
-        label.BackgroundTransparency = 1
-        label.TextColor3 = Color3.new(1, 1, 1)
-        label.Text = text or ""
-        label.Font = Enum.Font.SourceSans
-        label.TextSize = 21.5
-        label.TextWrapped = true
-        label.TextXAlignment = Enum.TextXAlignment.Left
-        label.TextYAlignment = Enum.TextYAlignment.Top
-        tab._order = tab._order + 1
-        return label
-    end
+    local label = Instance.new("TextLabel", contentScroll)
+    label.AutomaticSize = Enum.AutomaticSize.Y
+    label.Size = UDim2.new(1, -40, 0, 0) -- Altura 0 pois é automática
+    label.LayoutOrder = tab._order
+    label.BackgroundTransparency = 1
+    label.TextColor3 = Color3.new(1, 1, 1)
+    label.Text = text or ""
+    label.Font = Enum.Font.SourceSans
+    label.TextSize = 21.5
+    label.TextWrapped = true
+    label.TextXAlignment = Enum.TextXAlignment.Left
+    label.TextYAlignment = Enum.TextYAlignment.Top
+
+    -- Padding igual em cima e embaixo
+    local padding = Instance.new("UIPadding", label)
+    padding.PaddingTop = UDim.new(0, 12)
+    padding.PaddingBottom = UDim.new(0, 12)
+    padding.PaddingLeft = UDim.new(0, 8)
+    padding.PaddingRight = UDim.new(0, 8)
+
+    tab._order = tab._order + 1
+    return label
+end
     -- Adiciona tab na lista
     table.insert(self._tabs, tab)
     self._tabOrder = self._tabOrder + 1
