@@ -476,8 +476,8 @@ function DudxJsGUI:AddTab(tabName)
 
     -- Padding igual em cima e embaixo
     local padding = Instance.new("UIPadding", label)
-    padding.PaddingTop = UDim.new(0, 6.5)
-    padding.PaddingBottom = UDim.new(0, 6.5)
+    padding.PaddingTop = UDim.new(0, 4)
+    padding.PaddingBottom = UDim.new(0, 4)
     padding.PaddingLeft = UDim.new(0, 8)
     padding.PaddingRight = UDim.new(0, 8)
 
