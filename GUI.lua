@@ -1,7 +1,4 @@
---[[ DudxJsGUI - Interface Roblox estilo OrionLib
-    - Organização estrutural: removido self.main, menu e content agora filhos diretos do ScreenGui.
-    - Arredondamento personalizado nos cantos.
---]]
+-- DudxJsGUI - Interface Roblox
 
 -- Dependências Roblox
 local Players = game:GetService("Players")
@@ -12,18 +9,15 @@ local UserInputService = game:GetService("UserInputService")
 local DudxJsGUI = {}
 DudxJsGUI.__index = DudxJsGUI
 
--- Utilitário para criar UICorner com controle de cantos
-local function customRoundify(obj, rad, tl, tr, bl, br)
+-- Utilitário para criar UICorner
+local function roundify(obj, rad)
     local c = Instance.new("UICorner")
     c.CornerRadius = UDim.new(0, rad or 8)
-    if typeof(tl) == "boolean" then c.TopLeft = tl end
-    if typeof(tr) == "boolean" then c.TopRight = tr end
-    if typeof(bl) == "boolean" then c.BottomLeft = bl end
-    if typeof(br) == "boolean" then c.BottomRight = br end
     c.Parent = obj
     return obj
 end
 
+-- Cria a base inteira do GUI
 function DudxJsGUI:New(title)
     local self = setmetatable({}, DudxJsGUI)
     -- ScreenGui
@@ -31,24 +25,33 @@ function DudxJsGUI:New(title)
     self._gui.Name = "DudxJsGUI"
     self._gui.ResetOnSpawn = false
     self._gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-
-    -- TopBar (filho do ScreenGui)
+    -- MainFrame
+    self.main = Instance.new("Frame", self._gui)
+    self.main.Size = UDim2.new(0, 530, 0, 300)
+    self.main.Position = UDim2.new(0.5, -265, 0.5, -150)
+    self.main.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    self.main.BackgroundTransparency = 0.05
+    self.main.BorderSizePixel = 0
+    roundify(self.main, 12)
+    local pad = Instance.new("UIPadding", self.main)
+    pad.PaddingTop = UDim.new(0, 3)
+    pad.PaddingBottom = UDim.new(0, 3)
+    pad.PaddingLeft = UDim.new(0, 3)
+    pad.PaddingRight = UDim.new(0, 3)
+    -- TopBar
     local TopBar = Instance.new("Frame", self._gui)
-    TopBar.Size = UDim2.new(0, 530, 0, 40)
-    TopBar.Position = UDim2.new(0.5, -265, 0.5, -150)
-    TopBar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    TopBar.Size = UDim2.new(1, 0, 0, 40)
     TopBar.BackgroundTransparency = 1
     TopBar.BorderSizePixel = 0
     TopBar.Active = true
     TopBar.Selectable = true
-
     -- Drag
     local dragging, dragInput, dragStart, startPos = false
     TopBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             dragStart = input.Position
-            startPos = TopBar.Position
+            startPos = self.main.Position
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then dragging = false end
             end)
@@ -62,15 +65,12 @@ function DudxJsGUI:New(title)
     UserInputService.InputChanged:Connect(function(input)
         if input == dragInput and dragging then
             local delta = input.Position - dragStart
-            TopBar.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-            self.menu.Position = UDim2.new(0, TopBar.Position.X.Offset, 0, TopBar.Position.Y.Offset + 40)
-            self.content.Position = UDim2.new(0, TopBar.Position.X.Offset + 195, 0, TopBar.Position.Y.Offset + 40)
+            self.main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
-
     -- Title
     local Title = Instance.new("TextLabel", TopBar)
-    Title.Size = UDim2.new(1, -80, 1, 0)
+    Title.Size = UDim2.new(1, -40, 1, 0)
     Title.Position = UDim2.new(0, 10, 0, 0)
     Title.Text = title or "DudxJsGUI"
     Title.TextColor3 = Color3.new(1, 1, 1)
@@ -78,7 +78,6 @@ function DudxJsGUI:New(title)
     Title.BackgroundTransparency = 1
     Title.Font = Enum.Font.SourceSansBold
     Title.TextSize = 20
-
     -- Close Button
     local CloseBtn = Instance.new("TextButton", TopBar)
     CloseBtn.Size = UDim2.new(0, 30, 0, 30)
@@ -90,31 +89,48 @@ function DudxJsGUI:New(title)
     CloseBtn.Font = Enum.Font.SourceSansBold
     CloseBtn.TextSize = 18
     CloseBtn.MouseButton1Click:Connect(function() self._gui:Destroy() end)
-
     -- Minimize Button
-    local MinBtn = Instance.new("TextButton", TopBar)
-    MinBtn.Size = UDim2.new(0, 30, 0, 30)
-    MinBtn.Position = UDim2.new(1, -70, 0.5, -15)
-    MinBtn.Text = "_"
-    MinBtn.TextColor3 = Color3.new(1, 0, 0)
-    MinBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-    MinBtn.BackgroundTransparency = 1
-    MinBtn.Font = Enum.Font.SourceSansBold
-    MinBtn.TextSize = 22
+local MinBtn = Instance.new("TextButton", TopBar)
+MinBtn.Size = UDim2.new(0, 30, 0, 30)
+MinBtn.Position = UDim2.new(1, -70, 0.5, -15)
+MinBtn.Text = "-"
+MinBtn.TextColor3 = Color3.new(1, 0, 0)
+MinBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+MinBtn.BackgroundTransparency = 1
+MinBtn.Font = Enum.Font.SourceSansBold
+MinBtn.TextSize = 25
 
-    -- Menu lateral (Tabs) - filho direto do ScreenGui
-    self.menu = Instance.new("ScrollingFrame", self._gui)
-    self.menu.Size = UDim2.new(0, 195, 0, 260)
-    self.menu.Position = UDim2.new(0, TopBar.Position.X.Offset, 0, TopBar.Position.Y.Offset + 40)
-    self.menu.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    self.menu.BackgroundTransparency = 0.05
+local isMinimized = false
+MinBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        -- Minimizar: esconder MainFrame, deixar TopBar visível/transparência 0.05
+        self.menu.Visible = false
+        self.content.Visible = false
+        self.main.Visible = false
+        -- TopBar visível, mas levemente opaca
+        TopBar.BackgroundTransparency = 0.05
+        MinBtn.Text = "+"
+    else
+        -- Restaurar: mostrar tudo, TopBar transparente
+        self.menu.Visible = true
+        self.content.Visible = true
+        self.main.Visible = true
+        TopBar.BackgroundTransparency = 1
+        MinBtn.Text = "-"
+    end
+end)
+
+    -- Menu lateral (Tabs)
+    self.menu = Instance.new("ScrollingFrame", self.main)
+    self.menu.Size = UDim2.new(0, 195, 1, -40)
+    self.menu.Position = UDim2.new(0, 0, 0, 40)
+    self.menu.BackgroundTransparency = 1
     self.menu.BorderSizePixel = 0
     self.menu.ScrollBarThickness = 8
     self.menu.ScrollingDirection = Enum.ScrollingDirection.Y
     self.menu.AutomaticCanvasSize = Enum.AutomaticSize.Y
     self.menu.CanvasSize = UDim2.new(0, 0, 0, 0)
-    customRoundify(self.menu, 12, true, false, true, false)
-
     local menuPadding = Instance.new("UIPadding", self.menu)
     menuPadding.PaddingTop = UDim.new(0, 10)
     menuPadding.PaddingLeft = UDim.new(0, 10)
@@ -125,26 +141,12 @@ function DudxJsGUI:New(title)
     menuLayout.VerticalAlignment = Enum.VerticalAlignment.Top
     menuLayout.Padding = UDim.new(0, 8)
     menuLayout.SortOrder = Enum.SortOrder.LayoutOrder
-
-    -- Área de conteúdo - filho direto do ScreenGui
-    self.content = Instance.new("Frame", self._gui)
-    self.content.Size = UDim2.new(0, 335, 0, 260)
-    self.content.Position = UDim2.new(0, TopBar.Position.X.Offset + 195, 0, TopBar.Position.Y.Offset + 40)
-    self.content.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    self.content.BackgroundTransparency = 0.05
+    -- Área de conteúdo
+    self.content = Instance.new("Frame", self.main)
+    self.content.Size = UDim2.new(1, -195, 1, -40)
+    self.content.Position = UDim2.new(0, 195, 0, 40)
+    self.content.BackgroundTransparency = 1
     self.content.BorderSizePixel = 0
-    customRoundify(self.content, 12, false, true, false, true)
-
-    -- Minimizar/Restaurar
-    local isMinimized = false
-    MinBtn.MouseButton1Click:Connect(function()
-        isMinimized = not isMinimized
-        self.menu.Visible = not isMinimized
-        self.content.Visible = not isMinimized
-        TopBar.BackgroundTransparency = isMinimized and 0.05 or 1
-        MinBtn.Text = isMinimized and "+" or "_"
-    end)
-
     -- Tabs
     self._tabOrder = 1
     self._tabs = {}
@@ -166,7 +168,7 @@ function DudxJsGUI:AddTab(tabName)
     button.TextSize = 18
     button.Name = tabName:gsub("%s+", "") .. "Btn"
     button.BorderSizePixel = 0
-    customRoundify(button, 8, true, false, true, false)
+    roundify(button)
     button.TextXAlignment = Enum.TextXAlignment.Left
     button.TextWrapped = false
     local padding = Instance.new("UIPadding", button)
@@ -505,11 +507,7 @@ function DudxJsGUI:AddTab(tabName)
     tab._order = tab._order + 1
     return label
 end
-    -- Adiciona tab à lista de tabs
-    tab._order = 1
-    tab.page = page
-    tab.scroll = contentScroll
-    tab.button = button
+    -- Adiciona tab na lista
     table.insert(self._tabs, tab)
     self._tabOrder = self._tabOrder + 1
     return tab
