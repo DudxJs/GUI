@@ -460,7 +460,7 @@ function DudxJsGUI:AddTab(tabName)
         return dropdownContainer
     end
     
-        function tab:AddLabel(text)Add commentMore actions
+    function tab:AddLabel(text)
         local label = Instance.new("TextLabel", contentScroll)
         label.Size = UDim2.new(1, -40, 0, 100)
         label.LayoutOrder = tab._order
