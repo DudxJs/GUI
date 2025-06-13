@@ -1,13 +1,4 @@
---[[ DudxJsGUI - Interface Roblox estilo OrionLib
-    - Criação fácil de Gui, Tabs, Botões, Switches e Inputs!
-    - Uso:
-        loadstring(game:HttpGet("URL_DO_SEU_GUI.lua"))()
-        local gui = _G.DudxJsGUI:New("Meu Título")
-        local aba = gui:AddTab("Exemplo")
-        aba:AddButton("Dizer Olá", function() print("Olá!") end)
-        aba:AddSwitch("Ativar Algo", function(on) print("Switch:", on) end)
-        aba:AddInput("Nome", "Digite seu nome", function(txt) print("Nome:", txt) end)
---]]
+-- DudxJsGUI - Interface Roblox estilo
 
 -- Dependências Roblox
 local Players = game:GetService("Players")
@@ -98,6 +89,24 @@ function DudxJsGUI:New(title)
     CloseBtn.Font = Enum.Font.SourceSansBold
     CloseBtn.TextSize = 18
     CloseBtn.MouseButton1Click:Connect(function() self._gui:Destroy() end)
+-- Minimize Button
+local MinBtn = Instance.new("TextButton", TopBar)
+MinBtn.Size = UDim2.new(0, 30, 0, 30)
+MinBtn.Position = UDim2.new(1, -70, 0.5, -15) -- ao lado do CloseBtn
+MinBtn.Text = "_"
+MinBtn.TextColor3 = Color3.new(1, 0, 0) -- vermelho também
+MinBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+MinBtn.BackgroundTransparency = 1
+MinBtn.Font = Enum.Font.SourceSansBold
+MinBtn.TextSize = 22
+
+local isMinimized = false
+MinBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    self.menu.Visible = not isMinimized
+    self.content.Visible = not isMinimized
+    -- Opcional: alterar o tamanho do main ou aparência
+end)
     -- Menu lateral (Tabs)
     self.menu = Instance.new("ScrollingFrame", self.main)
     self.menu.Size = UDim2.new(0, 195, 1, -40)
