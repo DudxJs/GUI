@@ -108,15 +108,13 @@ function DudxJsGUI:New(title)
         self.content.Visible = false
         MinBtn.Text = "+"
         -- self.main ocupa só o topo: toda largura, altura 40
-        self.main.Size = UDim2.new(1, 0, 0, 40)
-        self.main.Position = UDim2.new(0, 0, 0, 0)
+        self.main.Size = UDim2.new(0, 530, 0, 40)
     else
         self.menu.Visible = true
         self.content.Visible = true
         MinBtn.Text = "-"
         -- self.main volta ao tamanho original centralizado
         self.main.Size = UDim2.new(0, 530, 0, 300)
-        self.main.Position = UDim2.new(0.5, -265, 0.5, -150)
     end
 end)
 
