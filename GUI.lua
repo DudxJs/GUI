@@ -27,7 +27,7 @@ function DudxJsGUI:New(title)
     self._gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
     -- MainFrame
     self.main = Instance.new("Frame", self._gui)
-    self.main.Size = UDim2.new(0, 530, 0, 300)
+    self.main.Size = UDim2.new(0, 530, 0, 400)
     self.main.Position = UDim2.new(0.5, -265, 0.5, -150)
     self.main.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     self.main.BackgroundTransparency = 0.05
