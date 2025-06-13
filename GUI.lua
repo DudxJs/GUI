@@ -104,7 +104,7 @@ local isMinimized = false
 MinBtn.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
     if isMinimized then
-        -- Minimizar: esconder tudo menos o TopBar, e deixar TopBar visível/opaco
+        -- Minimizar: só TopBar visível, TopBar opaca
         for _, v in ipairs(self.main:GetChildren()) do
             if v ~= TopBar then
                 v.Visible = false
@@ -113,7 +113,7 @@ MinBtn.MouseButton1Click:Connect(function()
         TopBar.BackgroundTransparency = 0.05
         MinBtn.Text = "+"
     else
-        -- Restaurar: mostrar tudo, TopBar transparente
+        -- Restaurar tudo, TopBar transparente
         for _, v in ipairs(self.main:GetChildren()) do
             v.Visible = true
         end
