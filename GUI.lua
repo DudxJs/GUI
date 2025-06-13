@@ -27,7 +27,7 @@ function DudxJsGUI:New(title)
     self._gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
     -- MainFrame
     self.main = Instance.new("Frame", self._gui)
-    self.main.Size = UDim2.new(0, 530, 0, 400)
+    self.main.Size = UDim2.new(0, 530, 0, 300)
     self.main.Position = UDim2.new(0.5, -265, 0.5, -150)
     self.main.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
     self.main.BackgroundTransparency = 0.05
@@ -90,29 +90,33 @@ function DudxJsGUI:New(title)
     CloseBtn.TextSize = 18
     CloseBtn.MouseButton1Click:Connect(function() self._gui:Destroy() end)
     -- Minimize Button
-local MinBtn = Instance.new("TextButton", TopBar)
-MinBtn.Size = UDim2.new(0, 30, 0, 30)
-MinBtn.Position = UDim2.new(1, -70, 0.5, -15)
-MinBtn.Text = "-"
-MinBtn.TextColor3 = Color3.new(1, 0, 0)
-MinBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-MinBtn.BackgroundTransparency = 1
-MinBtn.Font = Enum.Font.SourceSansBold
-MinBtn.TextSize = 25
+    local MinBtn = Instance.new("TextButton", TopBar)
+    MinBtn.Size = UDim2.new(0, 30, 0, 30)
+    MinBtn.Position = UDim2.new(1, -70, 0.5, -15)
+    MinBtn.Text = "-"
+    MinBtn.TextColor3 = Color3.new(1, 0, 0)
+    MinBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    MinBtn.BackgroundTransparency = 1
+    MinBtn.Font = Enum.Font.SourceSansBold
+    MinBtn.TextSize = 25
 
-local isMinimized = false
-MinBtn.MouseButton1Click:Connect(function()
+    local isMinimized = false
+    MinBtn.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
     if isMinimized then
         self.menu.Visible = false
         self.content.Visible = false
         MinBtn.Text = "+"
-        self.main.Size = UDim2.new(0, 530, 0, 300)
+        -- self.main ocupa só o topo: toda largura, altura 40
+        self.main.Size = UDim2.new(1, 0, 0, 40)
+        self.main.Position = UDim2.new(0, 0, 0, 0)
     else
         self.menu.Visible = true
         self.content.Visible = true
         MinBtn.Text = "-"
-        self.main.Size = UDim2.new(1, 0, 0, 40)
+        -- self.main volta ao tamanho original centralizado
+        self.main.Size = UDim2.new(0, 530, 0, 300)
+        self.main.Position = UDim2.new(0.5, -265, 0.5, -150)
     end
 end)
 
