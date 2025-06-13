@@ -108,13 +108,13 @@ MinBtn.MouseButton1Click:Connect(function()
         self.menu.Visible = false
         self.content.Visible = false
         -- TopBar visível, mas levemente opaca
-        TopBar.BackgroundTransparency = 0.05
+        self.main.Size = UDIm2.new(1, 0, 0, 40)
         MinBtn.Text = "+"
     else
         -- Restaurar: mostrar tudo, TopBar transparente
         self.menu.Visible = true
         self.content.Visible = true
-        TopBar.BackgroundTransparency = 1
+        self.main.Size = UDIm2.new(0,530, 0, 300)
         MinBtn.Text = "-"
     end
 end)
