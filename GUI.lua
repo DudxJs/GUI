@@ -92,9 +92,9 @@ function DudxJsGUI:New(title)
 -- Minimize Button
 local MinBtn = Instance.new("TextButton", TopBar)
 MinBtn.Size = UDim2.new(0, 30, 0, 30)
-MinBtn.Position = UDim2.new(1, -70, 0.5, -15) -- ao lado do CloseBtn
+MinBtn.Position = UDim2.new(1, -70, 0.5, -15)
 MinBtn.Text = "_"
-MinBtn.TextColor3 = Color3.new(1, 0, 0) -- vermelho também
+MinBtn.TextColor3 = Color3.new(1, 0, 0)
 MinBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 MinBtn.BackgroundTransparency = 1
 MinBtn.Font = Enum.Font.SourceSansBold
@@ -103,9 +103,20 @@ MinBtn.TextSize = 22
 local isMinimized = false
 MinBtn.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
-    self.menu.Visible = not isMinimized
-    self.content.Visible = not isMinimized
-    -- Opcional: alterar o tamanho do main ou aparência
+    if isMinimized then
+        -- Minimizar: esconder MainFrame, deixar TopBar visível/transparência 0.05
+        self.menu.Visible = false
+        self.content.Visible = false
+        -- TopBar visível, mas levemente opaca
+        TopBar.BackgroundTransparency = 0.05
+        MinBtn.Text = "+"
+    else
+        -- Restaurar: mostrar tudo, TopBar transparente
+        self.menu.Visible = true
+        self.content.Visible = true
+        TopBar.BackgroundTransparency = 1
+        MinBtn.Text = "-"
+    end
 end)
     -- Menu lateral (Tabs)
     self.menu = Instance.new("ScrollingFrame", self.main)
