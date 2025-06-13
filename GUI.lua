@@ -1,4 +1,4 @@
--- DudxJsGUI - Interface Roblox estilo
+-- DudxJsGUI - Interface Roblox
 
 -- Dependências Roblox
 local Players = game:GetService("Players")
@@ -89,38 +89,6 @@ function DudxJsGUI:New(title)
     CloseBtn.Font = Enum.Font.SourceSansBold
     CloseBtn.TextSize = 18
     CloseBtn.MouseButton1Click:Connect(function() self._gui:Destroy() end)
--- Minimize Button
-local MinBtn = Instance.new("TextButton", TopBar)
-MinBtn.Size = UDim2.new(0, 30, 0, 30)
-MinBtn.Position = UDim2.new(1, -70, 0.5, -15)
-MinBtn.Text = "-"
-MinBtn.TextColor3 = Color3.new(1, 0, 0)
-MinBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-MinBtn.BackgroundTransparency = 1
-MinBtn.Font = Enum.Font.SourceSansBold
-MinBtn.TextSize = 25
-
-local isMinimized = false
-MinBtn.MouseButton1Click:Connect(function()
-    isMinimized = not isMinimized
-    if isMinimized then
-        -- Minimizar: só TopBar visível, TopBar opaca
-        for _, v in ipairs(self.main:GetChildren()) do
-            if v ~= TopBar then
-                v.Visible = false
-            end
-        end
-        TopBar.BackgroundTransparency = 0.05
-        MinBtn.Text = "+"
-    else
-        -- Restaurar tudo, TopBar transparente
-        for _, v in ipairs(self.main:GetChildren()) do
-            v.Visible = true
-        end
-        TopBar.BackgroundTransparency = 1
-        MinBtn.Text = "-"
-    end
-end)
     -- Menu lateral (Tabs)
     self.menu = Instance.new("ScrollingFrame", self.main)
     self.menu.Size = UDim2.new(0, 195, 1, -40)
@@ -152,6 +120,41 @@ end)
     self._tabs = {}
     return self
 end
+
+-- Minimize Button
+local MinBtn = Instance.new("TextButton", TopBar)
+MinBtn.Size = UDim2.new(0, 30, 0, 30)
+MinBtn.Position = UDim2.new(1, -70, 0.5, -15)
+MinBtn.Text = "-"
+MinBtn.TextColor3 = Color3.new(1, 0, 0)
+MinBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+MinBtn.BackgroundTransparency = 1
+MinBtn.Font = Enum.Font.SourceSansBold
+MinBtn.TextSize = 25
+
+local isMinimized = false
+MinBtn.MouseButton1Click:Connect(function()
+    isMinimized = not isMinimized
+    if isMinimized then
+        -- Minimizar: só TopBar visível, TopBar opaca
+        for _, v in ipairs(self.main:GetChildren()) do
+            if v ~= TopBar then
+                v.Visible = false
+            end
+        end
+        TopBar.BackgroundTransparency = 0.05
+        MinBtn.Text = "+"
+    else
+        -- Restaurar tudo, TopBar transparente
+        for _, v in ipairs(self.main:GetChildren()) do
+            v.Visible = true
+        end
+        TopBar.BackgroundTransparency = 1
+        MinBtn.Text = "-"
+    end
+    TopBar.Visible = true -- Garante que nunca some!
+end)
+
 
 -- Cria uma Tab com página e rolagem
 function DudxJsGUI:AddTab(tabName)
