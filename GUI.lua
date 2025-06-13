@@ -39,10 +39,11 @@ function DudxJsGUI:New(title)
     pad.PaddingLeft = UDim.new(0, 3)
     pad.PaddingRight = UDim.new(0, 3)
     -- TopBar
-    local TopBar = Instance.new("Frame", self.main)
+    local TopBar = Instance.new("Frame", self._gui)
     TopBar.Size = UDim2.new(1, 0, 0, 40)
     TopBar.BackgroundTransparency = 1
     TopBar.BorderSizePixel = 0
+    TopBar.Visible = false
     TopBar.Active = true
     TopBar.Selectable = true
     -- Drag
@@ -104,18 +105,13 @@ local isMinimized = false
 MinBtn.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
     if isMinimized then
-        -- Minimizar: esconder MainFrame, deixar TopBar visível/transparência 0.05
-        self.menu.Visible = false
-        self.content.Visible = false
         self.main.Visible = false
-        -- TopBar visível, mas levemente opaca
+        TopBar.Visible = true
         TopBar.BackgroundTransparency = 0.05
         MinBtn.Text = "+"
     else
-        -- Restaurar: mostrar tudo, TopBar transparente
-        self.menu.Visible = true
-        self.content.Visible = true
         self.main.Visible = true
+        TopBar.Visible = false
         TopBar.BackgroundTransparency = 1
         MinBtn.Text = "-"
     end
