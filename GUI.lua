@@ -107,7 +107,6 @@ MinBtn.MouseButton1Click:Connect(function()
         -- Minimizar: esconder MainFrame, deixar TopBar visível/transparência 0.05
         self.menu.Visible = false
         self.content.Visible = false
-        self.main.Visible = false
         -- TopBar visível, mas levemente opaca
         TopBar.BackgroundTransparency = 0.05
         MinBtn.Text = "+"
@@ -115,7 +114,6 @@ MinBtn.MouseButton1Click:Connect(function()
         -- Restaurar: mostrar tudo, TopBar transparente
         self.menu.Visible = true
         self.content.Visible = true
-        self.main.Visible = true
         TopBar.BackgroundTransparency = 1
         MinBtn.Text = "-"
     end
