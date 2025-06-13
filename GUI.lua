@@ -93,27 +93,30 @@ function DudxJsGUI:New(title)
 local MinBtn = Instance.new("TextButton", TopBar)
 MinBtn.Size = UDim2.new(0, 30, 0, 30)
 MinBtn.Position = UDim2.new(1, -70, 0.5, -15)
-MinBtn.Text = "_"
+MinBtn.Text = "-"
 MinBtn.TextColor3 = Color3.new(1, 0, 0)
 MinBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
 MinBtn.BackgroundTransparency = 1
 MinBtn.Font = Enum.Font.SourceSansBold
-MinBtn.TextSize = 22
+MinBtn.TextSize = 25
 
 local isMinimized = false
 MinBtn.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
     if isMinimized then
-        -- Minimizar: esconder MainFrame, deixar TopBar visível/transparência 0.05
-        self.menu.Visible = false
-        self.content.Visible = false
-        -- TopBar visível, mas levemente opaca
+        -- Minimizar: esconder tudo menos o TopBar, e deixar TopBar visível/opaco
+        for _, v in ipairs(self.main:GetChildren()) do
+            if v ~= TopBar then
+                v.Visible = false
+            end
+        end
         TopBar.BackgroundTransparency = 0.05
         MinBtn.Text = "+"
     else
         -- Restaurar: mostrar tudo, TopBar transparente
-        self.menu.Visible = true
-        self.content.Visible = true
+        for _, v in ipairs(self.main:GetChildren()) do
+            v.Visible = true
+        end
         TopBar.BackgroundTransparency = 1
         MinBtn.Text = "-"
     end
