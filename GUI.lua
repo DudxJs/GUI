@@ -103,17 +103,17 @@ MinBtn.TextSize = 25
 local isMinimized = false
 MinBtn.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
+    print("Antes:", MinBtn.Text)
     if isMinimized then
-        -- Minimizar: esconder MainFrame, deixar TopBar visível/transparência 0.05
         self.menu.Visible = false
         self.content.Visible = false
         MinBtn.Text = "+"
     else
-        -- Restaurar: mostrar tudo, TopBar transparente
         self.menu.Visible = true
         self.content.Visible = true
         MinBtn.Text = "-"
     end
+    print("Depois:", MinBtn.Text)
 end)
 
     -- Menu lateral (Tabs)
