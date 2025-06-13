@@ -4,6 +4,7 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
 
 -- CLASSE PRINCIPAL
 local DudxJsGUI = {}
@@ -100,22 +101,30 @@ function DudxJsGUI:New(title)
     MinBtn.Font = Enum.Font.SourceSansBold
     MinBtn.TextSize = 25
 
-    local isMinimized = false
-    MinBtn.MouseButton1Click:Connect(function()
+local isMinimized = false
+local debounce = false
+
+MinBtn.MouseButton1Click:Connect(function()
+    if debounce then return end
+    debounce = true
     isMinimized = not isMinimized
+
+    -- Animação de tamanho
+    local newSize = isMinimized and UDim2.new(0, 530, 0, 40) or UDim2.new(0, 530, 0, 300)
+    TweenService:Create(self.main, TweenInfo.new(0.2), {Size = newSize}):Play()
+
     if isMinimized then
         self.menu.Visible = false
         self.content.Visible = false
         MinBtn.Text = "+"
-        -- self.main ocupa só o topo: toda largura, altura 40
-        self.main.Size = UDim2.new(0, 530, 0, 40)
     else
         self.menu.Visible = true
         self.content.Visible = true
         MinBtn.Text = "-"
-        -- self.main volta ao tamanho original centralizado
-        self.main.Size = UDim2.new(0, 530, 0, 300)
     end
+
+    wait(0.25)
+    debounce = false
 end)
 
     -- Menu lateral (Tabs)
