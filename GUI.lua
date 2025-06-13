@@ -103,17 +103,17 @@ MinBtn.TextSize = 25
 local isMinimized = false
 MinBtn.MouseButton1Click:Connect(function()
     isMinimized = not isMinimized
-    print("Antes:", MinBtn.Text)
     if isMinimized then
         self.menu.Visible = false
         self.content.Visible = false
         MinBtn.Text = "+"
+        self.main.Size = UDim2.new(0, 530, 0, 300)
     else
         self.menu.Visible = true
         self.content.Visible = true
         MinBtn.Text = "-"
+        self.main.Size = UDim2.new(1, 0, 0, 40)
     end
-    print("Depois:", MinBtn.Text)
 end)
 
     -- Menu lateral (Tabs)
