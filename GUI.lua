@@ -39,7 +39,7 @@ function DudxJsGUI:New(title)
     pad.PaddingLeft = UDim.new(0, 3)
     pad.PaddingRight = UDim.new(0, 3)
     -- TopBar
-    local TopBar = Instance.new("Frame", self._gui)
+    local TopBar = Instance.new("Frame", self.main)
     TopBar.Size = UDim2.new(1, 0, 0, 40)
     TopBar.BackgroundTransparency = 1
     TopBar.BorderSizePixel = 0
