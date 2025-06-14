@@ -338,6 +338,15 @@ end)
 --  ⬇️Avatar Buttons⬇️
 -- =====================
 
+Avatar:AddLabel("Normal Name")
+Avatar:AddInput("RP Name", "", function(value)
+ args = {
+[1] = "RolePlayName", [2] = value
+
+}
+game:GetService("ReplicatedStorage").RE:FindFirstChild("1RPNam1eTex1t"):FireServer(unpack(args))
+    end)
+
 local trocandoCores = false
 
 Avatar:AddButton("Rainbow Name", function()
@@ -682,7 +691,7 @@ Duration = duration or 3
 })
 end
 
-Avatar:NewTextBox("Speed", "", function(text)
+Avatar:AddInput("Speed", "", function(text)
 local value = tonumber(text)
 local humanoid = getHumanoid()
 if humanoid and value then
