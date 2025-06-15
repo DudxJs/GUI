@@ -13,6 +13,7 @@ local Fun = gui:AddTab("Fun")
 local Itens = gui:AddTab("Build")
 local Others = gui:AddTab("Others")
 local Teleportes = gui:AddTab("Teleportes")
+local Misc = gui:AddTab("Misc")
 
 -- ====================
 --  ⬇️House Buttons⬇️
@@ -2542,7 +2543,9 @@ wait(0.7)
 character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
 end)
 
-
+-- =========================
+--  ⬇️Teleportes Buttons⬇️
+-- =========================
 
 Teleportes:AddLabel("Teleports")
 
@@ -2623,3 +2626,496 @@ for _, info in ipairs(teleportes) do
         end)
     end)
 end    
+
+-- ===================
+--  ⬇️Misc Buttons⬇️
+-- ===================
+
+Misc:AddLabel("Misc")
+
+Misc:AddButton("Ant Lag All", function()
+    local itemsToRemove = { "Laptop", "Bomb", "Phone", "FireEx", "FireHose", "Basketball" }
+    local removeLookup = {}
+    
+    -- Adiciona os itens que devem ser removidos no dicionário
+    for _, name in ipairs(itemsToRemove) do
+        removeLookup[name] = true
+    end
+
+    local ClearDelay = 0.5 -- Delay entre cada varredura (ajustável)
+
+    -- Função para destruir os itens do personagem
+    local function destroyItemsInCharacter(character)
+        if not character then return end
+        for _, item in ipairs(character:GetChildren()) do
+            if removeLookup[item.Name] then
+                pcall(function()
+                    item:Destroy()
+                end)
+            end
+        end
+    end
+
+    -- Função para processar os jogadores
+    local function processPlayers()
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            pcall(function()
+                if player.Character then
+                    destroyItemsInCharacter(player.Character)
+                end
+            end)
+        end
+    end
+
+    -- Spawn a task para rodar a função continuamente
+    task.spawn(function()
+        while task.wait(ClearDelay) do
+            processPlayers()
+        end
+    end)
+end)
+
+Misc:AddLabel("Audio All FE")
+
+-- Inicialização das variáveis
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+if not _G.audio_all_delay then
+    _G.audio_all_delay = 1
+end
+
+local function Audio_All_ClientSide(ID)
+    local function CheckFolderAudioAll()
+        local FolderAudio = workspace:FindFirstChild("Audio all client")
+        if not FolderAudio then
+            FolderAudio = Instance.new("Folder")
+            FolderAudio.Name = "Audio all client"
+            FolderAudio.Parent = workspace
+        end
+        return FolderAudio
+    end
+
+    local function CreateSound(ID)
+        if type(ID) ~= "number" then
+            print("Insira um número válido!")
+            return nil
+        end
+
+        local Folder_Audio = CheckFolderAudioAll()
+        if Folder_Audio then
+            local Sound = Instance.new("Sound")
+            Sound.SoundId = "rbxassetid://" .. ID
+            Sound.Volume = 1
+            Sound.Looped = false
+            Sound.Parent = Folder_Audio
+            Sound:Play()
+            task.wait(1) -- Tempo de espera antes de remover o som
+            Sound:Destroy()
+        end
+    end
+
+    CreateSound(ID)
+end
+
+local function Audio_All_ServerSide(ID)
+    if type(ID) ~= "number" then
+        print("Insira um número válido!")
+        return nil
+    end
+
+    local GunSoundEvent = ReplicatedStorage:FindFirstChild("1Gu1nSound1s", true)
+    if GunSoundEvent then
+        GunSoundEvent:FireServer(workspace, ID, 1)
+    end
+end
+
+-- Lista de sons irritantes
+local soundList = {
+    {Name = "Xingamento", ID = 8232773326},
+    {Name = "Baldi Basic's Glitch", ID = 98207961689599},
+    {Name = "Sucumba", ID = 7946300950},
+    {Name = "Seek Jumpscare", ID = 133358860191747},    
+    {Name = "DogDay Jumpscare", ID = 132162728926958}, 
+    {Name = "Springtrap Jumpscare", ID = 17609408193},
+    {Name = "Foxy Jumpscare", ID = 6949978667},    
+    {Name = "Laugh", ID = 140395748019933},  
+    {Name = "Skull's Laugh", ID = 100609956908791},    
+    {Name = "Laugh Boss", ID = 6963880809},    
+    {Name = "C00lkid No Fear!", ID = 126083075694948},    
+    {Name = "C00lkid Hahaha", ID = 102348131944238},    
+    {Name = "SirenHead", ID = 5681392074},    
+    {Name = "Tubers93", ID = 103215672097028},    
+    {Name = "Audio Glitcher Sound", ID = 7236490488},    
+    {Name = "Oof Sound", ID = 6598984092},    
+    {Name = "Buuuh Sound", ID = 83788010495185},    
+    {Name = "My Heart Is Pure Evil Sound", ID = 106843479364998},    
+    {Name = "Laugh Sound", ID = 123106903091799},    
+}
+
+-- Variáveis de controle
+local options = {}
+local audio_all_dropdown_value = nil
+
+for _, sound in ipairs(soundList) do
+    table.insert(options, sound.Name)
+end
+
+-- Função para tocar áudio
+local function playAudio(audioId)
+    if not audioId then
+        warn("[Áudio ALL] Nenhum ID de áudio selecionado.")
+        return
+    end
+    Audio_All_ServerSide(audioId)
+    task.spawn(function()
+        Audio_All_ClientSide(audioId)
+    end)
+end
+
+-- Atualização de Dropdown
+Misc:AddDropdown("Áudio ALL - Dropdown", options, function(selectedName)
+    for _, sound in ipairs(soundList) do
+        if sound.Name == selectedName then
+            audio_all_dropdown_value = sound.ID
+            break
+        end
+    end
+    if not audio_all_dropdown_value then
+        warn("[Áudio ALL] Nome selecionado inválido: " .. tostring(selectedName))
+    end
+end)
+
+-- Novo botão para áudio
+Misc:AddButton("AUDIO ALL - Press", function()
+    if audio_all_dropdown_value then
+        playAudio(audio_all_dropdown_value)
+    else
+        warn("[Áudio ALL] Nenhum áudio selecionado para tocar.")
+    end
+end)
+
+-- Novo Toggle para loop de áudio rápido
+Misc:AddSwitch("AUDIO ALL - Loop (Fast)", function(state)
+    getgenv().Audio_All_loop = state
+
+    if state then
+        warn("[Áudio ALL] Loop turbo iniciado. Se prepare pra rave 🔊")
+        task.spawn(function()
+            while getgenv().Audio_All_loop do
+                if audio_all_dropdown_value then
+                    for i = 1, 1 do -- 30 sons por ciclo
+                        task.spawn(function()
+                            playAudio(audio_all_dropdown_value)
+                        end)
+                    end
+                else
+                    warn("[Áudio ALL] Nenhum áudio válido no loop.")
+                end
+
+                task.wait(0.1) -- Intervalo entre ciclos
+            end
+            warn("[Áudio ALL] Loop turbo encerrado. Ouvidos agradecem.")
+        end)
+    else
+        warn("[Áudio ALL] Loop desligado.")
+    end
+end)
+
+-- ID do áudio que será spammado
+local audioID = 7236490488
+
+-- Intervalo entre cada lote de spam (0.1 segundos)
+local spamInterval = 0.03
+-- Quantidade de sons por lote
+local soundsPerCycle = 20
+
+-- Referência para o loop de spam
+local spamLoop = nil
+
+-- Criação do toggle no menu Misc
+Misc:AddSwitch("Áudio Spam Fast Glitcher", function(state)
+    -- Define flag global
+    getgenv().Audio_All_loop_fast = state
+
+    if state then
+        -- Inicia o loop paralelo principal
+        spamLoop = task.spawn(function()
+            while getgenv().Audio_All_loop_fast do
+                for i = 1, soundsPerCycle do
+                    task.spawn(function()
+                        -- Dispara no servidor
+                        Audio_All_ServerSide(audioID)
+
+                        -- E no cliente em paralelo
+                        task.spawn(function()
+                            Audio_All_ClientSide(audioID)
+                        end)
+                    end)
+                end
+
+                task.wait(spamInterval)
+            end
+        end)
+    else
+        -- Finaliza o loop
+        getgenv().Audio_All_loop_fast = false
+        spamLoop = nil
+    end
+end)
+Misc:AddLabel("Section Boombox FE")
+
+Misc:AddButton("Boombox 100% FE", function()
+    local player = game.Players.LocalPlayer
+    local playerGui = player:FindFirstChild("PlayerGui")
+    if not playerGui then return end
+
+    local boombox
+    local sg
+    local lastID = 142376088
+
+    local function createBoombox()
+        boombox = Instance.new("Tool")
+        boombox.Name = "Boombox"
+        boombox.RequiresHandle = true
+        boombox.Parent = player.Backpack
+
+        local handle = Instance.new("Part")
+        handle.Name = "Handle"
+        handle.Size = Vector3.new(1, 1, 1)
+        handle.CanCollide = false
+        handle.Anchored = false
+        handle.Transparency = 1
+        handle.Parent = boombox
+
+        boombox.Equipped:Connect(function()
+            if sg then return end
+
+            sg = Instance.new("ScreenGui")
+            sg.Name = "ChooseSongGui"
+            sg.Parent = playerGui  
+
+            local frame = Instance.new("Frame")
+            frame.Style = "RobloxRound"
+            frame.Size = UDim2.new(0.25, 0, 0.25, 0)
+            frame.Position = UDim2.new(0.375, 0, 0.375, 0)
+            frame.Draggable = true
+            frame.Active = true
+            frame.Parent = sg
+
+            local text = Instance.new("TextLabel")
+            text.BackgroundTransparency = 1
+            text.TextStrokeTransparency = 0
+            text.TextColor3 = Color3.new(1, 1, 1)
+            text.Size = UDim2.new(1, 0, 0.6, 0)
+            text.TextScaled = true
+            text.Text = "Lay down the beat! Put in the ID number for a song you love that's been uploaded to ROBLOX. Leave it blank to stop playing music."
+            text.Parent = frame
+
+            local input = Instance.new("TextBox")
+            input.BackgroundColor3 = Color3.new(0, 0, 0)
+            input.BackgroundTransparency = 0.5
+            input.BorderColor3 = Color3.new(1, 1, 1)
+            input.TextColor3 = Color3.new(1, 1, 1)
+            input.TextStrokeTransparency = 1
+            input.TextScaled = true
+            input.Text = tostring(lastID)
+            input.Size = UDim2.new(1, 0, 0.2, 0)
+            input.Position = UDim2.new(0, 0, 0.6, 0)
+            input.Parent = frame
+
+            local button = Instance.new("TextButton")
+            button.Style = "RobloxButton"
+            button.Size = UDim2.new(0.75, 0, 0.2, 0)
+            button.Position = UDim2.new(0.125, 0, 0.8, 0)
+            button.TextColor3 = Color3.new(1, 1, 1)
+            button.TextStrokeTransparency = 0
+            button.Text = "Play!"
+            button.TextScaled = true
+            button.Parent = frame
+
+             args = {
+                [1] = 18756289999
+            }
+            game:GetService("ReplicatedStorage").Remotes.Wear:InvokeServer(unpack(args))
+
+            local function playAudioAll(ID)
+                if type(ID) ~= "number" then
+                    print("Please insert a valid number!")
+                    return
+                end
+                local rs = game:GetService("ReplicatedStorage")
+                local evt = rs:FindFirstChild("1Gu1nSound1s", true)
+                if evt then
+                    evt:FireServer(workspace, ID, 1)
+                end
+            end
+
+            local function playAudioLocal(ID)
+                local sound = Instance.new("Sound")
+                sound.SoundId = "rbxassetid://" .. ID
+                sound.Volume = 1
+                sound.Looped = false
+                sound.Parent = player.Character or workspace
+                sound:Play()
+                task.wait(3)
+                sound:Destroy()
+            end
+
+            button.MouseButton1Click:Connect(function()
+                local soundID = tonumber(input.Text)
+                if soundID then
+                    lastID = soundID
+                    playAudioAll(soundID)
+                    playAudioLocal(soundID)
+                    if sg then
+                        sg:Destroy()
+                        sg = nil
+                    end
+                else
+                    print("Invalid ID!")
+                end
+            end)
+        end)
+
+        boombox.Unequipped:Connect(function()
+            if sg then
+                sg:Destroy()
+                sg = nil
+            end
+             args = {
+                [1] = 18756289999
+            }
+            game:GetService("ReplicatedStorage").Remotes.Wear:InvokeServer(unpack(args))
+        end)
+
+        boombox.AncestryChanged:Connect(function(_, parent)
+            if not parent and sg then
+                sg:Destroy()
+                sg = nil
+            end
+        end)
+    end
+
+    createBoombox()
+end)
+
+local StarterGui = game:GetService("StarterGui")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+
+-- Função para notificação padrão Roblox
+local function notify(title, text, duration)
+    StarterGui:SetCore("SendNotification", {
+        Title = title,
+        Text = text,
+        Duration = duration or 3
+    })
+end
+
+-- Função para obter o Humanoid
+local function getHumanoid()
+    character = player.Character or player.CharacterAdded:Wait()
+    return character:FindFirstChildOfClass("Humanoid")
+end
+
+-- Serviços
+local Players = game:GetService("Players")
+local Workspace = game:GetService("Workspace")
+local StarterGui = game:GetService("StarterGui")
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+
+-- Player local
+local player = Players.LocalPlayer
+
+-- Notificação padrão
+local function notify(title, text, duration)
+    StarterGui:SetCore("SendNotification", {
+        Title = title,
+        Text = text,
+        Duration = duration or 3
+    })
+end
+
+-- INFINITE JUMP
+local InfiniteJumpAtivado = false
+
+local function toggleInfiniteJump(ativo)
+    InfiniteJumpAtivado = ativo
+    notify("Infinite Jump", ativo and "Ativado" or "Desativado")
+end
+
+UserInputService.JumpRequest:Connect(function()
+    if InfiniteJumpAtivado then
+        local humanoid = player.Character and player.Character:FindFirstChildWhichIsA("Humanoid")
+        if humanoid then
+            humanoid:ChangeState(Enum.HumanoidStateType.Jumping)
+        end
+    end
+end)
+
+Misc:AddSwitch("Infinite Jump", function(state)
+    toggleInfiniteJump(state)
+end)
+
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer
+
+local NoclipPlayer = false
+local NoclipBalls = false
+local NoclipConnection
+
+-- Função auxiliar: desativa colisão de todas as parts
+local function DisableCollision(model)
+	if model then
+		for _, part in ipairs(model:GetDescendants()) do
+			if part:IsA("BasePart") then
+				part.CanCollide = false
+			end
+		end
+	end
+end
+
+-- Função do loop
+local function startNoclipLoop()
+	if NoclipConnection then return end
+
+	NoclipConnection = RunService.Stepped:Connect(function()
+		if NoclipPlayer then
+			local char = player.Character or player.CharacterAdded:Wait()
+			DisableCollision(char)
+		end
+
+		if NoclipBalls then
+			local container = workspace:FindFirstChild("WorkspaceCom")
+			if container then
+				local folder = container:FindFirstChild("001_SoccerBalls")
+				DisableCollision(folder)
+			end
+		end
+
+		if not NoclipPlayer and not NoclipBalls then
+			NoclipConnection:Disconnect()
+			NoclipConnection = nil
+		end
+	end)
+end
+
+-- Toggle: Noclip Player
+Misc:AddSwitch("Noclip Player", function(state)
+	NoclipPlayer = state
+	notify("Noclip Player", state and "Ativado" or "Desativado")
+	startNoclipLoop()
+end)
+
+-- Toggle: Noclip Balls
+Misc:AddSwitch("Noclip Balls", function(state)
+	NoclipBalls = state
+	notify("Noclip Balls", state and "Ativado" or "Desativado")
+	startNoclipLoop()
+end)
