@@ -6286,4 +6286,389 @@ Map:AddButton("Fling Ball All", function()
         warn("O Fling Ball já está ativo.")
     end
 end)
-    
+
+-- =====================
+--  ⬇️Visual Buttons⬇️
+-- =====================
+
+Visual:AddLabel("Esp")
+
+--// Variáveis de Controle
+local ESPEnabled = false
+local RainbowEnabled = false
+local CurrentColor = Color3.fromRGB(255, 255, 255)
+
+--// Função: Ativar efeito Rainbow
+local function enableRainbow()
+    RainbowEnabled = true
+    task.spawn(function()
+        while RainbowEnabled do
+            local time = tick() * 5
+            CurrentColor = Color3.fromHSV((time % 360) / 360, 1, 1)
+            task.wait(0.1)
+        end
+    end)
+end
+
+--// Função: Definir cor estática
+local function setESPColor(color)
+    RainbowEnabled = false
+    CurrentColor = color
+end
+
+--// Função: Criar ESP para um jogador
+local function createESP(player)
+    if not player.Character or not player.Character:FindFirstChild("HumanoidRootPart") then return end
+    local char = player.Character
+
+    -- Evitar duplicatas
+    if char:FindFirstChild("ESP_Highlight") or char:FindFirstChild("ESP_Info") then return end
+
+    -- Highlight
+    local highlight = Instance.new("Highlight")
+    highlight.Name = "ESP_Highlight"
+    highlight.Adornee = char
+    highlight.FillColor = CurrentColor
+    highlight.FillTransparency = 0.5
+    highlight.OutlineColor = Color3.new(0, 0, 0)
+    highlight.OutlineTransparency = 0
+    highlight.Parent = char
+
+    -- Billboard GUI
+    local bill = Instance.new("BillboardGui")
+    bill.Name = "ESP_Info"
+    bill.Adornee = char:FindFirstChild("HumanoidRootPart")
+    bill.Size = UDim2.new(0, 150, 0, 50)
+    bill.StudsOffset = Vector3.new(0, 3, 0)
+    bill.AlwaysOnTop = true
+    bill.Parent = char
+
+    -- Função interna para criar labels
+    local function makeLabel(text, posY)
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1, 0, 0.2, 0)
+        label.Position = UDim2.new(0, 0, posY, 0)
+        label.BackgroundTransparency = 1
+        label.Text = text
+        label.TextColor3 = CurrentColor
+        label.TextStrokeTransparency = 0.2
+        label.TextStrokeColor3 = Color3.new(0, 0, 0)
+        label.TextScaled = true
+        label.Font = Enum.Font.BuilderSans
+        label.Parent = bill
+        return label
+    end
+
+    -- Labels
+    local nameLabel = makeLabel(player.Name, 0)
+    local distLabel = makeLabel("Distância: ...", 0.2)
+    local ageLabel = makeLabel("Conta: " .. player.AccountAge .. " dias", 0.4)
+    local hpLabel = makeLabel("Vida: ...", 0.6)
+    local sitLabel = makeLabel("Sentado: Não", 0.8)
+
+    -- Atualização em tempo real
+    task.spawn(function()
+        while ESPEnabled and player.Character and player.Character:FindFirstChild("HumanoidRootPart") do
+            local root = player.Character:FindFirstChild("HumanoidRootPart")
+            local hum = player.Character:FindFirstChildOfClass("Humanoid")
+            if not root or not hum then break end
+
+            local localRoot = game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChild("HumanoidRootPart")
+            distLabel.Text = localRoot and string.format("Distância: %.1f", (root.Position - localRoot.Position).Magnitude) or "Distância: N/A"
+            hpLabel.Text = "Vida: " .. math.floor(hum.Health)
+            sitLabel.Text = "Sentado: " .. (hum.Sit and "Sim" or "Não")
+
+            for _, lbl in pairs({nameLabel, distLabel, ageLabel, hpLabel, sitLabel}) do
+                lbl.TextColor3 = CurrentColor
+            end
+            highlight.FillColor = CurrentColor
+
+            task.wait(0.1)
+        end
+    end)
+end
+
+--// Função: Ativar/Desativar ESP
+local function toggleESP(enabled)
+    ESPEnabled = enabled
+
+    if enabled then
+        -- Adiciona ESP para todos os jogadores existentes
+        for _, plr in ipairs(game.Players:GetPlayers()) do
+            if plr ~= game.Players.LocalPlayer then
+                createESP(plr)
+            end
+        end
+
+        -- Evita múltiplas conexões
+        if not _G.ESPConnection then
+            _G.ESPConnection = game.Players.PlayerAdded:Connect(function(p)
+                p.CharacterAdded:Connect(function()
+                    if ESPEnabled then
+                        createESP(p)
+                    end
+                end)
+            end)
+        end
+    else
+        -- Remove ESP de todos os jogadores
+        for _, plr in ipairs(game.Players:GetPlayers()) do
+            if plr.Character then
+                local h = plr.Character:FindFirstChild("ESP_Highlight")
+                local g = plr.Character:FindFirstChild("ESP_Info")
+                if h then h:Destroy() end
+                if g then g:Destroy() end
+            end
+        end
+
+        -- Desconecta listener
+        if _G.ESPConnection then
+            _G.ESPConnection:Disconnect()
+            _G.ESPConnection = nil
+        end
+
+        RainbowEnabled = false
+    end
+end
+
+--// UI: Toggle de ESP
+Visual:AddSwitch("ESP", function(state)
+    toggleESP(state)
+    print("ESP " .. (state and "Ativado" or "Desativado"))
+end)
+
+--// UI: Dropdown de Cores
+Visual:AddDropdown("Cores do ESP", {
+    "Azul", "Vermelho", "Verde", "Amarelo", "Roxo", "Cinza", "Preto", "Branco", "Laranja", "Rosa", "Marrom", "Rainbow"
+}, function(opt)
+    local cores = {
+        Azul = Color3.fromRGB(0, 0, 255),
+        Vermelho = Color3.fromRGB(255, 0, 0),
+        Verde = Color3.fromRGB(0, 255, 0),
+        Amarelo = Color3.fromRGB(255, 255, 0),
+        Roxo = Color3.fromRGB(128, 0, 128),
+        Cinza = Color3.fromRGB(128, 128, 128),
+        Preto = Color3.fromRGB(0, 0, 0),
+        Branco = Color3.fromRGB(255, 255, 255),
+        Laranja = Color3.fromRGB(255, 165, 0),
+        Rosa = Color3.fromRGB(255, 192, 203),
+        Marrom = Color3.fromRGB(139, 69, 19)
+    }
+
+    if opt == "Rainbow" then
+        enableRainbow()
+    else
+        setESPColor(cores[opt])
+    end
+end)
+
+-- ======================
+--  ⬇️Scripts Buttons⬇️
+-- ======================
+
+Scripts:AddLabel("Scripts")
+
+Scripts:AddButton("Ant - Lag", function()
+ loadstring(game:HttpGet('https://pastebin.com/raw/ureZEHue'))()
+end)
+
+Scripts:AddButton("CrossArms - By Shelby", function()
+ loadstring(game:HttpGet('https://gist.githubusercontent.com/GistsPrivate/b78b6e74c22d3c66c54c56bd7294b59b/raw/071953c0b86e1bddcb08731bd300be739b9217c7/CrossArmsByShelby'))()
+end)
+
+Scripts:AddButton("Diminuir AnimspedIdle - By Shelby", function()
+ loadstring(game:HttpGet('https://gist.githubusercontent.com/GistsPrivate/9b57473131f0dfe0ee6bdd6972413da0/raw/238074000ab8e84ba5a9621b521445f1f4cddc50/AnimspeedIdle'))()
+end)
+
+Scripts:AddButton("Infinite - Yield By Shelby", function()
+ loadstring(game:HttpGet('https://pastebin.com/raw/JwTgMF22'))()
+end)
+
+Scripts:AddButton("FreeCam - By Shelby", function()
+ loadstring(game:HttpGet('https://pastebin.com/raw/bRW6EMRZ'))()
+end)
+
+Scripts:AddButton("ShiftLock - made by fedoratum And Shnmax", function()
+ loadstring(game:HttpGet('https://pastebin.com/raw/H0uuimru'))()
+end)
+
+Scripts:AddButton("Shaders - Mobile Optimized", function()
+--// SHNMAXHUB - ULTRA LIGHT SHADERS v0.3.1 - COM FILTRO DE VERDE CORRIGIDO
+
+local Players = game:GetService("Players")
+local Lighting = game:GetService("Lighting")
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local Terrain = Workspace:FindFirstChildOfClass("Terrain")
+local SoundService = game:GetService("SoundService")
+
+local localPlayer = Players.LocalPlayer
+
+-- Pastas
+local function organizarPastas()
+	local shadersFolder = Workspace:FindFirstChild("Shaders") or Instance.new("Folder")
+	shadersFolder.Name = "Shaders"
+	shadersFolder.Parent = Workspace
+
+	local ambientFolder = Workspace:FindFirstChild("AmbientSounds") or Instance.new("Folder")
+	ambientFolder.Name = "AmbientSounds"
+	ambientFolder.Parent = Workspace
+end
+
+-- Skybox leve
+local function aplicarSkybox()
+	local sky = Instance.new("Sky")
+	sky.SkyboxBk = "http://www.roblox.com/asset/?id=225469345"
+	sky.SkyboxDn = "http://www.roblox.com/asset/?id=225469349"
+	sky.SkyboxFt = "http://www.roblox.com/asset/?id=225469359"
+	sky.SkyboxLf = "http://www.roblox.com/asset/?id=225469364"
+	sky.SkyboxRt = "http://www.roblox.com/asset/?id=225469372"
+	sky.SkyboxUp = "http://www.roblox.com/asset/?id=225469380"
+	sky.Parent = Lighting
+end
+
+-- Atmosfera mais leve
+local function aplicarAtmosfera()
+	local atm = Instance.new("Atmosphere")
+	atm.Density = 0.2
+	atm.Offset = 0.5
+	atm.Glare = 0.05
+	atm.Haze = 0.3
+	atm.Color = Color3.fromRGB(210, 225, 255)
+	atm.Decay = Color3.fromRGB(130, 140, 150)
+	atm.Parent = Lighting
+end
+
+-- Iluminação otimizada
+local function configurarIluminacao()
+	Lighting.Technology = Enum.Technology.Compatibility
+	Lighting.Brightness = 2.5
+	Lighting.GlobalShadows = false
+	Lighting.ClockTime = 14
+	Lighting.GeographicLatitude = 42
+	Lighting.EnvironmentDiffuseScale = 0.5
+	Lighting.EnvironmentSpecularScale = 0.3
+	Lighting.ShadowSoftness = 1
+	Lighting.OutdoorAmbient = Color3.fromRGB(90, 90, 90)
+	Lighting.Ambient = Color3.fromRGB(60, 60, 60)
+	Lighting.FogColor = Color3.fromRGB(200, 215, 255)
+	Lighting.FogStart = 150
+	Lighting.FogEnd = 50000
+
+	for _, v in pairs(Lighting:GetChildren()) do
+		if v:IsA("PostEffect") then v:Destroy() end
+	end
+
+	local sunrays = Instance.new("SunRaysEffect", Lighting)
+	sunrays.Intensity = 0.1
+	sunrays.Spread = 0.6
+
+	local cc = Instance.new("ColorCorrectionEffect", Lighting)
+	cc.Brightness = 0
+	cc.Contrast = 0.03
+	cc.Saturation = 0.03
+	cc.TintColor = Color3.fromRGB(230, 235, 245)
+end
+
+-- Ambiente dinâmico (leve)
+local function ajustarAmbiente()
+	coroutine.wrap(function()
+		while task.wait(5) do
+			local hour = Lighting:GetMinutesAfterMidnight() / 60
+			Lighting.Ambient = hour >= 6 and hour <= 18 and Color3.fromRGB(80, 80, 80) or Color3.fromRGB(40, 40, 60)
+		end
+	end)()
+end
+
+-- Som ambiente leve
+local function criarSomAmbiente()
+	local ambientFolder = Workspace:FindFirstChild("AmbientSounds")
+	if not ambientFolder then return end
+
+	local dia = Instance.new("Sound", ambientFolder)
+	dia.Name = "Dia"
+	dia.SoundId = "rbxassetid://6189453706"
+	dia.Looped = true
+	dia.Volume = 0.35
+	dia:Play()
+
+	local noite = Instance.new("Sound", ambientFolder)
+	noite.Name = "Noite"
+	noite.SoundId = "rbxassetid://6189441072"
+	noite.Looped = true
+	noite.Volume = 0.25
+
+	coroutine.wrap(function()
+		while task.wait(5) do
+			local hour = Lighting:GetMinutesAfterMidnight() / 60
+			dia.Playing = hour >= 6 and hour <= 18
+			noite.Playing = not dia.Playing
+		end
+	end)()
+end
+
+-- Função: detectar verde puro com HSV
+local function isPureGreen(color)
+	local h, s, v = Color3.toHSV(color)
+	return h >= 0.25 and h <= 0.42 and s >= 0.4 -- 90° a 150° no círculo cromático
+end
+
+-- Aplicar material Grass só em verde puro
+local function aplicarMaterialVerde(part)
+	if part:IsA("BasePart") and not part:IsDescendantOf(Workspace:FindFirstChild("Shaders")) then
+		if isPureGreen(part.Color) and part.Material ~= Enum.Material.Grass then
+			part.Material = Enum.Material.Grass
+			part.Reflectance = 0.01
+		end
+	end
+end
+
+-- Água leve
+local function aplicarAguaReal()
+	if not Terrain then return end
+
+	Terrain.WaterColor = Color3.fromRGB(6, 40, 80)
+	Terrain.WaterTransparency = 0.6
+	Terrain.WaterReflectance = 0.6
+	Terrain.WaterWaveSize = 0.05
+	Terrain.WaterWaveSpeed = 3
+
+	for _, obj in ipairs(workspace:GetDescendants()) do
+		if obj:IsA("BasePart") and obj.Name:lower():match("water") then
+			obj.Transparency = 1
+			obj.CanCollide = false
+			Terrain:FillBlock(obj.CFrame, obj.Size, Enum.Material.Water)
+		end
+	end
+end
+
+-- Execução principal
+organizarPastas()
+aplicarSkybox()
+aplicarAtmosfera()
+configurarIluminacao()
+ajustarAmbiente()
+criarSomAmbiente()
+aplicarAguaReal()
+
+-- Aplicar material verde nas partes existentes
+for _, obj in ipairs(Workspace:GetDescendants()) do
+	if obj:IsA("BasePart") then
+		aplicarMaterialVerde(obj)
+	end
+end
+
+-- Atualizar novas partes com material verde
+Workspace.DescendantAdded:Connect(function(obj)
+	if obj:IsA("BasePart") then
+		task.defer(function()
+			aplicarMaterialVerde(obj)
+		end)
+	end
+end)
+
+-- Sem eco global
+SoundService.AmbientReverb = Enum.ReverbType.Cave
+end)
+
+game.Workspace.FallenPartsDestroyHeight = -math.huge
