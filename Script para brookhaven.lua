@@ -2044,5 +2044,68 @@ end)
 Fun:AddLabel("Sounds Gun")
 local soundIdFromTextBox = nil
 
+
 local function equipSniper()
-    local player
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local backpack = player.Backpack
+    local sniperTool = character:FindFirstChild("Sniper") or backpack:FindFirstChild("Sniper")
+
+    if not sniperTool then
+         args = {
+            [1] = "PickingTools",
+            [2] = "Sniper"
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Too1l"):InvokeServer(unpack(args))
+        task.wait(0.1)
+        character.Humanoid:EquipTool(backpack:WaitForChild("Sniper"))
+    elseif backpack:FindFirstChild("Sniper") then
+        character.Humanoid:EquipTool(backpack["Sniper"])
+    end
+end
+
+local function playSound(soundId)
+    equipSniper()
+
+    local player = game.Players.LocalPlayer
+    local character = player.Character or player.CharacterAdded:Wait()
+    local sniperHandle = character:FindFirstChild("Sniper") and character.Sniper:FindFirstChild("Handle")
+
+    if sniperHandle then
+        local sound = Instance.new("Sound")
+        sound.SoundId = "rbxassetid://" .. tostring(soundId)
+        sound.Volume = 0.1
+        sound.Looped = false
+        sound.Parent = player:WaitForChild("PlayerGui")
+        sound:Play()
+        sound.Ended:Connect(function()
+            sound:Destroy()
+        end)
+
+         args = {
+            [1] = sniperHandle,
+            [2] = tonumber(soundId),
+            [3] = 1
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Gu1nSound1s"):FireServer(unpack(args))
+    end
+end
+
+Fun:AddInput("Sounds Box", "Enter Id here...", function(text)
+    local num = tonumber(text)
+    if num then
+        soundIdFromTextBox = num
+    end
+end)
+
+Fun:AddInput("Validate", function()
+    if soundIdFromTextBox then
+        playSound(soundIdFromTextBox)
+    end
+end)
+
+Fun:AddLabel("Chat Troll Section")
+
+Fun:AddButton("Press! Troll Error FilterChatMessage.Reconnecting..", function()
+if game:GetService("TextChatService").ChatVersion == Enum.ChatVersion.TextChatService then game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync("hi\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\SHNMAXSCRIPTS: HELLO EVERYONE ☑️") else game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Not Supported", Text = "This game has the legacy ROBLOX chat version. The script can only be used in the new version of the ROBLOX chat. Sorry :("}) end
+    end)
