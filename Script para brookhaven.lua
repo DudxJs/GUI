@@ -8,7 +8,7 @@ local gui = _G.DudxJsGUI:New("Título do Meu Painel")
 
 local House = gui:AddTab("House")
 local Avatar = gui:AddTab("Avatar")
-local Car = gui.AddTab("Car")
+local Car = gui:AddTab("Car")
 
 -- ====================
 --  ⬇️House Buttons⬇️

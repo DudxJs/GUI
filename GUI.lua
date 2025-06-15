@@ -314,7 +314,7 @@ function DudxJsGUI:AddTab(tabName)
         local inputHolder = Instance.new("Frame", inputContainer)
         inputHolder.Size = UDim2.new(0.45, 0, 1, 0)
         inputHolder.BackgroundTransparency = 1
-        local inputBox = Instance.new("TextBox", inputHolder)
+        local inputBox = Instance.new("", inputHolder)
         inputBox.AnchorPoint = Vector2.new(0.5, 0.5)
         inputBox.Position = UDim2.new(0.5, 0, 0.5, 0)
         inputBox.Size = UDim2.new(1, 0, 0.75, 0)
