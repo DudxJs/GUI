@@ -1567,12 +1567,12 @@ local function CountTool(toolName)
 	local total = 0
 	for _, tool in ipairs(player.Backpack:GetChildren()) do
 		if tool.Name == toolName then
-			total = 1
+			total += 1
 		end
 	end
 	for _, tool in ipairs(player.Character:GetChildren()) do
 		if tool.Name == toolName then
-			total = 1
+			total += 1
 		end
 	end
 	return total
@@ -1633,7 +1633,7 @@ CreateDuplicator("Basketball", "Balls")
 local ThrowActive = false
 local ThrowThread
 
-Fun:AddToggle("Balls Looper", function(state)
+Fun:AddSwitch("Balls Looper", function(state)
 	ThrowActive = state
 
 	if state then
@@ -1741,7 +1741,7 @@ Fun:AddButton("FE DOORS", function()
     for _, obj in ipairs(Workspace:GetDescendants()) do
         if obj:IsA("BasePart") and obj.Name:lower():find("door") then
             SetupPart(obj, index)
-            index = 1
+            index += 1
         end
     end
 
