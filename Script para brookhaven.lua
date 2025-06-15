@@ -1365,312 +1365,257 @@ end)
 
 Fun:AddLabel("Sign Section")
 Fun:AddButton("Get Sign", function()
- args = {[1] = "PickingTools", [2] = "Sign"}		
-	game:GetService("ReplicatedStorage").RE:FindFirstChild("1Too1l"):InvokeServer(unpack(args))
+    args = {[1] = "PickingTools", [2] = "Sign"}		
+    game:GetService("ReplicatedStorage").RE:FindFirstChild("1Too1l"):InvokeServer(unpack(args))
     game.Players.LocalPlayer.Backpack["Sign"].Parent = game.Players.LocalPlayer.Character
 end)
 
- sign1 = ""
- sign2 = ""
- sign3 = ""
- sign4 = ""
- sign5 = ""
- repeatNames = false
+sign1 = ""
+sign2 = ""
+sign3 = ""
+sign4 = ""
+sign5 = ""
+repeatNames = false
 
-Textbox = Fun:AddInput("Sign 1", "Enter text here...", function(value)
-sign1 = value
+Fun:AddInput("Sign 1", "Enter text here...", function(value)
+    sign1 = value
 end)
-Textbox = Fun:AddInput("Sign 2", "Enter text here...", function(value)
-sign2 = value
+Fun:AddInput("Sign 2", "Enter text here...", function(value)
+    sign2 = value
 end)
-Textbox = Fun:AddInput("Sign 3", "Enter text here...", function(value)
-sign3 = value
+Fun:AddInput("Sign 3", "Enter text here...", function(value)
+    sign3 = value
 end)
-Textbox = Fun:AddInput("Sign 4", "Enter text here...", function(value)
-sign4 = value
+Fun:AddInput("Sign 4", "Enter text here...", function(value)
+    sign4 = value
 end)
-Textbox = Fun:AddInput("Sign 5", "Enter text here...", function(value)
-sign5 = value
+Fun:AddInput("Sign 5", "Enter text here...", function(value)
+    sign5 = value
 end)
 
 Fun:AddSwitch("Validate", function(value)
-repeatNames = value
-while repeatNames do
-args1 = {
-    [1] = "Sign",
-    [2] = "SignWords",
-    [3] = sign1
-}
-
-game:GetService("Players").LocalPlayer.Character.Sign.ToolSound:FireServer(unpack(args1))
-wait(0.2)
-args2 = {
-    [1] = "Sign",
-    [2] = "SignWords",
-    [3] = sign2
-}
-
-game:GetService("Players").LocalPlayer.Character.Sign.ToolSound:FireServer(unpack(args2))
-wait(0.2)
-args3 = {
-    [1] = "Sign",
-    [2] = "SignWords",
-    [3] = sign3
-}
-
-game:GetService("Players").LocalPlayer.Character.Sign.ToolSound:FireServer(unpack(args3))
-wait(0.2)
-args4 = {
-    [1] = "Sign",
-    [2] = "SignWords",
-    [3] = sign4
-}
-
-game:GetService("Players").LocalPlayer.Character.Sign.ToolSound:FireServer(unpack(args4))
-wait(0.2)
-args5 = {
-    [1] = "Sign",
-    [2] = "SignWords",
-    [3] = sign5
-}
-
-game:GetService("Players").LocalPlayer.Character.Sign.ToolSound:FireServer(unpack(args5))
-end
+    repeatNames = value
+    while repeatNames do
+        local args1 = { "Sign", "SignWords", sign1 }
+        game:GetService("Players").LocalPlayer.Character.Sign.ToolSound:FireServer(unpack(args1))
+        wait(0.2)
+        local args2 = { "Sign", "SignWords", sign2 }
+        game:GetService("Players").LocalPlayer.Character.Sign.ToolSound:FireServer(unpack(args2))
+        wait(0.2)
+        local args3 = { "Sign", "SignWords", sign3 }
+        game:GetService("Players").LocalPlayer.Character.Sign.ToolSound:FireServer(unpack(args3))
+        wait(0.2)
+        local args4 = { "Sign", "SignWords", sign4 }
+        game:GetService("Players").LocalPlayer.Character.Sign.ToolSound:FireServer(unpack(args4))
+        wait(0.2)
+        local args5 = { "Sign", "SignWords", sign5 }
+        game:GetService("Players").LocalPlayer.Character.Sign.ToolSound:FireServer(unpack(args5))
+    end
 end)
 
 Fun:AddLabel("Box Section")
 Fun:AddButton("Get Box", function()
- args = {[1] = "PickingTools", [2] = "Box"}		
-	game:GetService("ReplicatedStorage").RE:FindFirstChild("1Too1l"):InvokeServer(unpack(args))
+    args = {[1] = "PickingTools", [2] = "Box"}		
+    game:GetService("ReplicatedStorage").RE:FindFirstChild("1Too1l"):InvokeServer(unpack(args))
     game.Players.LocalPlayer.Backpack["Box"].Parent = game.Players.LocalPlayer.Character
 end)
 
- Box1 = ""
- Box2 = ""
- Box3 = ""
- Box4 = ""
- Box5 = ""
- repeatNames1 = false
+Box1 = ""
+Box2 = ""
+Box3 = ""
+Box4 = ""
+Box5 = ""
+repeatNames1 = false
 
-Textbox = Fun:AddInput("Box 1", "Enter text here...", function(value)
-Box1 = value
+Fun:AddInput("Box 1", "Enter text here...", function(value)
+    Box1 = value
 end)
-Textbox = Fun:AddInput("Box 2", "Enter text here...", function(value)
-Box2 = value
+Fun:AddInput("Box 2", "Enter text here...", function(value)
+    Box2 = value
 end)
-Textbox = Fun:AddInput("Box 3", "Enter text here...", function(value)
-Box3 = value
+Fun:AddInput("Box 3", "Enter text here...", function(value)
+    Box3 = value
 end)
-Textbox = Fun:AddInput("Box 4", "Enter text here...", function(value)
-Box4 = value
+Fun:AddInput("Box 4", "Enter text here...", function(value)
+    Box4 = value
 end)
-Textbox = Fun:AddInput("Box 5", "Enter text here...", function(value)
-Box5 = value
+Fun:AddInput("Box 5", "Enter text here...", function(value)
+    Box5 = value
 end)
 
 Fun:AddSwitch("Validate", function(value)
-repeatNames1 = value
-while repeatNames1 do
-args1 = {
-    [1] = "Box",
-    [2] = "SignWords",
-    [3] = Box1
-}
-
-game:GetService("Players").LocalPlayer.Character.Box.ToolSound:FireServer(unpack(args1))
-wait(0.2)
-args2 = {
-    [1] = "Box",
-    [2] = "SignWords",
-    [3] = Box2
-}
-
-game:GetService("Players").LocalPlayer.Character.Box.ToolSound:FireServer(unpack(args2))
-wait(0.2)
-args3 = {
-    [1] = "Box",
-    [2] = "SignWords",
-    [3] = Box3
-}
-
-game:GetService("Players").LocalPlayer.Character.Box.ToolSound:FireServer(unpack(args3))
-wait(0.2)
-args4 = {
-    [1] = "Box",
-    [2] = "SignWords",
-    [3] = Box4
-}
-
-game:GetService("Players").LocalPlayer.Character.Box.ToolSound:FireServer(unpack(args4))
-wait(0.2)
-args5 = {
-    [1] = "Box",
-    [2] = "SignWords",
-    [3] = Box5
-}
-
-game:GetService("Players").LocalPlayer.Character.Box.ToolSound:FireServer(unpack(args5))
-end
+    repeatNames1 = value
+    while repeatNames1 do
+        local args1 = { "Box", "SignWords", Box1 }
+        game:GetService("Players").LocalPlayer.Character.Box.ToolSound:FireServer(unpack(args1))
+        wait(0.2)
+        local args2 = { "Box", "SignWords", Box2 }
+        game:GetService("Players").LocalPlayer.Character.Box.ToolSound:FireServer(unpack(args2))
+        wait(0.2)
+        local args3 = { "Box", "SignWords", Box3 }
+        game:GetService("Players").LocalPlayer.Character.Box.ToolSound:FireServer(unpack(args3))
+        wait(0.2)
+        local args4 = { "Box", "SignWords", Box4 }
+        game:GetService("Players").LocalPlayer.Character.Box.ToolSound:FireServer(unpack(args4))
+        wait(0.2)
+        local args5 = { "Box", "SignWords", Box5 }
+        game:GetService("Players").LocalPlayer.Character.Box.ToolSound:FireServer(unpack(args5))
+    end
 end)
 
 Fun:AddLabel("Roses Section")
-
--- ROSES SECTION
 Fun:AddButton("Get Roses", function()
-	 args = {"PickingTools", "Roses"}
-	game:GetService("ReplicatedStorage").RE:FindFirstChild("1Too1l"):InvokeServer(unpack(args))
-
-	local player = game.Players.LocalPlayer
-	local rose = player.Backpack:FindFirstChild("Roses")
-	if rose then
-		rose.Parent = player.Character
-	end
+    args = {"PickingTools", "Roses"}
+    game:GetService("ReplicatedStorage").RE:FindFirstChild("1Too1l"):InvokeServer(unpack(args))
+    local player = game.Players.LocalPlayer
+    local rose = player.Backpack:FindFirstChild("Roses")
+    if rose then
+        rose.Parent = player.Character
+    end
 end)
 
 local toggleActive = false
-
 function RosesColor()
-	task.spawn(function()
-		while toggleActive do
-			local char = game.Players.LocalPlayer.Character
-			if not char then break end
-			local rose = char:FindFirstChild("Roses")
-			if not rose then break end
-			local sound = rose:FindFirstChild("ToolSound")
-			if not sound then break end
+    task.spawn(function()
+        while toggleActive do
+            local char = game.Players.LocalPlayer.Character
+            if not char then break end
+            local rose = char:FindFirstChild("Roses")
+            if not rose then break end
+            local sound = rose:FindFirstChild("ToolSound")
+            if not sound then break end
 
-			local sounds = {
-				"http://www.roblox.com/asset/?id=5210399458",
-				"http://www.roblox.com/asset/?id=5210414520",
-				"http://www.roblox.com/asset/?id=5216708760"
-			}
-
-			for _, id in ipairs(sounds) do
-				if not toggleActive then break end
-				sound:FireServer("Roses", id)
-				task.wait(0.2)
-			end
-		end
-	end)
+            local sounds = {
+                "http://www.roblox.com/asset/?id=5210399458",
+                "http://www.roblox.com/asset/?id=5210414520",
+                "http://www.roblox.com/asset/?id=5216708760"
+            }
+            for _, id in ipairs(sounds) do
+                if not toggleActive then break end
+                sound:FireServer("Roses", id)
+                task.wait(0.2)
+            end
+        end
+    end)
 end
 
 Fun:AddSwitch("Rainbow Roses", function(value)
-	toggleActive = value
-	if toggleActive then
-		RosesColor()
-	end
+    toggleActive = value
+    if toggleActive then
+        RosesColor()
+    end
 end)
 
--- UNIVERSAL TOOL COUNTER
+-- Universal Tool Counter
 local function CountTool(toolName)
-	local player = game.Players.LocalPlayer
-	local total = 0
-	for _, tool in ipairs(player.Backpack:GetChildren()) do
-		if tool.Name == toolName then
-			total += 1
-		end
-	end
-	for _, tool in ipairs(player.Character:GetChildren()) do
-		if tool.Name == toolName then
-			total += 1
-		end
-	end
-	return total
+    local player = game.Players.LocalPlayer
+    local total = 0
+    for _, tool in ipairs(player.Backpack:GetChildren()) do
+        if tool.Name == toolName then
+            total += 1
+        end
+    end
+    for _, tool in ipairs(player.Character:GetChildren()) do
+        if tool.Name == toolName then
+            total += 1
+        end
+    end
+    return total
 end
 
--- UNIVERSAL TOOL DUPLICATOR
+-- Universal Tool Duplicator
 local function CreateDuplicator(toolName, labelName)
-	Fun:AddLabel(labelName.." Section")
+    Fun:AddLabel(labelName.." Section")
 
-	local amount = 100
+    local amount = 100
 
-	Fun:AddInput("Amount", "", function(value)
-		local number = tonumber(value)
-		if number and number > 0 then
-			amount = number
-		else
-			warn("Enter a valid number.")
-		end
-	end)
+    Fun:AddInput("Amount", "", function(value)
+        local number = tonumber(value)
+        if number and number > 0 then
+            amount = number
+        else
+            warn("Enter a valid number.")
+        end
+    end)
 
-	Fun:AddButton("Dupe "..labelName, function()
-		local player = game.Players.LocalPlayer
-		local char = player.Character or player.CharacterAdded:Wait()
-		local backpack = player:WaitForChild("Backpack")
-		local root = char:WaitForChild("HumanoidRootPart")
+    Fun:AddButton("Dupe "..labelName, function()
+        local player = game.Players.LocalPlayer
+        local char = player.Character or player.CharacterAdded:Wait()
+        local backpack = player:WaitForChild("Backpack")
+        local root = char:WaitForChild("HumanoidRootPart")
 
-		local giveTools = workspace:FindFirstChild("WorkspaceCom")
-			and workspace.WorkspaceCom:FindFirstChild("001_GiveTools")
-		local toolObject = giveTools and giveTools:FindFirstChild(toolName)
+        local giveTools = workspace:FindFirstChild("WorkspaceCom")
+            and workspace.WorkspaceCom:FindFirstChild("001_GiveTools")
+        local toolObject = giveTools and giveTools:FindFirstChild(toolName)
 
-		if not (toolObject and toolObject:FindFirstChildOfClass("ClickDetector")) then
-			warn("Tool not found in Workspace.")
-			return
-		end
+        if not (toolObject and toolObject:FindFirstChildOfClass("ClickDetector")) then
+            warn("Tool not found in Workspace.")
+            return
+        end
 
-		local detector = toolObject:FindFirstChildOfClass("ClickDetector")
-		local oldPos = root.CFrame
+        local detector = toolObject:FindFirstChildOfClass("ClickDetector")
+        local oldPos = root.CFrame
 
-		task.spawn(function()
-			while CountTool(toolName) < amount do
-				root.CFrame = toolObject.CFrame
-				fireclickdetector(detector)
-				task.wait(0.01)
-			end
-			root.CFrame = oldPos
-			print("Duplication complete: "..toolName.." x"..CountTool(toolName))
-		end)
-	end)
+        task.spawn(function()
+            while CountTool(toolName) < amount do
+                root.CFrame = toolObject.CFrame
+                fireclickdetector(detector)
+                task.wait(0.01)
+            end
+            root.CFrame = oldPos
+            print("Duplication complete: "..toolName.." x"..CountTool(toolName))
+        end)
+    end)
 end
 
--- CRIANDO CADA SEÇÃO COM MESMO SISTEMA
 CreateDuplicator("Taser", "Taser")
 CreateDuplicator("FireX", "FireX")
 CreateDuplicator("Assault", "Gun")
 CreateDuplicator("Basketball", "Balls")
 
--- BALLS LOOPER SECTION
+-- Balls Looper Section
 local ThrowActive = false
 local ThrowThread
 
 Fun:AddSwitch("Balls Looper", function(state)
-	ThrowActive = state
+    ThrowActive = state
 
-	if state then
-		local player = game.Players.LocalPlayer
-		local mouse = player:GetMouse()
-		local char = player.Character or player.CharacterAdded:Wait()
+    if state then
+        local player = game.Players.LocalPlayer
+        local mouse = player:GetMouse()
+        local char = player.Character or player.CharacterAdded:Wait()
 
-		if not (player and mouse and char) then
-			warn("Missing player, mouse or character")
-			return
-		end
+        if not (player and mouse and char) then
+            warn("Missing player, mouse or character")
+            return
+        end
 
-		ThrowThread = task.spawn(function()
-			while ThrowActive do
-				for _, tool in ipairs(char:GetChildren()) do
-					if tool.Name == "Basketball" and tool:FindFirstChild("ClickEvent") then
-						tool.ClickEvent:FireServer(mouse.Hit.p)
-						task.wait(0.0003)
-					end
-				end
-				task.wait()
-			end
-		end)
-	else
-		if ThrowThread then
-			task.cancel(ThrowThread)
-			ThrowThread = nil
-		end
-	end
+        ThrowThread = task.spawn(function()
+            while ThrowActive do
+                for _, tool in ipairs(char:GetChildren()) do
+                    if tool.Name == "Basketball" and tool:FindFirstChild("ClickEvent") then
+                        tool.ClickEvent:FireServer(mouse.Hit.p)
+                        task.wait(0.0003)
+                    end
+                end
+                task.wait()
+            end
+        end)
+    else
+        if ThrowThread then
+            task.cancel(ThrowThread)
+            ThrowThread = nil
+        end
+    end
 end)
 
 Fun:AddLabel("Fling Section")
 Fun:AddButton("Click Fling - By Shelby", function()
- loadstring(game:HttpGet('https://gist.githubusercontent.com/GistsPrivate/24ee609605cfaa52a28411cf8115535d/raw/5bac79672e8f1af9f98c92e1f0e232696f7f3858/gistfile1.txt'))()
+    loadstring(game:HttpGet('https://gist.githubusercontent.com/GistsPrivate/24ee609605cfaa52a28411cf8115535d/raw/5bac79672e8f1af9f98c92e1f0e232696f7f3858/gistfile1.txt'))()
 end)
 
 Fun:AddButton("FE DOORS", function()
+    -- (Função igual ao original, apenas adaptada)
     local Players = game:GetService("Players")
     local Workspace = game:GetService("Workspace")
     local RunService = game:GetService("RunService")
@@ -1680,7 +1625,6 @@ Fun:AddButton("FE DOORS", function()
     local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
     local HRP = Character:WaitForChild("HumanoidRootPart")
 
-    -- Limpa attachments antigos
     for _, child in ipairs(HRP:GetChildren()) do
         if child.Name:match("^SHNMAX_AttachDoor_%d+$") then
             child:Destroy()
@@ -1694,20 +1638,15 @@ Fun:AddButton("FE DOORS", function()
         if part:FindFirstChild("SHNMAX_Attached") then return end
 
         part.CanCollide = false
-
-        -- Remove attachments/forces anteriores
         for _, obj in ipairs(part:GetChildren()) do
             if obj:IsA("AlignPosition") or obj:IsA("Torque") or obj:IsA("Attachment") then
                 obj:Destroy()
             end
         end
 
-        -- Marcar como configurado
         Instance.new("BoolValue", part).Name = "SHNMAX_Attached"
-
         local doorAttachment = Instance.new("Attachment", part)
         doorAttachment.Name = "SHNMAX_LocalAttach"
-
         local hrpAttachment = Instance.new("Attachment", HRP)
         hrpAttachment.Name = "SHNMAX_AttachDoor_" .. index
 
@@ -1715,7 +1654,6 @@ Fun:AddButton("FE DOORS", function()
         align.Attachment0 = doorAttachment
         align.Attachment1 = hrpAttachment
         align.MaxForce = 1e35
-
         align.MaxVelocity = math.huge
         align.Responsiveness = 99999
 
@@ -1736,7 +1674,6 @@ Fun:AddButton("FE DOORS", function()
         })
     end
 
-    -- Inicializa portas existentes
     local index = 1
     for _, obj in ipairs(Workspace:GetDescendants()) do
         if obj:IsA("BasePart") and obj.Name:lower():find("door") then
@@ -1745,7 +1682,6 @@ Fun:AddButton("FE DOORS", function()
         end
     end
 
-    -- Observa por novas portas em tempo real
     Workspace.DescendantAdded:Connect(function(obj)
         if obj:IsA("BasePart") and obj.Name:lower():find("door") then
             SetupPart(obj, #ControlledDoors + 1)
@@ -1765,7 +1701,6 @@ Fun:AddButton("FE DOORS", function()
             targetAttachment.Name = "SHNMAX_TargetAttachment"
         end
 
-        -- Redireciona as portas para o player alvo
         for _, door in ipairs(ControlledDoors) do
             if door.Align then
                 door.Align.Attachment1 = targetAttachment
@@ -1783,7 +1718,6 @@ Fun:AddButton("FE DOORS", function()
             RunService.Heartbeat:Wait()
         end
 
-        -- Restaura Attachments originais
         for _, door in ipairs(ControlledDoors) do
             if door.Align then
                 door.Align.Attachment1 = door.HRPAttach
@@ -1793,19 +1727,15 @@ Fun:AddButton("FE DOORS", function()
         print(string.format("[SHNMAX] Porta delivery para %s: %s", targetPlayer.Name, flingDone and "Flingado" or "Sem efeito"))
     end
 
-    -- Detecta toque na tela e aplica fling se atingir um jogador
     UserInputService.TouchTap:Connect(function(touchPositions, processed)
         if processed or not touchPositions[1] then return end
-
         local pos = touchPositions[1]
         local camera = Workspace.CurrentCamera
         local ray = camera:ScreenPointToRay(pos.X, pos.Y)
         local result = Workspace:Raycast(ray.Origin, ray.Direction * 1000)
-
         if result and result.Instance then
             local charModel = result.Instance:FindFirstAncestorOfClass("Model")
             local hitPlayer = Players:GetPlayerFromCharacter(charModel)
-
             if hitPlayer and hitPlayer ~= LocalPlayer then
                 FlingPlayer(hitPlayer)
             end
@@ -1818,7 +1748,6 @@ Fun:AddLabel("Helicopter Spam Creates By :@Davi999")
 
 Fun:AddSwitch("Helicopter Spam", function(state)
     getgenv().Toggle = state
-
     if state then
         local Players = game:GetService("Players")
         local Player = Players.LocalPlayer
@@ -1826,7 +1755,6 @@ Fun:AddSwitch("Helicopter Spam", function(state)
         local RootPart = Character.HumanoidRootPart
         local Humanoid = Character:FindFirstChildOfClass("Humanoid")
         local molestado1 = workspace.WorkspaceCom["001_HeliCloneButton"].Button
-
         task.spawn(function()
             while getgenv().Toggle do
                 task.wait()
@@ -1834,23 +1762,19 @@ Fun:AddSwitch("Helicopter Spam", function(state)
                 task.wait(0.1)
                 fireclickdetector(molestado1.ClickDetector)
                 task.wait(0.5)
-
                 local molestado2 = workspace.WorkspaceCom["001_HeliStorage"]:FindFirstChild("PoliceStationHeli")
                 if molestado2 then
                     repeat
                         RootPart.CFrame = molestado2.PrimaryPart.CFrame + Vector3.new(0, math.random(-1, 1), 0)
                         task.wait()
                     until Humanoid.Sit
-
                     task.wait(0.1)
                     Humanoid.Sit = false
                     task.wait()
-
                     repeat
                         RootPart.CFrame = molestado2.Passenger1.CFrame + Vector3.new(0, math.random(-1, 1), 0)
                         task.wait()
                     until Humanoid.Sit
-
                     task.wait(0.2)
                     RootPart.CFrame = CFrame.new(math.random(-40, 40), 4.549, math.random(-40, 40))
                     task.wait(0.2)
@@ -1864,7 +1788,6 @@ end)
 
 Fun:AddSwitch("Canoe Spam", function(state)
     getgenv().Toggle = state
-
     if state then
         local Players = game:GetService("Players")
         local Player = Players.LocalPlayer
@@ -1872,7 +1795,6 @@ Fun:AddSwitch("Canoe Spam", function(state)
         local RootPart = Character.HumanoidRootPart
         local Humanoid = Character:FindFirstChildOfClass("Humanoid")
         local molestado1 = workspace.WorkspaceCom["001_CanoeCloneButton"].Button
-
         task.spawn(function()
             while getgenv().Toggle do
                 task.wait()
@@ -1880,14 +1802,12 @@ Fun:AddSwitch("Canoe Spam", function(state)
                 task.wait(0.1)
                 fireclickdetector(molestado1.ClickDetector)
                 task.wait(0.5)
-
                 local molestado2 = workspace.WorkspaceCom["001_CanoeStorage"]:FindFirstChild("Canoe")
                 if molestado2 and molestado2:FindFirstChild("VehicleSeat") then
                     repeat
                         RootPart.CFrame = molestado2.VehicleSeat.CFrame + Vector3.new(0, math.random(-1, 1), 0)
                         task.wait()
                     until Humanoid.Sit
-
                     task.wait(0.2)
                     RootPart.CFrame = CFrame.new(math.random(-40, 40), 4.549, math.random(-40, 40))
                     task.wait(0.2)
@@ -1900,79 +1820,35 @@ Fun:AddSwitch("Canoe Spam", function(state)
 end)
 
 Fun:AddLabel("Helicopter Settings")
-
-Dropdown = Fun:AddDropdown("Design List", {"Police", "Rescue", "Rich", "Military", "Agency", "Sheriff", "State Trooper"}, function(value)
-        Callback = function(value)
-            designHelico = value
-             end
-        end)
+Fun:AddDropdown("Design List", {"Police", "Rescue", "Rich", "Military", "Agency", "Sheriff", "State Trooper"}, function(value)
+    designHelico = value
+end)
 
 Fun:AddButton("Change Design", function()
-if designHelico == "Police" then
- args = {
-    [1] = game.Players.LocalPlayer.Name,
-    [2] = "PoliceMeshID"
-}
-
-game:GetService("ReplicatedStorage").RE:FindFirstChild("1Max1y"):FireServer(unpack(args))
-elseif designHelico == "Rescue" then
- args = {
-    [1] = game.Players.LocalPlayer.Name,
-    [2] = "RescueMeshID"
-}
-
-game:GetService("ReplicatedStorage").RE:FindFirstChild("1Max1y"):FireServer(unpack(args))
-elseif designHelico == "Rich" then
- args = {
-    [1] = game.Players.LocalPlayer.Name,
-    [2] = "TubeTVMeshID"
-}
-
-game:GetService("ReplicatedStorage").RE:FindFirstChild("1Max1y"):FireServer(unpack(args))
-elseif designHelico == "Military" then
- args = {
-    [1] = game.Players.LocalPlayer.Name,
-    [2] = "MilitaryMeshID"
-}
-
-game:GetService("ReplicatedStorage").RE:FindFirstChild("1Max1y"):FireServer(unpack(args))
-elseif designHelico == "Agency" then
- args = {
-    [1] = game.Players.LocalPlayer.Name,
-    [2] = "AgencyMeshID"
-}
-
-game:GetService("ReplicatedStorage").RE:FindFirstChild("1Max1y"):FireServer(unpack(args))
-elseif designHelico == "Sheriff" then
- args = {
-    [1] = game.Players.LocalPlayer.Name,
-    [2] = "SheriffMeshID"
-}
-
-game:GetService("ReplicatedStorage").RE:FindFirstChild("1Max1y"):FireServer(unpack(args))
-elseif designHelico == "State Trooper" then
- args = {
-    [1] = game.Players.LocalPlayer.Name,
-    [2] = "StateTrooperMeshID"
-}
-
-game:GetService("ReplicatedStorage").RE:FindFirstChild("1Max1y"):FireServer(unpack(args))
-  end
+    local meshIds = {
+        Police = "PoliceMeshID",
+        Rescue = "RescueMeshID",
+        Rich = "TubeTVMeshID",
+        Military = "MilitaryMeshID",
+        Agency = "AgencyMeshID",
+        Sheriff = "SheriffMeshID",
+        ["State Trooper"] = "StateTrooperMeshID"
+    }
+    local meshId = meshIds[designHelico]
+    if meshId then
+        local args = {game.Players.LocalPlayer.Name, meshId}
+        game:GetService("ReplicatedStorage").RE:FindFirstChild("1Max1y"):FireServer(unpack(args))
+    end
 end)
 
 Fun:AddLabel("Horse Section")
-
 Fun:AddButton("Tp All Horse", function()
-local players = game:GetService("Players")
-
-for _, player in pairs(players:GetPlayers()) do
-     args = {
-        [1] = player
-    }
-
-    game:GetService("ReplicatedStorage").RE:FindFirstChild("1Hors1eRemot1e"):FireServer(unpack(args))
-end
-  	end)
+    local players = game:GetService("Players")
+    for _, player in pairs(players:GetPlayers()) do
+        local args = {player}
+        game:GetService("ReplicatedStorage").RE:FindFirstChild("1Hors1eRemot1e"):FireServer(unpack(args))
+    end
+end)
 
 Fun:AddLabel("Modded Gun")
 local function equipSniper()
@@ -1982,10 +1858,7 @@ local function equipSniper()
     local sniperTool = character:FindFirstChild("Sniper") or backpack:FindFirstChild("Sniper")
 
     if not sniperTool then
-         args = {
-            [1] = "PickingTools",
-            [2] = "Sniper"
-        }
+        local args = {"PickingTools", "Sniper"}
         game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Too1l"):InvokeServer(unpack(args))
         task.wait(0.1)
         character.Humanoid:EquipTool(backpack:WaitForChild("Sniper"))
@@ -1996,11 +1869,9 @@ end
 
 local function playSound(soundId)
     equipSniper()
-
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local sniperHandle = character:FindFirstChild("Sniper") and character.Sniper:FindFirstChild("Handle")
-
     if sniperHandle then
         local sound = Instance.new("Sound")
         sound.SoundId = "rbxassetid://" .. tostring(soundId)
@@ -2011,12 +1882,7 @@ local function playSound(soundId)
         sound.Ended:Connect(function()
             sound:Destroy()
         end)
-
-         args = {
-            [1] = sniperHandle,
-            [2] = soundId,
-            [3] = 1
-        }
+        local args = {sniperHandle, soundId, 1}
         game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Gu1nSound1s"):FireServer(unpack(args))
     end
 end
@@ -2024,7 +1890,6 @@ end
 Fun:AddButton("Jumpscare Gun", function()
     playSound(85435253347146)
 end)
-
 Fun:AddButton("Sus Gun", function()
     playSound(6701126635)
 end)
@@ -2044,6 +1909,7 @@ end)
 Fun:AddLabel("Sounds Gun")
 local soundIdFromTextBox = nil
 
+-- Adaptação para sua GUI: AddInput, AddButton, AddLabel
 local function equipSniper()
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
@@ -2051,10 +1917,7 @@ local function equipSniper()
     local sniperTool = character:FindFirstChild("Sniper") or backpack:FindFirstChild("Sniper")
 
     if not sniperTool then
-         args = {
-            [1] = "PickingTools",
-            [2] = "Sniper"
-        }
+        local args = { "PickingTools", "Sniper" }
         game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Too1l"):InvokeServer(unpack(args))
         task.wait(0.1)
         character.Humanoid:EquipTool(backpack:WaitForChild("Sniper"))
@@ -2065,7 +1928,6 @@ end
 
 local function playSound(soundId)
     equipSniper()
-
     local player = game.Players.LocalPlayer
     local character = player.Character or player.CharacterAdded:Wait()
     local sniperHandle = character:FindFirstChild("Sniper") and character.Sniper:FindFirstChild("Handle")
@@ -2081,14 +1943,12 @@ local function playSound(soundId)
             sound:Destroy()
         end)
 
-         args = {
-            [1] = sniperHandle,
-            [2] = tonumber(soundId),
-            [3] = 1
-        }
+        local args = { sniperHandle, tonumber(soundId), 1 }
         game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Gu1nSound1s"):FireServer(unpack(args))
     end
 end
+
+local soundIdFromTextBox = nil
 
 Fun:AddInput("Sounds Box", "Enter Id here...", function(text)
     local num = tonumber(text)
@@ -2106,5 +1966,14 @@ end)
 Fun:AddLabel("Chat Troll Section")
 
 Fun:AddButton("Press! Troll Error FilterChatMessage.Reconnecting..", function()
-if game:GetService("TextChatService").ChatVersion == Enum.ChatVersion.TextChatService then game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync("hi\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\SHNMAXSCRIPTS: HELLO EVERYONE ☑️") else game:GetService("StarterGui"):SetCore("SendNotification", {Title = "Not Supported", Text = "This game has the legacy ROBLOX chat version. The script can only be used in the new version of the ROBLOX chat. Sorry :("}) end
-    end)
+    if game:GetService("TextChatService").ChatVersion == Enum.ChatVersion.TextChatService then
+        game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(
+            "hi\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\SHNMAXSCRIPTS: HELLO EVERYONE ☑️"
+        )
+    else
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Not Supported",
+            Text = "This game has the legacy ROBLOX chat version. The script can only be used in the new version of the ROBLOX chat. Sorry :("
+        })
+    end
+end)
