@@ -15,6 +15,7 @@ local Others = gui:AddTab("Others")
 local Teleportes = gui:AddTab("Teleportes")
 local Misc = gui:AddTab("Misc")
 local Kill = gui:AddTab("Kill")
+local Tools = gui:AddTab("Tools")
 
 -- ====================
 --  ⬇️House Buttons⬇️
@@ -4953,5 +4954,114 @@ Kill:AddButton("Car - Bring", function()
         Humanoid.Sit = false
         task.wait(0.1)
         game:GetService("ReplicatedStorage").RE:FindFirstChild("1Ca1r"):FireServer("DeleteAllVehicles")
+    end
+end)
+
+
+
+Tools:AddLabel("Section Tools")
+    
+-- Dicionário de Ícones de Itens
+local itemIcons = {
+    ["Couch"] = "rbxassetid://11977322043",
+    ["Crystal"] = "rbxassetid://10444953406",
+    ["Crystals"] = "rbxassetid://7284818351",
+    ["DSLR Camera"] = "rbxassetid://120141377180284",
+    ["SoccerBall"] = "http://www.roblox.com/asset/?id=4598172149",
+    ["EggLauncher"] = "rbxassetid://75444008773742",
+    ["Cuffs"] = "http://www.roblox.com/asset/?id=4531411830",
+    ["FireHose"] = "rbxassetid://12731909787",
+    ["AgencyBook"] = "rbxassetid://10444953406",
+    ["KeyCardWhite"] = "rbxassetid://98234785263627",
+    ["DuffleBagDiamonds"] = "rbxassetid://124381768357034",
+    ["BankGateKey"] = "rbxassetid://138843879105864",
+    ["SwordGold"] = "rbxassetid://15343393273",
+    ["OldKey"] = "rbxassetid://15370896108",
+}
+
+-- Função de Callback para Seleção de Item
+local function onItemSelected(selectedItem)
+    -- Verifica se o item selecionado é uma arma
+    local isWeapon = table.find({"Faca", "Pistola", "Rifle"}, selectedItem)
+    if isWeapon then
+        equipWeapon(selectedItem)  -- Equipando a arma
+    else
+        -- Caso não seja uma arma, pega o item do servidor
+         args = { "PickingTools", selectedItem }
+        local remoteFunction = game:GetService("ReplicatedStorage").RE:FindFirstChild("1Too1l")
+        
+        if remoteFunction then
+            remoteFunction:InvokeServer(unpack(args))
+        end
+    end
+
+    -- Envia uma notificação para o jogador
+    game.StarterGui:SetCore("SendNotification", {
+        Title = "Item Equipado!",
+        Text = "Você pegou: " .. selectedItem,
+        Icon = itemIcons[selectedItem] or "",
+        Duration = 4
+    })
+end
+
+-- Dropdown para Seleção de Itens com a Estrutura Similar ao WeaponsDropdown
+local ItemDropdown = Tools:AddDropdown("Get Tools", {
+    "Couch", "Crystal", "Crystals", "DSLR Camera", "SoccerBall", "EggLauncher", 
+    "Cuffs", "FireHose", "AgencyBook", "KeyCardWhite", "DuffleBagDiamonds", 
+    "BankGateKey", "SwordGold", "OldKey"
+}, function(selectedItem)
+    onItemSelected(selectedItem)  -- Chama a função de callback
+end)
+
+local Remote = game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1Too1l")
+
+Tools:AddLabel("Tools Sets Section")
+
+Tools:AddButton("Get All Guns", function()
+    local items = {"Shotgun", "GlockBrown", "Glock", "Assault", "Sniper", "Taser"}
+    for _, item in ipairs(items) do
+        Remote:InvokeServer("PickingTools", item)
+    end
+end)
+
+Tools:AddButton("Get All Takeout", function()
+    local items = {"TakeOut", "TakeOutHappyBurger", "TakeOutPizza"}
+    for _, item in ipairs(items) do
+        Remote:InvokeServer("PickingTools", item)
+    end
+end)
+
+Tools:AddButton("Get All Cards", function()
+    local items = {"CreditCardBoy", "CreditCardGirl", "BankKeyCard", "KeyCardWhite", "PowerKeyCard"}
+    for _, item in ipairs(items) do
+        Remote:InvokeServer("PickingTools", item)
+    end
+end)
+
+Tools:AddButton("Get All Lighting Tools", function()
+    local items = {"Iphone", "Ipad", "Camcorder", "FlashLight", "Laptop", "DSLR Camera"}
+    for _, item in ipairs(items) do
+        Remote:InvokeServer("PickingTools", item)
+    end
+end)
+
+Tools:AddButton("Get All Signs", function()
+    local items = {"Sign", "SignRed", "SignBlack", "SignPink"}
+    for _, item in ipairs(items) do
+        Remote:InvokeServer("PickingTools", item)
+    end
+end)
+
+Tools:AddButton("Get All Guitars", function()
+    local items = {"Guitar", "ElectricGuitar"}
+    for _, item in ipairs(items) do
+        Remote:InvokeServer("PickingTools", item)
+    end
+end)
+
+Tools:AddButton("Get All Work Tools", function()
+    local items = {"Axe", "Hammer", "Wrench"}
+    for _, item in ipairs(items) do
+        Remote:InvokeServer("PickingTools", item)
     end
 end)
