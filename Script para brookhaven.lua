@@ -10,7 +10,8 @@ local House = gui:AddTab("House")
 local Avatar = gui:AddTab("Avatar")
 local Car = gui:AddTab("Car")
 local Fun = gui:AddTab("Fun")
-local Itens = gui:AddTab("Itens")
+local Itens = gui:AddTab("Build")
+local Teleport = gui:AddTab("Teleport")
 
 -- ====================
 --  ⬇️House Buttons⬇️
@@ -2171,3 +2172,453 @@ Itens:AddSwitch("Spam Basketball", function(state)
         end)
     end
 end)    
+
+-- =====================
+--  ⬇️Others Buttons⬇️
+-- =====================
+
+Others:AddLabel("Food Section")
+
+Others:AddButton("Get Shopping Cart", function()
+           args = {
+          [1] = "PickingTools",
+          [2] = "ShoppingCart"
+          }
+                        
+picktoolremote:InvokeServer(unpack(args))
+wait()
+local character = player.Character
+        local backpack = player.Backpack
+        local humanoid = character:WaitForChild("Humanoid")
+        local ShoppingCart = backpack:FindFirstChild("ShoppingCart")
+        
+        if not character:FindFirstChildOfClass("Tool") then
+            if ShoppingCart then
+                ShoppingCart.Parent = character
+                humanoid:EquipTool(ShoppingCart)
+             end
+         end
+    end)
+
+local ChangeFoodCartloopEnabled = false
+ 
+local function changeFoodLoop()
+    while ChangeFoodCartloopEnabled do
+     args = {
+    [1] = "Banana"
+}
+
+game:GetService("Players").LocalPlayer.Character.ShoppingCart.ToolFood:FireServer(unpack(args))
+wait(0.2)
+     args = {
+    [1] = "Coke"
+}
+
+game:GetService("Players").LocalPlayer.Character.ShoppingCart.ToolFood:FireServer(unpack(args))
+wait(0.2)
+ args = {
+    [1] = "Bloxaide"
+}
+
+game:GetService("Players").LocalPlayer.Character.ShoppingCart.ToolFood:FireServer(unpack(args))
+wait(0.2)
+ args = {
+    [1] = "BottledWater"
+}
+
+game:GetService("Players").LocalPlayer.Character.ShoppingCart.ToolFood:FireServer(unpack(args))
+wait(0.2)
+ args = {
+    [1] = "GreenApple"
+}
+
+game:GetService("Players").LocalPlayer.Character.ShoppingCart.ToolFood:FireServer(unpack(args))
+wait(0.2)
+ args = {
+    [1] = "Apple"
+}
+
+game:GetService("Players").LocalPlayer.Character.ShoppingCart.ToolFood:FireServer(unpack(args))
+wait(0.2)
+ args = {
+    [1] = "Pizza"
+}
+
+game:GetService("Players").LocalPlayer.Character.ShoppingCart.ToolFood:FireServer(unpack(args))
+wait(0.2)
+ args = {
+    [1] = "ChipsBlue"
+}
+
+game:GetService("Players").LocalPlayer.Character.ShoppingCart.ToolFood:FireServer(unpack(args))
+wait(0.2)
+ args = {
+    [1] = "Chips"
+}
+
+game:GetService("Players").LocalPlayer.Character.ShoppingCart.ToolFood:FireServer(unpack(args))
+wait(0.2)
+ args = {
+    [1] = "Milk"
+}
+
+game:GetService("Players").LocalPlayer.Character.ShoppingCart.ToolFood:FireServer(unpack(args))
+      end
+ end
+
+Others:AddSwitch("Loop Food", function(Value)
+        if Value then
+               ChangeFoodCartloopEnabled = true
+            changeFoodLoop()
+        else
+           ChangeFoodCartloopEnabled = false
+        end
+    end)
+    
+Others:AddLabel("Trail Section")
+Others:AddButton("Enable Trail", function()
+    local character = player.Character
+    if not character then return end
+
+    local humanoid = character:FindFirstChildOfClass("Humanoid")
+    local hrp = character:FindFirstChild("HumanoidRootPart")
+    if not humanoid or not hrp then return end
+
+    local oldPos = hrp.CFrame
+    local firstPos = CFrame.new(-349, 5, 98)
+
+    local poolClick = Workspace:FindFirstChild("WorkspaceCom"):FindFirstChild("001_Hospital"):FindFirstChild("PoolClick")
+    if poolClick and poolClick:FindFirstChild("ClickDetector") then
+        humanoid.WalkSpeed = 0
+        humanoid.JumpPower = 0
+
+        hrp.CFrame = firstPos
+        task.wait(1)
+        hrp.CFrame = poolClick.CFrame
+        fireclickdetector(poolClick.ClickDetector)
+        task.wait(0.7)
+        hrp.CFrame = oldPos
+
+        humanoid.WalkSpeed = 16
+        humanoid.JumpPower = 50
+
+        notify("Trail", "Trail obtido com sucesso!")
+    else
+        warn("PoolClick ou ClickDetector não encontrado!")
+        notify("Erro", "Trail não encontrado.")
+    end
+end)
+
+Others:AddButton("Disable Trail", function()
+	local character = game.Players.LocalPlayer.Character
+	local humanoid = character:FindFirstChild("Humanoid")
+
+	for _, part in pairs(character:GetChildren()) do
+		if part:IsA("Part") or part:IsA("BasePart") or part:IsA("MeshPart") then
+			if part.Anchored then
+				part.Anchored = false
+			end
+		end
+	end
+
+	if humanoid then
+		humanoid.Health = 0
+	end
+end)
+
+Others:AddLabel("Sitting Section")
+
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local player = Players.LocalPlayer
+
+local antiToolSit = false
+local antiCarSit = false
+local conns = {}
+
+local function updateSitState()
+	local shouldPrevent = antiToolSit or antiCarSit
+	local hum = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if hum then
+		hum:SetStateEnabled(Enum.HumanoidStateType.Seated, not shouldPrevent)
+	end
+end
+
+local function onCharacterAdded(char)
+	local hum = char:WaitForChild("Humanoid")
+
+	updateSitState()
+
+	local conn = hum.StateChanged:Connect(function(_, new)
+		if (antiToolSit or antiCarSit) and new == Enum.HumanoidStateType.Seated then
+			hum:ChangeState(Enum.HumanoidStateType.GettingUp)
+		end
+	end)
+	table.insert(conns, conn)
+end
+
+player.CharacterAdded:Connect(onCharacterAdded)
+if player.Character then
+	onCharacterAdded(player.Character)
+end
+
+table.insert(conns, RunService.Heartbeat:Connect(updateSitState))
+
+Others:AddSwitch("Anti Tool Sit", function(state)
+	antiToolSit = state
+	updateSitState()
+end)
+
+Others:AddSwitch("Anti Car Sit", function(state)
+	antiCarSit = state
+	updateSitState()
+end)
+
+Others:AddLabel("Airport")
+
+Others:AddButton("Gun Detect", function()
+    local Players = game:GetService("Players")
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+    local Player = Players.LocalPlayer
+    local Character = Player.Character or Player.CharacterAdded:Wait()
+    local RootPart = Character:WaitForChild("HumanoidRootPart")
+    local OldPos = RootPart.CFrame
+
+    local ToolRemote = ReplicatedStorage:FindFirstChild("RE"):FindFirstChild("1Too1l")
+    local ClearRemote = ReplicatedStorage:FindFirstChild("RE"):FindFirstChild("1Clea1rTool1s")
+
+    if ToolRemote and ClearRemote then
+        local success, err = pcall(function()
+            ToolRemote:InvokeServer("PickingTools", "Sniper")
+            local Sniper = Player.Backpack:FindFirstChild("Sniper")
+            if Sniper then
+                Sniper.Parent = Character
+            end
+
+            task.wait(0.5)
+            RootPart.CFrame = CFrame.new(332, 4, 73)
+            task.wait(2)
+            RootPart.CFrame = OldPos
+            task.wait(0.1)
+
+            ClearRemote:FireServer("PlayerWantsToDeleteTool", "Sniper")
+        end)
+
+        if not success then
+            warn("Gun Detect Failed: ", err)
+        end
+    else
+        warn("Required remotes not found in ReplicatedStorage.RE")
+    end
+end)
+
+Others:AddLabel("Chat Section (Roblox ban risk)")
+
+local TextSave
+local tcs = game:GetService("TextChatService")
+local chat = tcs.ChatInputBarConfiguration.TargetTextChannel
+
+function sendchat(msg)
+	if tcs.ChatVersion == Enum.ChatVersion.LegacyChatService then
+		game:GetService("ReplicatedStorage"):FindFirstChild("DefaultChatSystemChatEvents").SayMessageRequest:FireServer(msg, "All")
+	else
+		chat:SendAsync(msg)
+	end
+end
+
+Others:AddInput("Chat Box", "Enter text here...", function(text)
+		TextSave = text
+	end)
+
+Others:AddButton("Validate", function()
+		sendchat(TextSave)
+	end)
+
+local spamDelay = 1.2
+
+Others:AddSwitch("Loop Chat", function(Value)
+		getgenv().ShnmaxSpawnText = Value
+		while getgenv().ShnmaxSpawnText do
+			sendchat(TextSave)
+			task.wait(spamDelay)
+		end
+	end)
+
+Others:AddLabel("Commercial Section")
+Others:AddInput("Commercial 1", "Enter text here...", function(value)
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:wait(0.1)
+local initialPosition = character.HumanoidRootPart.Position
+
+local destination = Vector3.new(444.73675537109375, 63.137306213378906, 512.9107055664062)
+
+character.HumanoidRootPart.CFrame = CFrame.new(destination)
+         args = {
+            [1] = "ReturningCommercialWords",
+            [2] = 1,
+            [4] = value
+        }
+        game:GetService("ReplicatedStorage").RE["1Cemeter1y"]:FireServer(unpack(args))
+
+         args = {
+            [1] = "CommercialBackGround",
+            [2] = 1,
+            [3] = Color3.new(0, 0, 0)
+        }
+        game:GetService("ReplicatedStorage").RE["1Cemeter1y"]:FireServer(unpack(args))
+
+         args = {
+            [1] = "CommercialWordColor",
+            [2] = 1,
+            [3] = Color3.new(1, 0, 0.0461044)
+        }
+        game:GetService("ReplicatedStorage").RE["1Cemeter1y"]:FireServer(unpack(args))
+wait(0.7)
+character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
+    end)
+
+Others:AddInput("Commercial 2", "Enter text here...", function(value)
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:wait(0.1)
+local initialPosition = character.HumanoidRootPart.Position
+
+local destination = Vector3.new(-634.5044555664062, 25.402376174926758, 362.7777404785156)
+
+character.HumanoidRootPart.CFrame = CFrame.new(destination)
+         args = {
+            [1] = "ReturningCommercialWords",
+            [2] = 2,
+            [4] = value
+        }
+        game:GetService("ReplicatedStorage").RE["1Cemeter1y"]:FireServer(unpack(args))
+
+         args = {
+            [1] = "CommercialBackGround",
+            [2] = 2,
+            [3] = Color3.new(0, 0, 0)
+        }
+        game:GetService("ReplicatedStorage").RE["1Cemeter1y"]:FireServer(unpack(args))
+
+         args = {
+            [1] = "CommercialWordColor",
+            [2] = 2,
+            [3] = Color3.new(1, 0, 0.0461044)
+        }
+        game:GetService("ReplicatedStorage").RE["1Cemeter1y"]:FireServer(unpack(args))
+wait(0.7)
+character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
+    end)
+
+Others:AddInput("Commercial 3", "Enter text here...", function(value)
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:wait(0.1)
+local initialPosition = character.HumanoidRootPart.Position
+
+local destination = Vector3.new(-238.48960876464844, 88.5223617553711, -549.606689453125)
+
+character.HumanoidRootPart.CFrame = CFrame.new(destination)
+         args = {
+            [1] = "ReturningCommercialWords",
+            [2] = 3,
+            [4] = value
+        }
+        game:GetService("ReplicatedStorage").RE["1Cemeter1y"]:FireServer(unpack(args))
+
+         args = {
+            [1] = "CommercialBackGround",
+            [2] = 3,
+            [3] = Color3.new(0, 0, 0)
+        }
+        game:GetService("ReplicatedStorage").RE["1Cemeter1y"]:FireServer(unpack(args))
+
+         args = {
+            [1] = "CommercialWordColor",
+            [2] = 3,
+            [3] = Color3.new(1, 0, 0.0461044)
+        }
+        game:GetService("ReplicatedStorage").RE["1Cemeter1y"]:FireServer(unpack(args))
+wait(0.7)
+character.HumanoidRootPart.CFrame = CFrame.new(initialPosition)
+end)
+
+
+
+Teleportes:AddLabel("Teleports")
+
+local TweenService = game:GetService("TweenService")
+local Players = game:GetService("Players")
+local StarterGui = game:GetService("StarterGui")
+local player = Players.LocalPlayer
+
+local function safeCall(func)
+    local success, err = pcall(func)
+    if not success then
+        warn("Erro detectado: " .. err)
+    end
+end
+
+local function notify(title, text)
+    StarterGui:SetCore("SendNotification", {
+        Title = title,
+        Text = text,
+        Icon = "rbxthumb://type=Asset&id=122216401159246&w=150&h=150",
+        Duration = 3
+    })
+end
+
+local function teleportWithTween(targetPosition, nomeLocal)
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoidRootPart = character:WaitForChild("HumanoidRootPart")
+
+    if targetPosition and humanoidRootPart then
+        local goal = {CFrame = CFrame.new(targetPosition)}
+        local tweenInfo = TweenInfo.new(1, Enum.EasingStyle.Linear, Enum.EasingDirection.Out)
+        local tween = TweenService:Create(humanoidRootPart, tweenInfo, goal)
+        tween:Play()
+
+        tween.Completed:Connect(function()
+            notify("Teleporte concluído", "Você foi para " .. nomeLocal)
+        end)
+    else
+        warn("Posição ou personagem inválido para teleporte!")
+    end
+end
+
+local teleportes = {
+    {"Start", Vector3.new(-26.786, 4.549, -16.025)},
+    {"Burger Barn", Vector3.new(149.82, 5.549, 60.242)},
+    {"Motel", Vector3.new(170.196, 5.549, 266.061)},
+    {"Police Station", Vector3.new(-119.9, 4.641, 8.176)},
+    {"Ice Cream Shop", Vector3.new(-130.075, 4.649, -127.652)},
+    {"Arcade", Vector3.new(-168.064, 4.649, -112.339)},
+    {"Hair Salon", Vector3.new(-72.252, 4.649, -122.569)},
+    {"Supermarket", Vector3.new(10.353, 4.649, -115.098)},
+    {"Mall", Vector3.new(153.754, 4.775, -146.444)},
+    {"Cinema", Vector3.new(198.996, -33.061, -179.751)},
+    {"Airport", Vector3.new(295.139, 5.549, 40.569)},
+    {"Bank", Vector3.new(1.074, 4.549, 237.577)},
+    {"Clothing Store", Vector3.new(-41.549, 4.549, 238.717)},
+    {"Cafe", Vector3.new(-96.891, 4.549, 236.663)},
+    {"Library", Vector3.new(-129.832, 4.549, 242.131)},
+    {"Post Office", Vector3.new(-183.435, 4.549, 240.83)},
+    {"School", Vector3.new(-301.655, 4.749, 212.338)},
+    {"Hospital", Vector3.new(-304.652, 4.636, 14.17)},
+    {"Town Hall", Vector3.new(-354.4, 8.555, -101.754)},
+    {"Fire Department", Vector3.new(-430.852, 4.549, -103.408)},
+    {"Farm Horses", Vector3.new(-765.745, 4.149, -60.722)},
+    {"Farm", Vector3.new(-842.876, 4.149, -395.368)},
+    {"Drone Mountain", Vector3.new(-661.048, 251.373, 753.847)},
+    {"Beach", Vector3.new(-236.487, 1.136, 760.252)},
+    {"Forest House", Vector3.new(-186.256, 4.149, 1067.567)},
+    {"Admin Island Shelby", Vector3.new(99948.8906, 10279.7881, -336.647461, 0.998488188, -0, -0.0549663343, 0, 1, -0, 0.0549663343, 0, 0.998488188)},
+}
+
+-- Substituir AddButton por NewButton
+for _, info in ipairs(teleportes) do
+    local nome, pos = info[1], info[2]
+    Teleportes:AddButton("Teleporte " .. nome, function()
+        safeCall(function()
+            teleportWithTween(pos, nome)
+        end)
+    end)
+end    
