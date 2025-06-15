@@ -14,6 +14,7 @@ local Itens = gui:AddTab("Build")
 local Others = gui:AddTab("Others")
 local Teleportes = gui:AddTab("Teleportes")
 local Misc = gui:AddTab("Misc")
+local Kill = gui:AddTab("Kill")
 
 -- ====================
 --  ⬇️House Buttons⬇️
