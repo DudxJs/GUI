@@ -8,6 +8,7 @@ local gui = _G.DudxJsGUI:New("Título do Meu Painel")
 
 local House = gui:AddTab("House")
 local Avatar = gui:AddTab("Avatar")
+local Car = gui.AddTab("Car")
 
 -- ====================
 --  ⬇️House Buttons⬇️
@@ -896,4 +897,463 @@ end)
 
 Avatar:AddButton("Refresh Avatar", function()
 game:GetService("ReplicatedStorage").Remotes.ResetCharacterAppearance:FireServer()
+end)
+
+-- ==================
+--  ⬇️Car Buttons⬇️
+-- ==================
+
+Car:AddLabel("Target Car Player")
+
+local Vehicles = workspace:FindFirstChild("Vehicles")
+local Player = game.Players.LocalPlayer
+local SelectCar
+
+local Tabela = {}
+if Vehicles then
+    for _, car in ipairs(Vehicles:GetChildren()) do
+        if car:IsA("Model") then
+            table.insert(Tabela, car.Name)
+        end
+    end
+end
+
+local CarDropdown = Car:AddDropdown("Vehicle - ", Tabela, function(Value)
+        SelectCar = Value
+    end)
+
+Car:AddButton("Teleport to Vehicle", function()
+local Car = Vehicles:FindFirstChild(tostring(SelectCar))
+  if Car then
+    for _, basepart in ipairs(Car:GetDescendants()) do
+      if basepart:IsA("BasePart") then
+        game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(basepart.Position)
+      end
+    end
+  end
+end)
+
+Car:AddButton("Teleport to Seat", function()
+    local Car = Vehicles:FindFirstChild(tostring(SelectCar))
+    local Character = Player.Character
+    if Car and Character then
+        local Seat = Car:FindFirstChild("Body") and Car.Body:FindFirstChild("VehicleSeat") or Car:FindFirstChildWhichIsA("VehicleSeat")
+        local RootPart = Character:FindFirstChild("HumanoidRootPart")
+
+        if Seat and RootPart then
+            RootPart.CFrame = Seat.CFrame + Vector3.new(0, 3, 0)
+        end
+    end
+end)
+
+Car:AddButton("Pull Vehicle", function()
+        local Car = Vehicles:FindFirstChild(tostring(SelectCar))
+        local Character = Player.Character
+        if Car and Character then
+            local Seat = Car:FindFirstChild("Body") and Car.Body:FindFirstChild("VehicleSeat")
+            local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+            local RootPart = Character:FindFirstChild("HumanoidRootPart")
+
+            if Seat and Humanoid and RootPart then
+                if not Car.PrimaryPart then
+                    local try = Car:FindFirstChild("Primary") or Car:FindFirstChildWhichIsA("BasePart")
+                    if try then
+                        Car.PrimaryPart = try
+                    end
+                end
+
+                if Car.PrimaryPart then
+                    local OldPos = RootPart.CFrame
+
+                    repeat
+                        task.wait()
+                        RootPart.CFrame = Seat.CFrame
+                    until Humanoid.Sit
+
+                    task.wait(0.7)
+
+                    Car:SetPrimaryPartCFrame(OldPos)
+                end
+            end
+        end
+    end)
+    
+Car:AddLabel("Tank Section")
+
+local player = game:GetService("Players").LocalPlayer
+local spamConns = {}
+
+local function explode(car)
+    local p = car:FindFirstChild("Body") and car.Body:FindFirstChild("BodyPanels")
+    local s = p and p:FindFirstChild("Shoot")
+    local cd = s and s:FindFirstChildOfClass("ClickDetector")
+    if cd then fireclickdetector(cd) end
+end
+
+local function toggleSpam(type, enable)
+    if spamConns[type] then
+        spamConns[type]:Disconnect()
+        spamConns[type] = nil
+    end
+
+    if not enable then return end
+
+    spamConns[type] = game:GetService("RunService").Heartbeat:Connect(function()
+        local v = workspace:FindFirstChild("Vehicles")
+        if not v then return end
+
+        for _, car in ipairs(v:GetChildren()) do
+            if car:IsA("Model") then
+                if type == "Own" and car.Name == player.Name .. "Car" then
+                    explode(car)
+                elseif type == "All" and car.Name ~= player.Name .. "Car" then
+                    explode(car)
+                end
+            end
+        end
+    end)
+end
+
+Car:AddSwitch("Spam Explode Tank", function(state)
+    toggleSpam("Own", state)
+end)
+
+Car:AddSwitch("Spam Explode Every Tank", function(state)
+    toggleSpam("All", state)
+end)
+
+Car:AddLabel("Car Settings (Premium Only) ")
+ 
+local runningCarRainbow = false
+local RunService = game:GetService("RunService")
+local carRemote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r")
+
+-- Reaproveita a função de gerar cores suaves
+local function getRandomColor()
+	local r = math.random(50, 255) / 255
+	local g = math.random(50, 255) / 255
+	local b = math.random(50, 255) / 255
+	return Color3.new(r, g, b)
+end
+
+local function lerpColor(a, b, t)
+	local r = a.R + (b.R - a.R) * t
+	local g = a.G + (b.G - a.G) * t
+	local b = a.B + (b.B - a.B) * t
+	return Color3.new(r, g, b)
+end
+
+local function smoothCarColorTransition()
+	local currentColor = getRandomColor()
+	local targetColor = getRandomColor()
+	local duration = 2.5 -- pode ajustar conforme feeling
+
+	while runningCarRainbow do
+		local startTime = tick()
+		while tick() - startTime < duration do
+			if not runningCarRainbow then return end
+			local elapsed = tick() - startTime
+			local alpha = elapsed / duration
+			local newColor = lerpColor(currentColor, targetColor, alpha)
+
+			carRemote:FireServer("PickingCarColor", newColor)
+
+			task.wait(0.1)
+		end
+
+		currentColor = targetColor
+		targetColor = getRandomColor()
+	end
+end
+
+Car:AddSwitch("Rainbow Car", function(state)
+	runningCarRainbow = state
+	if state then
+		task.spawn(smoothCarColorTransition)
+		
+	else
+		
+	end
+end)
+
+Car:AddButton("Remove Wheel", function()
+ args = {
+    [1] = "BlowFrontLeft"
+}
+
+game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer(unpack(args))
+wait()
+ args = {
+    [1] = "BlowFrontRight"
+}
+
+game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer(unpack(args))
+wait()
+ args = {
+    [1] = "BlowRearRight"
+}
+
+game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer(unpack(args))
+wait() 
+args = {
+    [1] = "BlowRearLeft"
+}
+
+game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer(unpack(args))
+end)
+
+Car:AddSwitch("Spam Fire", function(state)
+    runningFire = state
+    if state then
+        spawn(function()
+            while runningFire do
+                game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer("Fire")
+                wait(2)
+            end
+        end)
+        print("Loop Fire ON")
+    else
+        print("Loop Fire OFF")
+    end
+end)
+
+local runningDuke1 = false
+Car:AddSwitch("Spam Duke 1", function(state)
+    runningDuke1 = state
+    if state then
+        spawn(function()
+            while runningDuke1 do
+                game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer("Duke1")
+                wait(1)
+            end
+        end)
+        print("Loop Duke 1 ON")
+    else
+        print("Loop Duke 1 OFF")
+    end
+end)
+
+-- Loop Duke 2
+local runningDuke2 = false
+Car:AddSwitch("Spam Duke 2", function(state)
+    runningDuke2 = state
+    if state then
+        spawn(function()
+            while runningDuke2 do
+                game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer("Duke")
+                wait(1)
+            end
+        end)
+        print("Loop Duke 2 ON")
+    else
+        print("Loop Duke 2 OFF")
+    end
+end)
+
+Car:AddSwitch("Spam Turbo", function(state)
+    runningSmoke = state
+    if state then
+        spawn(function()
+            while runningSmoke do
+                game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer("Smoke")
+                wait(2)
+            end
+        end)
+        print("Loop Fire ON")
+    else
+        print("Loop Fire OFF")
+    end
+end)
+
+function playCarMusic(musicId)
+    if musicId and musicId ~= "" then
+        carArgs = {
+            [1] = "PickingCarMusicText",
+            [2] = musicId
+        }
+        game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer(unpack(carArgs))
+    else
+        print("Por favor, insira um ID de música válido.")
+    end
+end
+
+function playScooterMusic(musicId)
+    if musicId and musicId ~= "" then
+         scooterArgs = {
+            [1] = "PickingScooterMusicText",
+            [2] = musicId
+        }
+        game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1NoMoto1rVehicle1s"):FireServer(unpack(scooterArgs))
+    else
+        print("Por favor, insira um ID de música válido.")
+    end
+end
+
+Car:AddInput("Car Music", "Enter id here...", function(value)
+            playCarMusic(value)
+            playScooterMusic(value)
+        end)
+
+Car:AddLabel("Car Settings (Free) ")
+
+local Player = game.Players.LocalPlayer
+local Vehicles = workspace:FindFirstChild("Vehicles")
+
+ function ApplyValueToCar(value)
+    local car = Vehicles and Vehicles:FindFirstChild(Player.Name .. "Car")
+    if car then
+        local seat = car:FindFirstChild("Body") and car.Body:FindFirstChild("VehicleSeat")
+        if seat then
+            seat.TopSpeed.Value = value
+            seat.Turbo.Value = value
+
+             args = {
+                [1] = "DriftingNumber",
+                [2] = value
+            }
+            game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer(unpack(args))
+
+            print("Speed =  " .. value)
+        else
+            print("Error sit in car first")
+        end
+    else
+        print("Spawn a car first !")
+    end
+end
+
+Car:AddInput("Speed Box", "Enter id here...", function(input)
+        local num = tonumber(input)
+        if num then
+            ApplyValueToCar(num)
+        else
+            print("...")
+        end
+    end)
+    
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local remote = ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Player1sCa1r")
+
+-- Spam Horn
+local hornActive = false
+Car:AddInput("Spam Horn", function(state)
+    hornActive = state
+    if state then
+        spawn(function()
+            while hornActive do
+                remote:FireServer("Horn")
+                wait(0.1)
+            end
+        end)
+    end
+end)
+
+-- Spam Light
+local lightActive = false
+Car:AddSwitch("Spam Light", function(state)
+    lightActive = state
+    if state then
+        spawn(function()
+            while lightActive do
+                remote:FireServer("Lights")
+                wait(0.4)
+            end
+        end)
+    end
+end)
+
+-- Spam Hazards
+local hazardActive = false
+Car:AddSwitch("Spam Hazards", function(state)
+    hazardActive = state
+    if state then
+        spawn(function()
+            while hazardActive do
+                remote:FireServer("Hazards")
+                wait(0.4)
+            end
+        end)
+    end
+end)
+
+-- Spam Wheel
+local wheelActive = false
+Car:AddSwitch("Spam Wheel", function(state)
+    wheelActive = state
+    if state then
+        spawn(function()
+            while wheelActive do
+                remote:FireServer("WheelNumber")
+                wait(0.4)
+            end
+        end)
+    end
+end)
+
+-- Spam Height
+local heightActive = false
+Car:AddSwitch("Spam Height", function(state)
+    heightActive = state
+    if state then
+        spawn(function()
+            while heightActive do
+                remote:FireServer("VehicleHeight", 4)
+                wait(1)
+                remote:FireServer("VehicleHeight", 1)
+                wait(1)
+            end
+        end)
+    end
+end)
+    
+Car:AddLabel("Bike Section")
+
+local runningBikeRainbow = false
+local bikeRemote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r")
+
+-- Reutiliza função global se já existir
+local function getRandomColor()
+	local r = math.random(50, 255) / 255
+	local g = math.random(50, 255) / 255
+	local b = math.random(50, 255) / 255
+	return Color3.new(r, g, b)
+end
+
+local function lerpColor(a, b, t)
+	local r = a.R + (b.R - a.R) * t
+	local g = a.G + (b.G - a.G) * t
+	local b = a.B + (b.B - a.B) * t
+	return Color3.new(r, g, b)
+end
+
+local function smoothBikeColorTransition()
+	local currentColor = getRandomColor()
+	local targetColor = getRandomColor()
+	local duration = 2.5 -- ajuste de acordo com o efeito desejado
+
+	while runningBikeRainbow do
+		local startTime = tick()
+		while tick() - startTime < duration do
+			if not runningBikeRainbow then return end
+			local elapsed = tick() - startTime
+			local alpha = elapsed / duration
+			local newColor = lerpColor(currentColor, targetColor, alpha)
+
+			bikeRemote:FireServer("NoMotorColor", newColor)
+			task.wait(0.1)
+		end
+
+		currentColor = targetColor
+		targetColor = getRandomColor()
+	end
+end
+
+Car:AddSwitch("Rainbow Bike", function(state)
+	runningBikeRainbow = state
+	if state then
+		print("Rainbow Bike ativado.")
+		task.spawn(smoothBikeColorTransition)
+	else
+		print("Rainbow Bike desativado.")
+	end
 end)
