@@ -12,7 +12,7 @@ local Car = gui:AddTab("Car")
 local Fun = gui:AddTab("Fun")
 local Itens = gui:AddTab("Build")
 local Others = gui:AddTab("Others")
-local Teleport = gui:AddTab("Teleport")
+local Teleportes = gui:AddTab("Teleportes")
 
 -- ====================
 --  ⬇️House Buttons⬇️
