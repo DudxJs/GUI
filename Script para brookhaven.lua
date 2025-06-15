@@ -17,6 +17,9 @@ local Misc = gui:AddTab("Misc")
 local Kill = gui:AddTab("Kill")
 local Tools = gui:AddTab("Tools")
 local Premium = gui:AddTab("Premium")
+local Map = gui:AddTab("Map")
+local Visual = gui:AddTab("Visual")
+local Scripts = gui:AddTab("Scripts")
 
 -- ====================
 --  ⬇️House Buttons⬇️
