@@ -2042,7 +2042,7 @@ Fun:AddButton("Tubers93 Gun", function()
 end)
 
 Fun:AddLabel("Sounds Gun")
-local soundIdFromTextBox = nil
+local soundIdFromInput = nil
 
 
 local function equipSniper()
@@ -2094,13 +2094,13 @@ end
 Fun:AddInput("Sounds Box", "Enter Id here...", function(text)
     local num = tonumber(text)
     if num then
-        soundIdFromTextBox = num
+        soundIdFromInput = num
     end
 end)
 
 Fun:AddInput("Validate", function()
-    if soundIdFromTextBox then
-        playSound(soundIdFromTextBox)
+    if soundIdFromInput then
+        playSound(soundIdFromInput)
     end
 end)
 
