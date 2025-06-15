@@ -1377,19 +1377,19 @@ end)
  sign5 = ""
  repeatNames = false
 
-Input = Fun:AddInput("Sign 1", "Enter text here...", function(value)
+Textbox = Fun:AddInput("Sign 1", "Enter text here...", function(value)
 sign1 = value
 end)
-Input = Fun:AddInput("Sign 2", "Enter text here...", function(value)
+Textbox = Fun:AddInput("Sign 2", "Enter text here...", function(value)
 sign2 = value
 end)
-Input = Fun:AddInput("Sign 3", "Enter text here...", function(value)
+Textbox = Fun:AddInput("Sign 3", "Enter text here...", function(value)
 sign3 = value
 end)
-Input = Fun:AddInput("Sign 4", "Enter text here...", function(value)
+Textbox = Fun:AddInput("Sign 4", "Enter text here...", function(value)
 sign4 = value
 end)
-Input = Fun:AddInput("Sign 5", "Enter text here...", function(value)
+Textbox = Fun:AddInput("Sign 5", "Enter text here...", function(value)
 sign5 = value
 end)
 
@@ -1452,19 +1452,19 @@ end)
  Box5 = ""
  repeatNames1 = false
 
-Input = Fun:AddInput("Box 1", "Enter text here...", function(value)
+Textbox = Fun:AddInput("Box 1", "Enter text here...", function(value)
 Box1 = value
 end)
-Input = Fun:AddInput("Box 2", "Enter text here...", function(value)
+Textbox = Fun:AddInput("Box 2", "Enter text here...", function(value)
 Box2 = value
 end)
-Input = Fun:AddInput("Box 3", "Enter text here...", function(value)
+Textbox = Fun:AddLabel("Box 3", "Enter text here...", function(value)
 Box3 = value
 end)
-Input = Fun:AddInput("Box 4", "Enter text here...", function(value)
+Textbox = Fun:AddInput("Box 4", "Enter text here...", function(value)
 Box4 = value
 end)
-Input = Fun:AddInput("Box 5", "Enter text here...", function(value)
+Textbox = Fun:AddInput("Box 5", "Enter text here...", function(value)
 Box5 = value
 end)
 
@@ -1633,7 +1633,7 @@ CreateDuplicator("Basketball", "Balls")
 local ThrowActive = false
 local ThrowThread
 
-Fun:AddSwitch("Balls Looper", function(state)
+Fun:AddToggle("Balls Looper", function(state)
 	ThrowActive = state
 
 	if state then
@@ -2042,8 +2042,7 @@ Fun:AddButton("Tubers93 Gun", function()
 end)
 
 Fun:AddLabel("Sounds Gun")
-local soundIdFromInput = nil
-
+local soundIdFromTextBox = nil
 
 local function equipSniper()
     local player = game.Players.LocalPlayer
@@ -2094,13 +2093,13 @@ end
 Fun:AddInput("Sounds Box", "Enter Id here...", function(text)
     local num = tonumber(text)
     if num then
-        soundIdFromInput = num
+        soundIdFromTextBox = num
     end
 end)
 
-Fun:AddInput("Validate", function()
-    if soundIdFromInput then
-        playSound(soundIdFromInput)
+Fun:AddButton("Validate", function()
+    if soundIdFromTextBox then
+        playSound(soundIdFromTextBox)
     end
 end)
 
