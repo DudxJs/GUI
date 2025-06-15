@@ -1377,19 +1377,19 @@ end)
  sign5 = ""
  repeatNames = false
 
-Textbox = Fun:AddInput("Sign 1", "Enter text here...", function(value)
+Input = Fun:AddInput("Sign 1", "Enter text here...", function(value)
 sign1 = value
 end)
-Textbox = Fun:AddInput("Sign 2", "Enter text here...", function(value)
+Input = Fun:AddInput("Sign 2", "Enter text here...", function(value)
 sign2 = value
 end)
-Textbox = Fun:AddInput("Sign 3", "Enter text here...", function(value)
+Input = Fun:AddInput("Sign 3", "Enter text here...", function(value)
 sign3 = value
 end)
-Textbox = Fun:AddInput("Sign 4", "Enter text here...", function(value)
+Input = Fun:AddInput("Sign 4", "Enter text here...", function(value)
 sign4 = value
 end)
-Textbox = Fun:AddInput("Sign 5", "Enter text here...", function(value)
+Input = Fun:AddInput("Sign 5", "Enter text here...", function(value)
 sign5 = value
 end)
 
@@ -1452,19 +1452,19 @@ end)
  Box5 = ""
  repeatNames1 = false
 
-Textbox = Fun:AddInput("Box 1", "Enter text here...", function(value)
+Input = Fun:AddInput("Box 1", "Enter text here...", function(value)
 Box1 = value
 end)
-Textbox = Fun:AddInput("Box 2", "Enter text here...", function(value)
+Input = Fun:AddInput("Box 2", "Enter text here...", function(value)
 Box2 = value
 end)
-Textbox = Fun:AddInput("Box 3", "Enter text here...", function(value)
+Input = Fun:AddInput("Box 3", "Enter text here...", function(value)
 Box3 = value
 end)
-Textbox = Fun:AddInput("Box 4", "Enter text here...", function(value)
+Input = Fun:AddInput("Box 4", "Enter text here...", function(value)
 Box4 = value
 end)
-Textbox = Fun:AddInput("Box 5", "Enter text here...", function(value)
+Input = Fun:AddInput("Box 5", "Enter text here...", function(value)
 Box5 = value
 end)
 
