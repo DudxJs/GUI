@@ -1,6 +1,6 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/DudxJs/GUI/main/GUI.lua"))()
 
-local gui = _G.DudxJsGUI:New("Título do Meu Painel")
+local gui = _G.DudxJsGUI:New("MasterShukaku Hub")
 
 -- ==================
 --  ⬇️Tab Buttons⬇️
