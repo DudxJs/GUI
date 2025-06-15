@@ -10,7 +10,7 @@ local House = gui:AddTab("House")
 local Avatar = gui:AddTab("Avatar")
 local Car = gui:AddTab("Car")
 local Fun = gui:AddTab("Fun")
-local Itens = gui.AddTab("Itens")
+local Itens = gui:AddTab("Itens")
 
 -- ====================
 --  ⬇️House Buttons⬇️
