@@ -1458,7 +1458,7 @@ end)
 Textbox = Fun:AddInput("Box 2", "Enter text here...", function(value)
 Box2 = value
 end)
-Textbox = Fun:AddLabel("Box 3", "Enter text here...", function(value)
+Textbox = Fun:AddInput("Box 3", "Enter text here...", function(value)
 Box3 = value
 end)
 Textbox = Fun:AddInput("Box 4", "Enter text here...", function(value)
@@ -1567,12 +1567,12 @@ local function CountTool(toolName)
 	local total = 0
 	for _, tool in ipairs(player.Backpack:GetChildren()) do
 		if tool.Name == toolName then
-			total += 1
+			total = 1
 		end
 	end
 	for _, tool in ipairs(player.Character:GetChildren()) do
 		if tool.Name == toolName then
-			total += 1
+			total = 1
 		end
 	end
 	return total
@@ -1741,7 +1741,7 @@ Fun:AddButton("FE DOORS", function()
     for _, obj in ipairs(Workspace:GetDescendants()) do
         if obj:IsA("BasePart") and obj.Name:lower():find("door") then
             SetupPart(obj, index)
-            index += 1
+            index = 1
         end
     end
 
