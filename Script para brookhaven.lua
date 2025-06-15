@@ -1237,7 +1237,7 @@ local remote = ReplicatedStorage:WaitForChild("RE"):WaitForChild("1Player1sCa1r"
 
 -- Spam Horn
 local hornActive = false
-Car:AddInput("Spam Horn", function(state)
+Car:AddSwitch("Spam Horn",  function(state)
     hornActive = state
     if state then
         spawn(function()
