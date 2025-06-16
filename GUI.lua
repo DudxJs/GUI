@@ -307,34 +307,43 @@ function DudxJsGUI:AddTab(tabName)
         local icon = Instance.new("TextLabel", inputContainer)
         icon.Size = UDim2.new(0, 20, 1, 0)
         icon.BackgroundTransparency = 1
-        icon.Text = "✏️"
+        icon.Text = "✎"
         icon.TextColor3 = Color3.new(1, 1, 1)
         icon.Font = Enum.Font.SourceSans
         icon.TextSize = 18
         local inputHolder = Instance.new("Frame", inputContainer)
         inputHolder.Size = UDim2.new(0.45, 0, 1, 0)
         inputHolder.BackgroundTransparency = 1
-        local inputBox = Instance.new("TextBox", inputHolder)
+        
+    local inputBox = Instance.new("TextBox", inputHolder)
         inputBox.AnchorPoint = Vector2.new(0.5, 0.5)
         inputBox.Position = UDim2.new(0.5, 0, 0.5, 0)
         inputBox.Size = UDim2.new(1, 0, 0.75, 0)
         inputBox.BackgroundColor3 = Color3.fromRGB(65, 65, 65)
         inputBox.TextColor3 = Color3.new(1, 1, 1)
         inputBox.PlaceholderText = placeholder or "Digite aqui"
+        inputBox.Text = "" -- Certifica-se de que o TextBox inicializa vazio
         inputBox.Font = Enum.Font.SourceSans
         inputBox.TextSize = 16
         inputBox.TextXAlignment = Enum.TextXAlignment.Center
         inputBox.BorderSizePixel = 0
         inputBox.ClearTextOnFocus = false
         roundify(inputBox, 6)
-        inputBox.FocusLost:Connect(function(enterPressed)
-            if enterPressed and callback then
-                callback(inputBox.Text)
-            end
-        end)
-        tab._order = tab._order + 1
-        return inputContainer, inputBox
-    end
+            -- Eventos para alterar a cor do ícone
+    inputBox.Focused:Connect(function()
+        icon.TextColor3 = Color3.new(1, 0, 0) -- Muda para vermelho quando focado
+    end)
+    
+    inputBox.FocusLost:Connect(function(enterPressed)
+        icon.TextColor3 = Color3.new(1, 1, 1) -- Volta para branco quando perde o foco
+        if enterPressed and callback then
+            callback(inputBox.Text)
+        end
+    end)
+    
+    tab._order = tab._order + 1
+    return inputContainer, inputBox
+end
     
         function tab:AddDropdown(text, items, callback)
         local dropdownContainer = Instance.new("TextButton", contentScroll)
