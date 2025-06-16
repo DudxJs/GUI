@@ -914,6 +914,81 @@ end)
 --  ⬇️Car Buttons⬇️
 -- ==================
 
+-- URL para carregar a playlist
+local playlistUrl = "https://pastebin.com/raw/uDreR61A"
+
+-- Carregar a playlist dinamicamente
+local PlayList = loadstring(game:HttpGet(playlistUrl))()
+
+-- Verificar se a playlist foi carregada corretamente
+if PlayList then
+    print("Playlist carregada com sucesso!")
+else
+    error("Erro ao carregar a playlist!")
+end
+
+-- Função para tocar música
+local function playMusic(musicId)
+    if musicId and musicId ~= "" then
+        local args = {
+            [1] = "PickingCarMusicText", -- Customize com o evento correto
+            [2] = musicId
+        }
+        game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer(unpack(args))
+        print("Tocando música com ID:", musicId)
+    else
+        print("Por favor, insira um ID de música válido.")
+    end
+end
+
+-- Variável para armazenar o último ID de música selecionado ou digitado
+local lastMusicId = nil
+
+-- Aba Música
+
+-- Label informativo
+Car:AddLabel("Music ID『Gamepass』")
+
+-- Input para digitar o ID da música
+Car:AddInput("Digite o ID da Música", "Ex.: 12345678", function(id)
+    local musicId = tonumber(id) -- Converter para número
+    if musicId then
+        lastMusicId = id -- Atualizar o último ID
+        print("ID da Música atualizado pelo Input:", lastMusicId)
+    else
+        print("ID inválido. Por favor, insira um número.")
+    end
+end)
+
+-- Dropdown para selecionar uma música da PlayList
+local musicOptions = {}
+for _, song in pairs(PlayList) do
+    table.insert(musicOptions, song.Name) -- Adiciona somente o nome ao Dropdown
+end
+
+Car:AddDropdown("Escolha uma música", musicOptions, function(selectedName)
+    for _, song in pairs(PlayList) do
+        if selectedName == song.Name then
+            lastMusicId = song.ID -- Atualizar o último ID
+            print("ID da Música atualizado pelo Dropdown:", lastMusicId)
+            break
+        end
+    end
+end)
+
+-- Botão para tocar música
+Car:AddButton("Tocar Música", function()
+    if lastMusicId then
+        playMusic(lastMusicId) -- Tocar música com o último ID
+    else
+        print("Nenhum ID de música foi selecionado ou digitado.")
+    end
+end)
+
+-- Aba Info
+local tabInfo = gui:AddTab("Info")
+tabInfo:AddLabel("Este painel foi criado usando DudxJsGUI!")
+
 Car:AddLabel("Target Car Player")
 
 local Vehicles = workspace:FindFirstChild("Vehicles")
@@ -1175,35 +1250,6 @@ Car:AddSwitch("Spam Turbo", function(state)
         print("Loop Fire OFF")
     end
 end)
-
-function playCarMusic(musicId)
-    if musicId and musicId ~= "" then
-        carArgs = {
-            [1] = "PickingCarMusicText",
-            [2] = musicId
-        }
-        game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer(unpack(carArgs))
-    else
-        print("Por favor, insira um ID de música válido.")
-    end
-end
-
-function playScooterMusic(musicId)
-    if musicId and musicId ~= "" then
-         scooterArgs = {
-            [1] = "PickingScooterMusicText",
-            [2] = musicId
-        }
-        game:GetService("ReplicatedStorage"):WaitForChild("RE"):WaitForChild("1NoMoto1rVehicle1s"):FireServer(unpack(scooterArgs))
-    else
-        print("Por favor, insira um ID de música válido.")
-    end
-end
-
-Car:AddInput("Car Music", "Enter id here...", function(value)
-            playCarMusic(value)
-            playScooterMusic(value)
-        end)
 
 Car:AddLabel("Car Settings (Free) ")
 
@@ -2756,6 +2802,8 @@ local soundList = {
     {Name = "Buuuh Sound", ID = 83788010495185},    
     {Name = "My Heart Is Pure Evil Sound", ID = 106843479364998},    
     {Name = "Laugh Sound", ID = 123106903091799},    
+    {Name = "Error Sound", ID = 3893790326},
+    
 }
 
 -- Variáveis de controle
