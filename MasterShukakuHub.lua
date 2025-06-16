@@ -985,10 +985,6 @@ Car:AddButton("Tocar Música", function()
     end
 end)
 
--- Aba Info
-local tabInfo = gui:AddTab("Info")
-tabInfo:AddLabel("Este painel foi criado usando DudxJsGUI!")
-
 Car:AddLabel("Target Car Player")
 
 local Vehicles = workspace:FindFirstChild("Vehicles")
