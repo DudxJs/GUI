@@ -24,6 +24,7 @@ function DudxJsGUI:New(title, toggleImageId)
     
     -- Botão móvel para abrir/fechar a GUI
     self.toggleBtn = Instance.new("ImageButton")
+    print("Botão Móvel Criado!")
     self.toggleBtn.Size = UDim2.new(0, 50, 0, 50)
     self.toggleBtn.Position = UDim2.new(0, 20, 0.5, -25)
     self.toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
@@ -154,7 +155,7 @@ end)
     overlay.Position = UDim2.new(0, 0, 0, 0)
     overlay.BackgroundColor3 = Color3.new(0, 0, 0)
     overlay.BackgroundTransparency = 0.3
-    overlay.ZIndex = 100
+    overlay.ZIndex = 9999999999
     overlay.Parent = self._gui
 
     -- Quadro central de confirmação
@@ -163,7 +164,7 @@ end)
     confirmFrame.Position = UDim2.new(0.5, -170, 0.5, -85)
     confirmFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
     confirmFrame.BorderSizePixel = 0
-    confirmFrame.ZIndex = 101
+    confirmFrame.ZIndex = 99999999999
     roundify(confirmFrame, 14)
 
     -- Borda vermelha estilizada
@@ -173,7 +174,7 @@ end)
     border.BackgroundTransparency = 1
     border.BorderSizePixel = 4
     border.BorderColor3 = Color3.fromRGB(200, 0, 0)
-    border.ZIndex = 102
+    border.ZIndex = 999999999999
 
     -- Título
     local title = Instance.new("TextLabel", confirmFrame)
@@ -185,7 +186,7 @@ end)
     title.Font = Enum.Font.SourceSansBold
     title.TextSize = 21
     title.TextXAlignment = Enum.TextXAlignment.Center
-    title.ZIndex = 103
+    title.ZIndex = 9999999999999
 
     -- Subtítulo/descrição
     local desc = Instance.new("TextLabel", confirmFrame)
@@ -197,7 +198,7 @@ end)
     desc.Font = Enum.Font.SourceSans
     desc.TextSize = 16
     desc.TextXAlignment = Enum.TextXAlignment.Center
-    desc.ZIndex = 103
+    desc.ZIndex = 9999999999999
 
     -- Botão Cancelar (vermelho, à direita)
     local cancelBtn = Instance.new("TextButton", confirmFrame)
@@ -208,7 +209,7 @@ end)
     cancelBtn.TextColor3 = Color3.new(1, 1, 1)
     cancelBtn.Font = Enum.Font.SourceSansBold
     cancelBtn.TextSize = 18
-    cancelBtn.ZIndex = 104
+    cancelBtn.ZIndex = 99999999999999
     cancelBtn.BorderSizePixel = 0
     roundify(cancelBtn, 10)
 
@@ -221,7 +222,7 @@ end)
     confirmBtn.TextColor3 = Color3.fromRGB(200, 0, 0)
     confirmBtn.Font = Enum.Font.SourceSansBold
     confirmBtn.TextSize = 18
-    confirmBtn.ZIndex = 104
+    confirmBtn.ZIndex = 99999999999999
     confirmBtn.BorderColor3 = Color3.fromRGB(200, 0, 0)
     confirmBtn.BorderSizePixel = 2
     roundify(confirmBtn, 10)
