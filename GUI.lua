@@ -21,6 +21,58 @@ end
 -- Cria a base inteira do GUI
 function DudxJsGUI:New(title, toggleImageId)
     local self = setmetatable({}, DudxJsGUI)
+    
+    -- Botão móvel para abrir/fechar a GUI
+    self.toggleBtn = Instance.new("ImageButton")
+    self.toggleBtn.Size = UDim2.new(0, 50, 0, 50)
+    self.toggleBtn.Position = UDim2.new(0, 20, 0.5, -25)
+    self.toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    self.toggleBtn.Image = toggleImageId or "rbxassetid://6031097225" -- Usa imagem customizada se informada
+    self.toggleBtn.Parent = self._gui
+    roundify(self.toggleBtn, 25)
+    self.toggleBtn.ZIndex = 10
+    self.toggleBtn.Visible = true
+
+-- Alterna a visibilidade da GUI
+function self:ToggleGUI()
+    local isVisible = self.main.Visible
+    self.main.Visible = not isVisible
+    self.menu.Visible = not isVisible and not isMinimized
+    self.content.Visible = not isVisible and not isMinimized
+end
+
+-- Clique no botão móvel alterna a GUI
+self.toggleBtn.MouseButton1Click:Connect(function()
+    self:ToggleGUI()
+end)
+
+-- (Opcional) Arrastar botão móvel
+local draggingBtn, dragInputBtn, dragStartBtn, startPosBtn = false
+self.toggleBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingBtn = true
+        dragStartBtn = input.Position
+        startPosBtn = self.toggleBtn.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then draggingBtn = false end
+        end)
+    end
+end)
+self.toggleBtn.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInputBtn = input
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInputBtn and draggingBtn then
+        local delta = input.Position - dragStartBtn
+        self.toggleBtn.Position = UDim2.new(
+            startPosBtn.X.Scale, startPosBtn.X.Offset + delta.X,
+            startPosBtn.Y.Scale, startPosBtn.Y.Offset + delta.Y
+        )
+    end
+end)
+    
     -- ScreenGui
     self._gui = Instance.new("ScreenGui")
     self._gui.Name = "DudxJsGUI"
@@ -270,57 +322,6 @@ end)
     self._tabs = {}
     return self
 end
-
--- Botão móvel para abrir/fechar a GUI
-    self.toggleBtn = Instance.new("ImageButton")
-    self.toggleBtn.Size = UDim2.new(0, 50, 0, 50)
-    self.toggleBtn.Position = UDim2.new(0, 20, 0.5, -25)
-    self.toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    self.toggleBtn.Image = toggleImageId or "rbxassetid://6031097225" -- Usa imagem customizada se informada
-    self.toggleBtn.Parent = self._gui
-    roundify(self.toggleBtn, 25)
-    self.toggleBtn.ZIndex = 10
-    self.toggleBtn.Visible = true
-
--- Alterna a visibilidade da GUI
-function self:ToggleGUI()
-    local isVisible = self.main.Visible
-    self.main.Visible = not isVisible
-    self.menu.Visible = not isVisible and not isMinimized
-    self.content.Visible = not isVisible and not isMinimized
-end
-
--- Clique no botão móvel alterna a GUI
-self.toggleBtn.MouseButton1Click:Connect(function()
-    self:ToggleGUI()
-end)
-
--- (Opcional) Arrastar botão móvel
-local draggingBtn, dragInputBtn, dragStartBtn, startPosBtn = false
-self.toggleBtn.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        draggingBtn = true
-        dragStartBtn = input.Position
-        startPosBtn = self.toggleBtn.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then draggingBtn = false end
-        end)
-    end
-end)
-self.toggleBtn.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInputBtn = input
-    end
-end)
-UserInputService.InputChanged:Connect(function(input)
-    if input == dragInputBtn and draggingBtn then
-        local delta = input.Position - dragStartBtn
-        self.toggleBtn.Position = UDim2.new(
-            startPosBtn.X.Scale, startPosBtn.X.Offset + delta.X,
-            startPosBtn.Y.Scale, startPosBtn.Y.Offset + delta.Y
-        )
-    end
-end)
 
 -- Cria uma Tab com página e rolagem
 function DudxJsGUI:AddTab(tabName)
