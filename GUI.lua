@@ -32,7 +32,7 @@ function DudxJsGUI:New(title, toggleImageId)
     self.toggleBtn = Instance.new("ImageButton")
     print("Botão Móvel Criado!")
     self.toggleBtn.Size = UDim2.new(0, 50, 0, 50)
-    self.toggleBtn.Position = UDim2.new(0, 20, 0.5, -25)
+    self.toggleBtn.Position = UDim2.new(0, 198, 0, 39)
     self.toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
     self.toggleBtn.Image = toggleImageId or "rbxassetid://6031097225" -- Usa imagem customizada se informada
     self.toggleBtn.Parent = self._gui
