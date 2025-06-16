@@ -947,7 +947,7 @@ local lastMusicId = nil
 -- Aba Música
 
 -- Label informativo
-Car:AddLabel("Music ID『Gamepass』")
+Car:AddLabel("Music Car ID『Gamepass』")
 
 -- Input para digitar o ID da música
 Car:AddInput("Digite o ID da Música", "Ex.: 12345678", function(id)
