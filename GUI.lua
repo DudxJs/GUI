@@ -313,6 +313,13 @@ end)
     menuLayout.VerticalAlignment = Enum.VerticalAlignment.Top
     menuLayout.Padding = UDim.new(0, 8)
     menuLayout.SortOrder = Enum.SortOrder.LayoutOrder
+    -- Barra animada de seleção de aba
+self._tabSelectorBar = Instance.new("Frame", self.menu)
+self._tabSelectorBar.Size = UDim2.new(0, 6, 0, 32) -- largura 6px, altura igual ao botão
+self._tabSelectorBar.Position = UDim2.new(0, 0, 0, 0)
+self._tabSelectorBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+self._tabSelectorBar.BorderSizePixel = 0
+self._tabSelectorBar.Visible = false
     -- Área de conteúdo
     self.content = Instance.new("Frame", self.main)
     self.content.Size = UDim2.new(1, -195, 1, -40)
@@ -347,10 +354,13 @@ function DudxJsGUI:AddTab(tabName)
     local padding = Instance.new("UIPadding", button)
     padding.PaddingLeft = UDim.new(0, 12)
     if #self._tabs == 0 then
-    button.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Vermelho para aba ativa
+    button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     button.TextColor3 = Color3.new(1, 1, 1)
     button.Font = Enum.Font.SourceSansBold
     self._selectedTab = tab
+    self._tabSelectorBar.Position = UDim2.new(0, 0, 0, button.Position.Y.Offset)
+    self._tabSelectorBar.Size = UDim2.new(0, 6, 0, button.AbsoluteSize.Y)
+    self._tabSelectorBar.Visible = true
 end
     -- Página
     local page = Instance.new("Frame", self.content)
@@ -383,15 +393,24 @@ end
     button.MouseButton1Click:Connect(function()
     for _, t in pairs(self._tabs) do
         t.page.Visible = false
-        t.button.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- cor padrão
+        t.button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
         t.button.TextColor3 = Color3.new(1, 1, 1)
         t.button.Font = Enum.Font.SourceSans
     end
     page.Visible = true
-    button.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- destaque aba ativa
+    button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     button.TextColor3 = Color3.new(1, 1, 1)
     button.Font = Enum.Font.SourceSansBold
     self._selectedTab = tab
+
+    -- Barra animada
+    self._tabSelectorBar.Visible = true
+    self._tabSelectorBar.Size = UDim2.new(0, 6, 0, button.AbsoluteSize.Y)
+    TweenService:Create(
+        self._tabSelectorBar,
+        TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+        {Position = UDim2.new(0, 0, 0, button.Position.Y.Offset)}
+    ):Play()
 end)
     -- Métodos de Tab
     tab._order = 1
