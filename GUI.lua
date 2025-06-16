@@ -307,7 +307,7 @@ function DudxJsGUI:AddTab(tabName)
         local icon = Instance.new("TextLabel", inputContainer)
         icon.Size = UDim2.new(0, 20, 1, 0)
         icon.BackgroundTransparency = 1
-        icon.Text = "✎"
+        icon.Text = "✏️"
         icon.TextColor3 = Color3.new(1, 1, 1)
         icon.Font = Enum.Font.SourceSans
         icon.TextSize = 18
