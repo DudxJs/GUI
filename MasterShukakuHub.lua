@@ -21,9 +21,9 @@ local Map = gui:AddTab("Map")
 local Visual = gui:AddTab("Visual")
 local Scripts = gui:AddTab("Scripts")
 
--- ================================
+-- ==================================
 --  ⬇️ RP Nome/Bio Inicialização ⬇️
--- ================================
+-- ==================================
 
 -- Services
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
