@@ -19,7 +19,7 @@ local function roundify(obj, rad)
 end
 
 -- Cria a base inteira do GUI
-function DudxJsGUI:New(title, toggleImageID)
+function DudxJsGUI:New(title, toggleImageId)
     local self = setmetatable({}, DudxJsGUI)
     -- ScreenGui
     self._gui = Instance.new("ScreenGui")
@@ -276,7 +276,7 @@ end
     self.toggleBtn.Size = UDim2.new(0, 50, 0, 50)
     self.toggleBtn.Position = UDim2.new(0, 20, 0.5, -25)
     self.toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    self.toggleBtn.Image = toggleImageID or "rbxassetid://6031097225" -- Usa imagem customizada se informada
+    self.toggleBtn.Image = toggleImageId or "rbxassetid://6031097225" -- Usa imagem customizada se informada
     self.toggleBtn.Parent = self._gui
     roundify(self.toggleBtn, 25)
     self.toggleBtn.ZIndex = 10
