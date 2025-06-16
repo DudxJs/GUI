@@ -328,7 +328,6 @@ end
 -- Cria uma Tab com página e rolagem
 function DudxJsGUI:AddTab(tabName)
     local self = self
-    self._selectedTab = self._selectedTab or nil
     local tab = {}
     -- Botão lateral
     local button = Instance.new("TextButton", self.menu)
@@ -346,12 +345,6 @@ function DudxJsGUI:AddTab(tabName)
     button.TextWrapped = false
     local padding = Instance.new("UIPadding", button)
     padding.PaddingLeft = UDim.new(0, 12)
-    if #self._tabs == 0 then
-    button.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- Vermelho para aba ativa
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.Font = Enum.Font.SourceSansBold
-    self._selectedTab = tab
-end
     -- Página
     local page = Instance.new("Frame", self.content)
     page.Name = tabName:gsub("%s+", "") .. "Page"
@@ -381,18 +374,11 @@ end
     contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
     -- Troca de páginas
     button.MouseButton1Click:Connect(function()
-    for _, t in pairs(self._tabs) do
-        t.page.Visible = false
-        t.button.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- cor padrão
-        t.button.TextColor3 = Color3.new(1, 1, 1)
-        t.button.Font = Enum.Font.SourceSans
-    end
-    page.Visible = true
-    button.BackgroundColor3 = Color3.fromRGB(255, 0, 0) -- destaque aba ativa
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.Font = Enum.Font.SourceSansBold
-    self._selectedTab = tab
-end)
+        for _, t in pairs(self._tabs) do
+            t.page.Visible = false
+        end
+        page.Visible = true
+    end)
     -- Métodos de Tab
     tab._order = 1
     tab.page = page
