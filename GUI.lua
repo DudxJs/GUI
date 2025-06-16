@@ -346,14 +346,46 @@ function DudxJsGUI:AddTab(tabName)
     button.TextWrapped = false
     local padding = Instance.new("UIPadding", button)
     padding.PaddingLeft = UDim.new(0, 12)
-    if #self._tabs == 0 then
+    -- Após criar o botão no AddTab (depois de padding.PaddingLeft = UDim.new(0, 12)):
+
+if #self._tabs == 0 then
     button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
     button.TextColor3 = Color3.new(1, 1, 1)
     button.Font = Enum.Font.SourceSansBold
     self._selectedTab = tab
+
+    -- Aguarda um frame para o layout atualizar a posição
+    task.defer(function()
+        local localPos = Vector2.new(0, 0)
+        if button and button.Parent then
+            localPos = button.Parent:AbsoluteToLocal(button.AbsolutePosition)
+        end
+        self._tabSelectorBar.Position = UDim2.new(0, 0, 0, localPos.Y)
+        self._tabSelectorBar.Size = UDim2.new(0, 6, 0, button.AbsoluteSize.Y)
+        self._tabSelectorBar.Visible = true
+    end)
+end
+
+-- Substitua o evento do clique do botão de aba por:
+button.MouseButton1Click:Connect(function()
+    for _, t in pairs(self._tabs) do
+        t.page.Visible = false
+        t.button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        t.button.TextColor3 = Color3.new(1, 1, 1)
+        t.button.Font = Enum.Font.SourceSans
+    end
+    page.Visible = true
+    button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Font = Enum.Font.SourceSansBold
+    self._selectedTab = tab
+
     -- Barra animada
-    task.defer(function() -- Garante cálculo correto após layout
-        local localPos = self.menu:AbsoluteToLocal(button.AbsolutePosition)
+    task.defer(function()
+        local localPos = Vector2.new(0, 0)
+        if button and button.Parent then
+            localPos = button.Parent:AbsoluteToLocal(button.AbsolutePosition)
+        end
         self._tabSelectorBar.Visible = true
         self._tabSelectorBar.Size = UDim2.new(0, 6, 0, button.AbsoluteSize.Y)
         TweenService:Create(
@@ -362,7 +394,7 @@ function DudxJsGUI:AddTab(tabName)
             {Position = UDim2.new(0, 0, 0, localPos.Y)}
         ):Play()
     end)
-end
+end)
     -- Página
     local page = Instance.new("Frame", self.content)
     page.Name = tabName:gsub("%s+", "") .. "Page"
@@ -390,29 +422,6 @@ end
     contentLayout.VerticalAlignment = Enum.VerticalAlignment.Top
     contentLayout.Padding = UDim.new(0, 7)
     contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    -- Troca de páginas
-    button.MouseButton1Click:Connect(function()
-    for _, t in pairs(self._tabs) do
-        t.page.Visible = false
-        t.button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        t.button.TextColor3 = Color3.new(1, 1, 1)
-        t.button.Font = Enum.Font.SourceSans
-    end
-    page.Visible = true
-    button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.Font = Enum.Font.SourceSansBold
-    self._selectedTab = tab
-
-    -- Barra animada
-    self._tabSelectorBar.Visible = true
-    self._tabSelectorBar.Size = UDim2.new(0, 6, 0, button.AbsoluteSize.Y)
-    TweenService:Create(
-        self._tabSelectorBar,
-        TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-        {Position = UDim2.new(0, 0, 0, button.Position.Y.Offset)}
-    ):Play()
-end)
     -- Métodos de Tab
     tab._order = 1
     tab.page = page
