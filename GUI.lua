@@ -22,6 +22,12 @@ end
 function DudxJsGUI:New(title, toggleImageId)
     local self = setmetatable({}, DudxJsGUI)
     
+    -- ScreenGui
+    self._gui = Instance.new("ScreenGui")
+    self._gui.Name = "DudxJsGUI"
+    self._gui.ResetOnSpawn = false
+    self._gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
+    
     -- Botão móvel para abrir/fechar a GUI
     self.toggleBtn = Instance.new("ImageButton")
     print("Botão Móvel Criado!")
@@ -74,11 +80,6 @@ UserInputService.InputChanged:Connect(function(input)
     end
 end)
     
-    -- ScreenGui
-    self._gui = Instance.new("ScreenGui")
-    self._gui.Name = "DudxJsGUI"
-    self._gui.ResetOnSpawn = false
-    self._gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
     -- MainFrame
     self.main = Instance.new("Frame", self._gui)
     self.main.Size = UDim2.new(0, 530, 0, 300)
