@@ -380,7 +380,7 @@ end
         local arrowBtn = Instance.new("TextLabel", leftGroup)
         arrowBtn.Size = UDim2.new(0, 20, 1, 0)
         arrowBtn.BackgroundTransparency = 1
-        arrowBtn.Text = "V"
+        arrowBtn.Text = "▽"
         arrowBtn.TextColor3 = Color3.new(1, 1, 1)
         arrowBtn.Font = Enum.Font.SourceSans
         arrowBtn.TextSize = 18
@@ -455,7 +455,7 @@ end
                 item.MouseButton1Click:Connect(function()
                     selectedLabel.Text = nome
                     listFrame.Visible = false
-                    arrowBtn.Text = "V"
+                    arrowBtn.Text = "▽"
                     if callback then callback(nome) end
                 end)
                 totalHeight = totalHeight + 32 + 4
@@ -480,7 +480,7 @@ end
             listFrame.Position = UDim2.new(0, absPos.X, 0, posY)
             listFrame.Size = UDim2.new(0, absSize.X, 0, math.min(150, listFrame.CanvasSize.Y.Offset))
             listFrame.Visible = not listFrame.Visible
-            arrowBtn.Text = listFrame.Visible and "∧" or "V"
+            arrowBtn.Text = listFrame.Visible and "▽" or "△"
         end
 
         -- Fecha lista ao clicar fora
@@ -488,7 +488,7 @@ end
             if input.UserInputType == Enum.UserInputType.MouseButton1 then
                 if listFrame.Visible and not dropdownContainer:IsAncestorOf(input.Target) and input.Target ~= listFrame and not listFrame:IsAncestorOf(input.Target) then
                     listFrame.Visible = false
-                    arrowBtn.Text = "V"
+                    arrowBtn.Text = "▽"
                 end
             end
         end)
