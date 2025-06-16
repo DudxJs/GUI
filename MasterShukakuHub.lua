@@ -1,6 +1,6 @@
 loadstring(game:HttpGet("https://raw.githubusercontent.com/DudxJs/GUI/main/GUI.lua"))()
 
-local gui = _G.DudxJsGUI:New("MasterShukaku Hub")
+local gui = _G.DudxJsGUI:New("MasterShukaku Hub", "rbxassetid://92433947031436")
 
 -- ==================
 --  ⬇️Tab Buttons⬇️
