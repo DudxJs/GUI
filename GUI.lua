@@ -370,7 +370,7 @@ function DudxJsGUI:AddTab(tabName)
         -- Aguarda um frame para o layout atualizar a posição
         task.defer(function()
             if button and button.Parent and self._tabSelectorBar then
-                local localPos = button.Parent:AbsoluteToLocal(button.AbsolutePosition)
+                local localPosY = button.AbsolutePosition.Y - self.menu.AbsolutePosition.Y
                 self._tabSelectorBar.Position = UDim2.new(0, 0, 0, localPos.Y)
                 self._tabSelectorBar.Size = UDim2.new(0, 6, 0, button.AbsoluteSize.Y)
                 self._tabSelectorBar.Visible = true
@@ -392,18 +392,17 @@ function DudxJsGUI:AddTab(tabName)
         self._selectedTab = tab
         -- Barra animada
         task.defer(function()
-            if button and button.Parent and self._tabSelectorBar then
-                local localPos = button.Parent:AbsoluteToLocal(button.AbsolutePosition)
-                self._tabSelectorBar.Visible = true
-                self._tabSelectorBar.Size = UDim2.new(0, 6, 0, button.AbsoluteSize.Y)
-                TweenService:Create(
-                    self._tabSelectorBar,
-                    TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
-                    {Position = UDim2.new(0, 0, 0, localPos.Y)}
-                ):Play()
-            end
-        end)
-    end)
+    if button and self.menu and self._tabSelectorBar then
+        local localPosY = button.AbsolutePosition.Y - self.menu.AbsolutePosition.Y
+        self._tabSelectorBar.Visible = true
+        self._tabSelectorBar.Size = UDim2.new(0, 6, 0, button.AbsoluteSize.Y)
+        TweenService:Create(
+            self._tabSelectorBar,
+            TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+            {Position = UDim2.new(0, 0, 0, localPosY)}
+        ):Play()
+    end
+end)
     -- ...continua para o restante do método AddTab...
     -- Página
     local page = Instance.new("Frame", self.content)
