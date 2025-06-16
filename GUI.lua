@@ -19,7 +19,7 @@ local function roundify(obj, rad)
 end
 
 -- Cria a base inteira do GUI
-function DudxJsGUI:New(title)
+function DudxJsGUI:New(title, toggleImageID)
     local self = setmetatable({}, DudxJsGUI)
     -- ScreenGui
     self._gui = Instance.new("ScreenGui")
@@ -89,7 +89,119 @@ function DudxJsGUI:New(title)
     CloseBtn.BackgroundTransparency = 1
     CloseBtn.Font = Enum.Font.SourceSansBold
     CloseBtn.TextSize = 18
-    CloseBtn.MouseButton1Click:Connect(function() self._gui:Destroy() end)
+    CloseBtn.MouseButton1Click:Connect(function()
+    -- Evita criar múltiplas confirmações
+    if self._confirmationFrame and self._confirmationFrame.Parent then
+        self._confirmationFrame.Visible = true
+        return
+    end
+
+    -- Overlay escuro
+    local overlay = Instance.new("Frame")
+    overlay.Size = UDim2.new(1, 0, 1, 0)
+    overlay.Position = UDim2.new(0, 0, 0, 0)
+    overlay.BackgroundColor3 = Color3.new(0, 0, 0)
+    overlay.BackgroundTransparency = 0.3
+    overlay.ZIndex = 100
+    overlay.Parent = self._gui
+
+    -- Quadro central de confirmação
+    local confirmFrame = Instance.new("Frame", overlay)
+    confirmFrame.Size = UDim2.new(0, 340, 0, 170)
+    confirmFrame.Position = UDim2.new(0.5, -170, 0.5, -85)
+    confirmFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+    confirmFrame.BorderSizePixel = 0
+    confirmFrame.ZIndex = 101
+    roundify(confirmFrame, 14)
+
+    -- Borda vermelha estilizada
+    local border = Instance.new("Frame", confirmFrame)
+    border.Size = UDim2.new(1, 0, 1, 0)
+    border.Position = UDim2.new(0, 0, 0, 0)
+    border.BackgroundTransparency = 1
+    border.BorderSizePixel = 4
+    border.BorderColor3 = Color3.fromRGB(200, 0, 0)
+    border.ZIndex = 102
+
+    -- Título
+    local title = Instance.new("TextLabel", confirmFrame)
+    title.Size = UDim2.new(1, -30, 0, 44)
+    title.Position = UDim2.new(0, 15, 0, 10)
+    title.BackgroundTransparency = 1
+    title.Text = "Tem certeza que deseja fechar a GUI?"
+    title.TextColor3 = Color3.new(1,1,1)
+    title.Font = Enum.Font.SourceSansBold
+    title.TextSize = 21
+    title.TextXAlignment = Enum.TextXAlignment.Center
+    title.ZIndex = 103
+
+    -- Subtítulo/descrição
+    local desc = Instance.new("TextLabel", confirmFrame)
+    desc.Size = UDim2.new(1, -44, 0, 30)
+    desc.Position = UDim2.new(0, 22, 0, 58)
+    desc.BackgroundTransparency = 1
+    desc.Text = "Você perderá todas as configurações não salvas."
+    desc.TextColor3 = Color3.fromRGB(255, 0, 0)
+    desc.Font = Enum.Font.SourceSans
+    desc.TextSize = 16
+    desc.TextXAlignment = Enum.TextXAlignment.Center
+    desc.ZIndex = 103
+
+    -- Botão Cancelar (vermelho, à direita)
+    local cancelBtn = Instance.new("TextButton", confirmFrame)
+    cancelBtn.Size = UDim2.new(0, 115, 0, 38)
+    cancelBtn.Position = UDim2.new(1, -125, 1, -48)
+    cancelBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+    cancelBtn.Text = "Cancelar"
+    cancelBtn.TextColor3 = Color3.new(1, 1, 1)
+    cancelBtn.Font = Enum.Font.SourceSansBold
+    cancelBtn.TextSize = 18
+    cancelBtn.ZIndex = 104
+    cancelBtn.BorderSizePixel = 0
+    roundify(cancelBtn, 10)
+
+    -- Botão Confirmar (transparente, à esquerda, só borda vermelha)
+    local confirmBtn = Instance.new("TextButton", confirmFrame)
+    confirmBtn.Size = UDim2.new(0, 115, 0, 38)
+    confirmBtn.Position = UDim2.new(0, 10, 1, -48)
+    confirmBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+    confirmBtn.Text = "Confirmar"
+    confirmBtn.TextColor3 = Color3.fromRGB(200, 0, 0)
+    confirmBtn.Font = Enum.Font.SourceSansBold
+    confirmBtn.TextSize = 18
+    confirmBtn.ZIndex = 104
+    confirmBtn.BorderColor3 = Color3.fromRGB(200, 0, 0)
+    confirmBtn.BorderSizePixel = 2
+    roundify(confirmBtn, 10)
+
+    -- Efeito hover para o botão confirmar (opcional, deixa mais bonito)
+    confirmBtn.MouseEnter:Connect(function()
+        confirmBtn.BackgroundColor3 = Color3.fromRGB(35, 0, 0)
+    end)
+    confirmBtn.MouseLeave:Connect(function()
+        confirmBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+    end)
+
+    -- Função dos botões
+    cancelBtn.MouseButton1Click:Connect(function()
+        overlay:Destroy()
+    end)
+    confirmBtn.MouseButton1Click:Connect(function()
+        if self._gui then self._gui:Destroy() end
+    end)
+
+    -- Permite fechar apertando ESC (opcional)
+    local escConn
+    escConn = UserInputService.InputBegan:Connect(function(input, gp)
+        if input.KeyCode == Enum.KeyCode.Escape and not gp then
+            overlay:Destroy()
+            if escConn then escConn:Disconnect() end
+        end
+    end)
+
+    -- Guarda referência para não duplicar
+    self._confirmationFrame = overlay
+end)
     -- Minimize Button
     local MinBtn = Instance.new("TextButton", TopBar)
     MinBtn.Size = UDim2.new(0, 30, 0, 30)
@@ -158,6 +270,57 @@ end)
     self._tabs = {}
     return self
 end
+
+-- Botão móvel para abrir/fechar a GUI
+    self.toggleBtn = Instance.new("ImageButton")
+    self.toggleBtn.Size = UDim2.new(0, 50, 0, 50)
+    self.toggleBtn.Position = UDim2.new(0, 20, 0.5, -25)
+    self.toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    self.toggleBtn.Image = toggleImageId or "rbxassetid://6031097225" -- Usa imagem customizada se informada
+    self.toggleBtn.Parent = self._gui
+    roundify(self.toggleBtn, 25)
+    self.toggleBtn.ZIndex = 10
+    self.toggleBtn.Visible = true
+
+-- Alterna a visibilidade da GUI
+function self:ToggleGUI()
+    local isVisible = self.main.Visible
+    self.main.Visible = not isVisible
+    self.menu.Visible = not isVisible and not isMinimized
+    self.content.Visible = not isVisible and not isMinimized
+end
+
+-- Clique no botão móvel alterna a GUI
+self.toggleBtn.MouseButton1Click:Connect(function()
+    self:ToggleGUI()
+end)
+
+-- (Opcional) Arrastar botão móvel
+local draggingBtn, dragInputBtn, dragStartBtn, startPosBtn = false
+self.toggleBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingBtn = true
+        dragStartBtn = input.Position
+        startPosBtn = self.toggleBtn.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then draggingBtn = false end
+        end)
+    end
+end)
+self.toggleBtn.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInputBtn = input
+    end
+end)
+UserInputService.InputChanged:Connect(function(input)
+    if input == dragInputBtn and draggingBtn then
+        local delta = input.Position - dragStartBtn
+        self.toggleBtn.Position = UDim2.new(
+            startPosBtn.X.Scale, startPosBtn.X.Offset + delta.X,
+            startPosBtn.Y.Scale, startPosBtn.Y.Offset + delta.Y
+        )
+    end
+end)
 
 -- Cria uma Tab com página e rolagem
 function DudxJsGUI:AddTab(tabName)
