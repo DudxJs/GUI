@@ -313,13 +313,6 @@ end)
     menuLayout.VerticalAlignment = Enum.VerticalAlignment.Top
     menuLayout.Padding = UDim.new(0, 8)
     menuLayout.SortOrder = Enum.SortOrder.LayoutOrder
-    -- Barra animada de seleção de aba
-self._tabSelectorBar = Instance.new("Frame", self.menu)
-self._tabSelectorBar.Size = UDim2.new(0, 6, 0, 32) -- largura 6px, altura igual ao botão
-self._tabSelectorBar.Position = UDim2.new(0, 0, 0, 0)
-self._tabSelectorBar.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-self._tabSelectorBar.BorderSizePixel = 0
-self._tabSelectorBar.Visible = false
     -- Área de conteúdo
     self.content = Instance.new("Frame", self.main)
     self.content.Size = UDim2.new(1, -195, 1, -40)
@@ -358,9 +351,17 @@ function DudxJsGUI:AddTab(tabName)
     button.TextColor3 = Color3.new(1, 1, 1)
     button.Font = Enum.Font.SourceSansBold
     self._selectedTab = tab
-    self._tabSelectorBar.Position = UDim2.new(0, 0, 0, button.Position.Y.Offset)
-    self._tabSelectorBar.Size = UDim2.new(0, 6, 0, button.AbsoluteSize.Y)
-    self._tabSelectorBar.Visible = true
+    -- Barra animada
+    task.defer(function() -- Garante cálculo correto após layout
+        local localPos = self.menu:AbsoluteToLocal(button.AbsolutePosition)
+        self._tabSelectorBar.Visible = true
+        self._tabSelectorBar.Size = UDim2.new(0, 6, 0, button.AbsoluteSize.Y)
+        TweenService:Create(
+            self._tabSelectorBar,
+            TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out),
+            {Position = UDim2.new(0, 0, 0, localPos.Y)}
+        ):Play()
+    end)
 end
     -- Página
     local page = Instance.new("Frame", self.content)
