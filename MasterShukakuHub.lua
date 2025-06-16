@@ -21,6 +21,38 @@ local Map = gui:AddTab("Map")
 local Visual = gui:AddTab("Visual")
 local Scripts = gui:AddTab("Scripts")
 
+-- ================================
+--  ⬇️ RP Nome/Bio Inicialização ⬇️
+-- ================================
+
+-- Services
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Remotes
+local RPNameColorRemote = ReplicatedStorage.RE["1RPNam1eColo1r"]
+local RPBioColorRemote = ReplicatedStorage.RE["1RPNam1eColo1r"]
+local RPNameTextRemote = ReplicatedStorage.RE["1RPNam1eTex1t"]
+local RPBioTextRemote = ReplicatedStorage.RE["1RPNam1eTex1t"]
+
+-- Altere os valores abaixo se quiser mudar nome, bio ou cores
+local rpName = "M\210\137A\210\137S\210\137T\210\137E\210\137R\210\137  S\210\137H\210\137U\210\137K\210\137A\210\137K\210\137U\210\137"
+local rpBio = "\227\128\178Script Feito Por: Dudx_js\227\128\134"
+
+local rpNameColor = Color3.fromRGB(163, 2, 0)  -- Ajuste conforme desejado
+local rpBioColor = Color3.fromRGB(0, 0, 0)     -- Ajuste conforme desejado
+
+-- Define a cor do nome RP
+RPNameColorRemote:FireServer("PickingRPNameColor", rpNameColor)
+
+-- Define a cor da bio RP
+RPBioColorRemote:FireServer("PickingRPBioColor", rpBioColor)
+
+-- Define o texto do nome RP
+RPNameTextRemote:FireServer("RolePlayName", rpName)
+
+-- Define o texto da bio RP
+RPBioTextRemote:FireServer("RolePlayBio", rpBio)
+
 -- ====================
 --  ⬇️House Buttons⬇️
 -- ====================
