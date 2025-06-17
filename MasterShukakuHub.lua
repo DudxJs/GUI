@@ -2797,7 +2797,7 @@ local function Audio_All_ClientSide(ID)
             Sound.Looped = false
             Sound.Parent = Folder_Audio
             Sound:Play()
-            task.wait(1) -- Tempo de espera antes de remover o som
+            task.wait(4) -- Tempo de espera antes de remover o som
             Sound:Destroy()
         end
     end
@@ -2881,6 +2881,29 @@ Misc:AddButton("AUDIO ALL - Press", function()
         playAudio(audio_all_dropdown_value)
     else
         warn("[Áudio ALL] Nenhum áudio selecionado para tocar.")
+    end
+end)
+
+-- Novo Toggle para loop de áudio a cada 4 segundos
+Misc:AddSwitch("AUDIO ALL - Loop (Normal)", function(state)
+    getgenv().Audio_All_loop_4s = state
+
+    if state then
+        warn("[Áudio ALL] Loop 4s iniciado. Aguardando intervalo de 4 segundos 🔊")
+        task.spawn(function()
+            while getgenv().Audio_All_loop_4s do
+                if audio_all_dropdown_value then
+                    playAudio(audio_all_dropdown_value)
+                else
+                    warn("[Áudio ALL] Nenhum áudio válido no loop.")
+                end
+
+                task.wait(4) -- Intervalo de 4 segundos entre cada áudio
+            end
+            warn("[Áudio ALL] Loop 4s encerrado. Ouvidos agradecem.")
+        end)
+    else
+        warn("[Áudio ALL] Loop 4s desligado.")
     end
 end)
 
