@@ -511,7 +511,7 @@ function DudxJsGUI:AddTab(tabName)
     return inputContainer, inputBox
 end
     
--- Adicione este bloco no topo do arquivo, após os requires:
+-- Coloque isso no topo do arquivo, após os requires:
 local _GLOBAL_OPEN_DROPDOWN = nil
 local UserInputService = game:GetService("UserInputService")
 UserInputService.InputBegan:Connect(function(input, processed)
@@ -523,6 +523,7 @@ UserInputService.InputBegan:Connect(function(input, processed)
     end
 end)
 
+-- Substitua sua função tab:AddDropdown por esta:
 function tab:AddDropdown(text, items, callback)
     local TweenService = game:GetService("TweenService")
 
@@ -605,7 +606,13 @@ function tab:AddDropdown(text, items, callback)
     listFrame.ClipsDescendants = true
     listFrame.ScrollBarThickness = 8
     listFrame.ScrollingDirection = Enum.ScrollingDirection.Y
-    roundify(listFrame, 6)
+    listFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+    -- Borda só nas extremidades de baixo para efeito visual integrado:
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 6)
+    corner.Parent = listFrame
+    corner.TopLeft = false
+    corner.TopRight = false
     listFrame.Parent = gui
 
     local padTop = Instance.new("UIPadding", listFrame)
@@ -634,7 +641,9 @@ function tab:AddDropdown(text, items, callback)
             item.TextXAlignment = Enum.TextXAlignment.Left
             item.ZIndex = 201
             item.LayoutOrder = idx
-            roundify(item, 6)
+            local icorner = Instance.new("UICorner")
+            icorner.CornerRadius = UDim.new(0, 6)
+            icorner.Parent = item
             item.MouseButton1Click:Connect(function()
                 selectedLabel.Text = nome
                 closeList()
