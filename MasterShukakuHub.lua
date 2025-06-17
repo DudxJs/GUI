@@ -2853,7 +2853,6 @@ local soundList = {
     {Name = "Laugh Sound", ID = 123106903091799},    
     {Name = "Error Sound", ID = 3893790326},
 
-    
 }
 
 -- Variáveis de controle
