@@ -524,7 +524,7 @@ function tab:AddDropdown(text, items, callback)
     dropdownContainer.Text = ""
     roundify(dropdownContainer, 6)
     local ddPadding = Instance.new("UIPadding", dropdownContainer)
-    ddPadding.PaddingLeft  = UDim.new(0, 8)
+    ddPadding.PaddingLeft = UDim.new(0, 8)
     ddPadding.PaddingRight = UDim.new(0, 8)
 
     -- Layout horizontal interno
@@ -583,17 +583,17 @@ function tab:AddDropdown(text, items, callback)
     selectedLabel.TextSize = 16
     selectedLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- Lista oculta (agora filho do dropdown)
+    -- Lista do Dropdown (fora do contentScroll!)
+    local gui = dropdownContainer:FindFirstAncestorOfClass("ScreenGui")
     local listFrame = Instance.new("Frame")
     listFrame.Visible = false
-    listFrame.ZIndex = 50
-    listFrame.Size = UDim2.new(1, 0, 0, 0)
-    listFrame.Position = UDim2.new(0, 0, 1, 0) -- abaixo
+    listFrame.ZIndex = 200
+    listFrame.Size = UDim2.new(0, 0, 0, 0)
     listFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     listFrame.BorderSizePixel = 0
     listFrame.ClipsDescendants = true
     roundify(listFrame, 6)
-    listFrame.Parent = dropdownContainer
+    listFrame.Parent = gui
 
     local padTop = Instance.new("UIPadding", listFrame)
     padTop.PaddingTop = UDim.new(0, 8)
@@ -620,7 +620,7 @@ function tab:AddDropdown(text, items, callback)
             item.Font = Enum.Font.SourceSans
             item.TextSize = 16
             item.TextXAlignment = Enum.TextXAlignment.Left
-            item.ZIndex = 51
+            item.ZIndex = 201
             item.LayoutOrder = idx
             roundify(item, 6)
             item.MouseButton1Click:Connect(function()
@@ -635,23 +635,22 @@ function tab:AddDropdown(text, items, callback)
     local function openList()
         atualizarLista()
         listFrame.Visible = true
-        local viewport = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1920,1080)
         local absPos = dropdownContainer.AbsolutePosition
         local absSize = dropdownContainer.AbsoluteSize
+        local viewport = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1920,1080)
         local maxHeight = math.min(150, listHeight)
-        -- Decide se aparece acima ou abaixo
-        if absPos.Y + absSize.Y + maxHeight > viewport.Y then
-            listFrame.Position = UDim2.new(0, 0, 0, -maxHeight) -- acima
-        else
-            listFrame.Position = UDim2.new(0, 0, 1, 0) -- abaixo
-        end
-        TweenService:Create(listFrame, TweenInfo.new(0.23, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(1,0,0,maxHeight)}):Play()
+        local yBelow = absPos.Y + absSize.Y
+        local yAbove = absPos.Y - maxHeight
+        local posY = (yBelow + maxHeight > viewport.Y) and yAbove or yBelow
+        listFrame.Position = UDim2.new(0, absPos.X, 0, posY)
+        listFrame.Size = UDim2.new(0, absSize.X, 0, 0)
+        TweenService:Create(listFrame, TweenInfo.new(0.23, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, absSize.X, 0, maxHeight)}):Play()
         TweenService:Create(arrowBtn, TweenInfo.new(0.23), {Rotation = 180}):Play()
     end
 
     -- Função de animação para fechar
     function closeList()
-        local tween = TweenService:Create(listFrame, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = UDim2.new(1,0,0,0)})
+        local tween = TweenService:Create(listFrame, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = UDim2.new(listFrame.Size.X.Scale, listFrame.Size.X.Offset, 0, 0)})
         tween:Play()
         TweenService:Create(arrowBtn, TweenInfo.new(0.18), {Rotation = 0}):Play()
         tween.Completed:Connect(function()
@@ -674,6 +673,18 @@ function tab:AddDropdown(text, items, callback)
             if listFrame.Visible and not dropdownContainer:IsAncestorOf(input.Target) and input.Target ~= listFrame and not listFrame:IsAncestorOf(input.Target) then
                 closeList()
             end
+        end
+    end)
+
+    -- Fecha ao trocar de aba (opcional, se quiser garantir)
+    tab.button.MouseButton1Click:Connect(function()
+        closeList()
+    end)
+
+    -- Fecha se a página do tab sumir (opcional)
+    tab.page:GetPropertyChangedSignal("Visible"):Connect(function()
+        if not tab.page.Visible then
+            closeList()
         end
     end)
 
