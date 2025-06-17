@@ -523,10 +523,8 @@ UserInputService.InputBegan:Connect(function(input, processed)
     end
 end)
 
--- Substitua a função tab:AddDropdown existente por esta:
 function tab:AddDropdown(text, items, callback)
     local TweenService = game:GetService("TweenService")
-    -- NÃO redeclare UserInputService aqui!
 
     local dropdownContainer = Instance.new("TextButton", contentScroll)
     dropdownContainer.Size = UDim2.new(1, 0, 0, 32)
@@ -596,15 +594,17 @@ function tab:AddDropdown(text, items, callback)
     selectedLabel.TextSize = 16
     selectedLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-    -- Lista do Dropdown (fora do contentScroll!)
+    -- Lista do Dropdown (agora ScrollingFrame!)
     local gui = dropdownContainer:FindFirstAncestorOfClass("ScreenGui")
-    local listFrame = Instance.new("Frame")
+    local listFrame = Instance.new("ScrollingFrame")
     listFrame.Visible = false
     listFrame.ZIndex = 200
     listFrame.Size = UDim2.new(0, 0, 0, 0)
     listFrame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
     listFrame.BorderSizePixel = 0
     listFrame.ClipsDescendants = true
+    listFrame.ScrollBarThickness = 8
+    listFrame.ScrollingDirection = Enum.ScrollingDirection.Y
     roundify(listFrame, 6)
     listFrame.Parent = gui
 
@@ -616,9 +616,8 @@ function tab:AddDropdown(text, items, callback)
     lfLayout.SortOrder = Enum.SortOrder.LayoutOrder
     lfLayout.Padding = UDim.new(0, 4)
 
-    local listHeight = 32 * #items + 4 * #items + 16 -- calcula altura ideal
+    local listHeight = 32 * #items + 4 * #items + 16 -- altura ideal
 
-    -- Atualiza lista
     local function atualizarLista()
         for _, child in ipairs(listFrame:GetChildren()) do
             if child:IsA("TextButton") then child:Destroy() end
@@ -642,6 +641,14 @@ function tab:AddDropdown(text, items, callback)
                 if callback then callback(nome) end
             end)
         end
+        -- Atualiza o canvas para o tamanho do conteúdo
+        local totalHeight = 0
+        for _, child in ipairs(listFrame:GetChildren()) do
+            if child:IsA("TextButton") then
+                totalHeight = totalHeight + child.AbsoluteSize.Y + 4
+            end
+        end
+        listFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight + 16)
     end
 
     function closeList()
@@ -657,7 +664,6 @@ function tab:AddDropdown(text, items, callback)
     end
 
     local function openList()
-        -- Fecha qualquer outro aberto!
         if _GLOBAL_OPEN_DROPDOWN and _GLOBAL_OPEN_DROPDOWN.close and _GLOBAL_OPEN_DROPDOWN.list ~= listFrame then
             _GLOBAL_OPEN_DROPDOWN.close()
         end
@@ -671,8 +677,7 @@ function tab:AddDropdown(text, items, callback)
         local yAbove = absPos.Y - maxHeight
         local posY = (yBelow + maxHeight > viewport.Y) and yAbove or yBelow
         listFrame.Position = UDim2.new(0, absPos.X, 0, posY)
-        listFrame.Size = UDim2.new(0, absSize.X, 0, 0)
-        TweenService:Create(listFrame, TweenInfo.new(0.23, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, absSize.X, 0, maxHeight)}):Play()
+        listFrame.Size = UDim2.new(0, absSize.X, 0, maxHeight)
         TweenService:Create(arrowBtn, TweenInfo.new(0.23), {Rotation = 180}):Play()
         _GLOBAL_OPEN_DROPDOWN = {
             isOpen = true,
@@ -690,7 +695,6 @@ function tab:AddDropdown(text, items, callback)
         end
     end)
 
-    -- Fecha se trocar de aba ou sumir
     tab.button.MouseButton1Click:Connect(closeList)
     tab.page:GetPropertyChangedSignal("Visible"):Connect(function()
         if not tab.page.Visible then
