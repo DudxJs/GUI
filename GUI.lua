@@ -646,7 +646,7 @@ end
             listFrame.Position = UDim2.new(0, absPos.X, 0, posY)
             listFrame.Size = UDim2.new(0, absSize.X, 0, math.min(150, listFrame.CanvasSize.Y.Offset))
             listFrame.Visible = not listFrame.Visible
-            arrowBtn.Text = listFrame.Visible and "▽" or "△"
+            arrowBtn.Text = listFrame.Visible and "△" or "▽"
         end
 
         -- Fecha lista ao clicar fora
