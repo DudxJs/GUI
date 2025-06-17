@@ -2797,7 +2797,7 @@ local function Audio_All_ClientSide(ID)
             Sound.Looped = false
             Sound.Parent = Folder_Audio
             Sound:Play()
-            task.wait(4) -- Tempo de espera antes de remover o som
+            task.wait(3.5) -- Tempo de espera antes de remover o som
             Sound:Destroy()
         end
     end
@@ -2898,7 +2898,7 @@ Misc:AddSwitch("AUDIO ALL - Loop (Normal)", function(state)
                     warn("[Áudio ALL] Nenhum áudio válido no loop.")
                 end
 
-                task.wait(4) -- Intervalo de 4 segundos entre cada áudio
+                task.wait(3.5) -- Intervalo de 4 segundos entre cada áudio
             end
             warn("[Áudio ALL] Loop 4s encerrado. Ouvidos agradecem.")
         end)
