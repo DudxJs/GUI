@@ -2819,6 +2819,19 @@ end
 
 -- Lista de sons irritantes
 local soundList = {
+    {Name = "The Boiled One", ID = 82428031664905},
+    {Name = "Risada de Malandro", ID = 133065882609605},
+    {Name = "e o Pix Nada Ainda?", ID = 113831443375212},
+    {Name = "PARE!", ID = 113127973012963},
+    {Name = "Ele Gosta", ID = 105012436535315},
+    {Name = "Notificação estourado", ID = 96579234730244},
+    {Name = "fiui OLHA A MENSAGEM estourado", ID = 121668429878811},
+    {Name = "Tome", ID = 128319664118768},
+    {Name = "Vou Nada!", ID = 89093085290586},
+    {Name = "Receba! luva de pedreiro", ID = 134333109446689},
+    {Name = "IIIIHAA", ID = 115051649184918},
+    {Name = "Toma Jack no ar-condicionado", ID = 105445757122032},
+    {Name = "Nuossa", ID = 72065117445768},
     {Name = "Xingamento", ID = 8232773326},
     {Name = "Baldi Basic's Glitch", ID = 98207961689599},
     {Name = "Sucumba", ID = 7946300950},
@@ -2839,19 +2852,7 @@ local soundList = {
     {Name = "My Heart Is Pure Evil Sound", ID = 106843479364998},    
     {Name = "Laugh Sound", ID = 123106903091799},    
     {Name = "Error Sound", ID = 3893790326},
-    {Name = "The Boiled One", ID = 82428031664905},
-    {Name = "Risada de Malandro", ID = 133065882609605},
-    {Name = "e o Pix Nada Ainda?", ID = 113831443375212},
-    {Name = "PARE!", ID = 113127973012963},
-    {Name = "Ele Gosta", ID = 105012436535315},
-    {Name = "Notificação estourado", ID = 96579234730244},
-    {Name = "fiui OLHA A MENSAGEM estourado", ID = 121668429878811},
-    {Name = "Tome", ID = 128319664118768},
-    {Name = "Vou Nada!", ID = 89093085290586},
-    {Name = "Receba! luva de pedreiro", ID = 134333109446689},
-    {Name = "IIIIHAA", ID = 115051649184918},
-    {Name = "Toma Jack no ar-condicionado", ID = 105445757122032},
-    {Name = "Nuossa", ID = 72065117445768},
+
     
 }
 
