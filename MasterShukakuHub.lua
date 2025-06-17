@@ -959,20 +959,28 @@ else
     error("Erro ao carregar a playlist!")
 end
 
--- Função para tocar música
+-- Função para tocar música no carro e na moto/scooter
 local function playMusic(musicId)
     if musicId and musicId ~= "" then
-        local args = {
+        -- Carro
+        local argsCar = {
             [1] = "PickingCarMusicText", -- Customize com o evento correto
             [2] = musicId
         }
-        game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer(unpack(args))
-        print("Tocando música com ID:", musicId)
+        game:GetService("ReplicatedStorage").RE:FindFirstChild("1Player1sCa1r"):FireServer(unpack(argsCar))
+        print("Tocando música no carro com ID:", musicId)
+
+        -- Moto/Scooter
+        local Argument1 = game:GetService("ReplicatedStorage").RE["1NoMoto1rVehicle1s"]
+        Argument1:FireServer(
+            "PickingScooterMusicText",
+            musicId -- agora também usa o mesmo musicId informado
+        )
+        print("Tocando música na moto/scooter com ID:", musicId)
     else
         print("Por favor, insira um ID de música válido.")
     end
 end
-
 -- Variável para armazenar o último ID de música selecionado ou digitado
 local lastMusicId = nil
 
