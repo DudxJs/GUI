@@ -511,9 +511,22 @@ function DudxJsGUI:AddTab(tabName)
     return inputContainer, inputBox
 end
     
+-- Adicione este bloco no topo do arquivo, após os requires:
+local _GLOBAL_OPEN_DROPDOWN = nil
+local UserInputService = game:GetService("UserInputService")
+UserInputService.InputBegan:Connect(function(input, processed)
+    if _GLOBAL_OPEN_DROPDOWN and input.UserInputType == Enum.UserInputType.MouseButton1 and not processed then
+        local dropdownData = _GLOBAL_OPEN_DROPDOWN
+        if dropdownData and dropdownData.isOpen and not dropdownData.container:IsAncestorOf(input.Target) and input.Target ~= dropdownData.list and not dropdownData.list:IsAncestorOf(input.Target) then
+            dropdownData.close()
+        end
+    end
+end)
+
+-- Substitua a função tab:AddDropdown existente por esta:
 function tab:AddDropdown(text, items, callback)
     local TweenService = game:GetService("TweenService")
-    local UserInputService = game:GetService("UserInputService")
+    -- NÃO redeclare UserInputService aqui!
 
     local dropdownContainer = Instance.new("TextButton", contentScroll)
     dropdownContainer.Size = UDim2.new(1, 0, 0, 32)
@@ -631,8 +644,23 @@ function tab:AddDropdown(text, items, callback)
         end
     end
 
-    -- Função de animação para abrir
+    function closeList()
+        local tween = TweenService:Create(listFrame, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = UDim2.new(listFrame.Size.X.Scale, listFrame.Size.X.Offset, 0, 0)})
+        tween:Play()
+        TweenService:Create(arrowBtn, TweenInfo.new(0.18), {Rotation = 0}):Play()
+        tween.Completed:Connect(function()
+            listFrame.Visible = false
+        end)
+        if _GLOBAL_OPEN_DROPDOWN and _GLOBAL_OPEN_DROPDOWN.list == listFrame then
+            _GLOBAL_OPEN_DROPDOWN = nil
+        end
+    end
+
     local function openList()
+        -- Fecha qualquer outro aberto!
+        if _GLOBAL_OPEN_DROPDOWN and _GLOBAL_OPEN_DROPDOWN.close and _GLOBAL_OPEN_DROPDOWN.list ~= listFrame then
+            _GLOBAL_OPEN_DROPDOWN.close()
+        end
         atualizarLista()
         listFrame.Visible = true
         local absPos = dropdownContainer.AbsolutePosition
@@ -646,19 +674,14 @@ function tab:AddDropdown(text, items, callback)
         listFrame.Size = UDim2.new(0, absSize.X, 0, 0)
         TweenService:Create(listFrame, TweenInfo.new(0.23, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, absSize.X, 0, maxHeight)}):Play()
         TweenService:Create(arrowBtn, TweenInfo.new(0.23), {Rotation = 180}):Play()
+        _GLOBAL_OPEN_DROPDOWN = {
+            isOpen = true,
+            container = dropdownContainer,
+            list = listFrame,
+            close = closeList
+        }
     end
 
-    -- Função de animação para fechar
-    function closeList()
-        local tween = TweenService:Create(listFrame, TweenInfo.new(0.18, Enum.EasingStyle.Quad, Enum.EasingDirection.In), {Size = UDim2.new(listFrame.Size.X.Scale, listFrame.Size.X.Offset, 0, 0)})
-        tween:Play()
-        TweenService:Create(arrowBtn, TweenInfo.new(0.18), {Rotation = 0}):Play()
-        tween.Completed:Connect(function()
-            listFrame.Visible = false
-        end)
-    end
-
-    -- Toggle
     dropdownContainer.MouseButton1Click:Connect(function()
         if listFrame.Visible then
             closeList()
@@ -667,21 +690,8 @@ function tab:AddDropdown(text, items, callback)
         end
     end)
 
-    -- Fecha ao clicar fora
-    UserInputService.InputBegan:Connect(function(input, processed)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 and not processed then
-            if listFrame.Visible and not dropdownContainer:IsAncestorOf(input.Target) and input.Target ~= listFrame and not listFrame:IsAncestorOf(input.Target) then
-                closeList()
-            end
-        end
-    end)
-
-    -- Fecha ao trocar de aba (opcional, se quiser garantir)
-    tab.button.MouseButton1Click:Connect(function()
-        closeList()
-    end)
-
-    -- Fecha se a página do tab sumir (opcional)
+    -- Fecha se trocar de aba ou sumir
+    tab.button.MouseButton1Click:Connect(closeList)
     tab.page:GetPropertyChangedSignal("Visible"):Connect(function()
         if not tab.page.Visible then
             closeList()
