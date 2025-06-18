@@ -379,7 +379,7 @@ function DudxJsGUI:AddTab(tabName)
         end
         page.Visible = true
     end)
-     function DudxJsGUI:AddCustomPage(name)
+function DudxJsGUI:AddCustomPage(name)
     local page = Instance.new("Frame", self.content)
     page.Name = name or "CustomPage"
     page.Size = UDim2.new(1, 0, 1, 0)
