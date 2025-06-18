@@ -7,20 +7,19 @@ local gui = _G.DudxJsGUI:New("MasterShukaku Hub", "rbxassetid://92433947031436")
 -- ==================
 
 local House = gui:AddTab("House")
-local Car = gui:AddTab("Car")
 local Avatar = gui:AddTab("Avatar")
+local Car = gui:AddTab("Car")
+local Fun = gui:AddTab("Fun")
 local Itens = gui:AddTab("Build")
-local Tools = gui:AddTab("Tools")
+local Others = gui:AddTab("Others")
 local Teleportes = gui:AddTab("Teleportes")
+local Misc = gui:AddTab("Misc")
+local Kill = gui:AddTab("Kill")
+local Tools = gui:AddTab("Tools")
+local Premium = gui:AddTab("Premium")
 local Map = gui:AddTab("Map")
 local Visual = gui:AddTab("Visual")
-local Fun = gui:AddTab("Fun")
-local Kill = gui:AddTab("Kill")
-local Misk = gui:AddTab("Áudio")
 local Scripts = gui:AddTab("Scripts")
-local ChatSpy = gui:AddTab("ChatSpy")
-local Premium = gui:AddTab("Premium")
-local Others = gui:AddTab("Others")
 
 -- ==================================
 --  ⬇️ RP Nome/Bio Inicialização ⬇️
@@ -6512,6 +6511,7 @@ end
 --// Função: Ativar/Desativar ESP
 local function toggleESP(enabled)
     ESPEnabled = enabled
+
     if enabled then
         -- Adiciona ESP para todos os jogadores existentes
         for _, plr in ipairs(game.Players:GetPlayers()) do
@@ -6792,8 +6792,3 @@ SoundService.AmbientReverb = Enum.ReverbType.Cave
 end)
 
 game.Workspace.FallenPartsDestroyHeight = -math.huge
-
--- ==============
---  ⬇️ChatSpy⬇️
--- ==============
-
