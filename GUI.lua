@@ -379,14 +379,6 @@ function DudxJsGUI:AddTab(tabName)
         end
         page.Visible = true
     end)
-function DudxJsGUI:AddCustomPage(name)
-    local page = Instance.new("Frame", self.content)
-    page.Name = name or "CustomPage"
-    page.Size = UDim2.new(1, 0, 1, 0)
-    page.BackgroundTransparency = 1
-    page.Visible = true -- Você controla a visibilidade
-    return page
-end 
     -- Métodos de Tab
     tab._order = 1
     tab.page = page
@@ -701,6 +693,15 @@ end
     self._tabOrder = self._tabOrder + 1
     return tab
 end
+
+function DudxJsGUI:AddCustomPage(name)
+    local page = Instance.new("Frame", self.content)
+    page.Name = name or "CustomPage"
+    page.Size = UDim2.new(1, 0, 1, 0)
+    page.BackgroundTransparency = 1
+    page.Visible = true -- Você controla a visibilidade
+    return page
+end 
 
 function DudxJsGUI:Destroy()
     if self._gui then self._gui:Destroy() end
