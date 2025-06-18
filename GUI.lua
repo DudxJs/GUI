@@ -34,7 +34,15 @@ function DudxJsGUI:New(title, toggleImageId)
     self.toggleBtn.Size = UDim2.new(0, 50, 0, 50)
     self.toggleBtn.Position = UDim2.new(0, 198, 0, 39)
     self.toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    self.toggleBtn.Image = toggleImageId or "rbxassetid://6031097225" -- Usa imagem customizada se informada
+    if toggleImageId then
+    if not tostring(toggleImageId):find("rbxassetid://") then
+        self.toggleBtn.Image = "rbxassetid://" .. tostring(toggleImageId)
+    else
+        self.toggleBtn.Image = toggleImageId
+    end
+else
+    self.toggleBtn.Image = "rbxassetid://6031097225"
+end
     self.toggleBtn.Parent = self._gui
     roundify(self.toggleBtn, 25)
     self.toggleBtn.ZIndex = 10
