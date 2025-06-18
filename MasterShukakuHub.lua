@@ -20,7 +20,6 @@ local Premium = gui:AddTab("Premium")
 local Map = gui:AddTab("Map")
 local Visual = gui:AddTab("Visual")
 local Scripts = gui:AddTab("Scripts")
-local chatSpyPage = gui:AddCustomPage("ChatSpyCustom")
 
 -- ==================================
 --  ⬇️ RP Nome/Bio Inicialização ⬇️
@@ -6793,8 +6792,3 @@ SoundService.AmbientReverb = Enum.ReverbType.Cave
 end)
 
 game.Workspace.FallenPartsDestroyHeight = -math.huge
-
--- ==============
---  ⬇️ChatSpy⬇️
--- ==============
-

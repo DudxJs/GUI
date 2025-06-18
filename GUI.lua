@@ -34,15 +34,7 @@ function DudxJsGUI:New(title, toggleImageId)
     self.toggleBtn.Size = UDim2.new(0, 50, 0, 50)
     self.toggleBtn.Position = UDim2.new(0, 198, 0, 39)
     self.toggleBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
-    if toggleImageId then
-    if not tostring(toggleImageId):find("rbxassetid://") then
-        self.toggleBtn.Image = "rbxassetid://" .. tostring(toggleImageId)
-    else
-        self.toggleBtn.Image = toggleImageId
-    end
-else
-    self.toggleBtn.Image = "rbxassetid://6031097225"
-end
+    self.toggleBtn.Image = toggleImageId or "rbxassetid://6031097225" -- Usa imagem customizada se informada
     self.toggleBtn.Parent = self._gui
     roundify(self.toggleBtn, 25)
     self.toggleBtn.ZIndex = 10
@@ -697,55 +689,6 @@ end
     return label
 end
     -- Adiciona tab na lista
-    table.insert(self._tabs, tab)
-    self._tabOrder = self._tabOrder + 1
-    return tab
-end
-
-function DudxJsGUI:AddCustomTab(tabName, buildFunc)
-    local self = self
-    local tab = {}
-    -- Cria o botão lateral
-    local button = Instance.new("TextButton", self.menu)
-    button.Size = UDim2.new(1, 0, 0, 32)
-    button.LayoutOrder = self._tabOrder
-    button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-    button.TextColor3 = Color3.new(1, 1, 1)
-    button.Text = tabName
-    button.Font = Enum.Font.SourceSans
-    button.TextSize = 18
-    button.Name = tabName:gsub("%s+", "") .. "Btn"
-    button.BorderSizePixel = 0
-    roundify(button)
-    button.TextXAlignment = Enum.TextXAlignment.Left
-    button.TextWrapped = false
-    local padding = Instance.new("UIPadding", button)
-    padding.PaddingLeft = UDim.new(0, 12)
-
-    -- Cria a página customizada (sem ScrollFrame, sem layout)
-    local page = Instance.new("Frame", self.content)
-    page.Name = tabName:gsub("%s+", "") .. "Page"
-    page.Size = UDim2.new(1, 0, 1, 0)
-    page.BackgroundTransparency = 1
-    page.Visible = (#self._tabs == 0)
-
-    -- Troca de páginas
-    button.MouseButton1Click:Connect(function()
-        for _, t in pairs(self._tabs) do
-            t.page.Visible = false
-        end
-        page.Visible = true
-    end)
-
-    -- Permite usar tab:AddButton, tab:AddSwitch, etc, se quiser
-    tab._order = 1
-    tab.page = page
-    tab.button = button
-
-    -- Permite customização total do conteúdo!
-    if buildFunc then buildFunc(page) end
-
-    -- Adiciona tab à lista
     table.insert(self._tabs, tab)
     self._tabOrder = self._tabOrder + 1
     return tab
