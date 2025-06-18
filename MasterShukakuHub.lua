@@ -6512,7 +6512,6 @@ end
 --// Função: Ativar/Desativar ESP
 local function toggleESP(enabled)
     ESPEnabled = enabled
-
     if enabled then
         -- Adiciona ESP para todos os jogadores existentes
         for _, plr in ipairs(game.Players:GetPlayers()) do
