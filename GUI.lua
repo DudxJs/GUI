@@ -694,14 +694,54 @@ end
     return tab
 end
 
-function DudxJsGUI:AddCustomPage(name)
+function DudxJsGUI:AddCustomTab(tabName, buildFunc)
+    local self = self
+    local tab = {}
+    -- Cria o botão lateral
+    local button = Instance.new("TextButton", self.menu)
+    button.Size = UDim2.new(1, 0, 0, 32)
+    button.LayoutOrder = self._tabOrder
+    button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    button.TextColor3 = Color3.new(1, 1, 1)
+    button.Text = tabName
+    button.Font = Enum.Font.SourceSans
+    button.TextSize = 18
+    button.Name = tabName:gsub("%s+", "") .. "Btn"
+    button.BorderSizePixel = 0
+    roundify(button)
+    button.TextXAlignment = Enum.TextXAlignment.Left
+    button.TextWrapped = false
+    local padding = Instance.new("UIPadding", button)
+    padding.PaddingLeft = UDim.new(0, 12)
+
+    -- Cria a página customizada (sem ScrollFrame, sem layout)
     local page = Instance.new("Frame", self.content)
-    page.Name = name or "CustomPage"
+    page.Name = tabName:gsub("%s+", "") .. "Page"
     page.Size = UDim2.new(1, 0, 1, 0)
     page.BackgroundTransparency = 1
-    page.Visible = true -- Você controla a visibilidade
-    return page
-end 
+    page.Visible = (#self._tabs == 0)
+
+    -- Troca de páginas
+    button.MouseButton1Click:Connect(function()
+        for _, t in pairs(self._tabs) do
+            t.page.Visible = false
+        end
+        page.Visible = true
+    end)
+
+    -- Permite usar tab:AddButton, tab:AddSwitch, etc, se quiser
+    tab._order = 1
+    tab.page = page
+    tab.button = button
+
+    -- Permite customização total do conteúdo!
+    if buildFunc then buildFunc(page) end
+
+    -- Adiciona tab à lista
+    table.insert(self._tabs, tab)
+    self._tabOrder = self._tabOrder + 1
+    return tab
+end
 
 function DudxJsGUI:Destroy()
     if self._gui then self._gui:Destroy() end
