@@ -7,19 +7,20 @@ local gui = _G.DudxJsGUI:New("MasterShukaku Hub", "rbxassetid://92433947031436")
 -- ==================
 
 local House = gui:AddTab("House")
-local Avatar = gui:AddTab("Avatar")
 local Car = gui:AddTab("Car")
-local Fun = gui:AddTab("Fun")
+local Avatar = gui:AddTab("Avatar")
 local Itens = gui:AddTab("Build")
-local Others = gui:AddTab("Others")
-local Teleportes = gui:AddTab("Teleportes")
-local Misc = gui:AddTab("Misc")
-local Kill = gui:AddTab("Kill")
 local Tools = gui:AddTab("Tools")
-local Premium = gui:AddTab("Premium")
+local Teleportes = gui:AddTab("Teleportes")
 local Map = gui:AddTab("Map")
 local Visual = gui:AddTab("Visual")
+local Fun = gui:AddTab("Fun")
+local Kill = gui:AddTab("Kill")
+local Misk = gui:AddTab("Áudio")
 local Scripts = gui:AddTab("Scripts")
+local ChatSpy = gui:AddTab("ChatSpy")
+local Premium = gui:AddTab("Premium")
+local Others = gui:AddTab("Others")
 
 -- ==================================
 --  ⬇️ RP Nome/Bio Inicialização ⬇️
@@ -6792,3 +6793,133 @@ SoundService.AmbientReverb = Enum.ReverbType.Cave
 end)
 
 game.Workspace.FallenPartsDestroyHeight = -math.huge
+
+-- ==============
+--  ⬇️ChatSpy⬇️
+-- ==============
+
+-- Cria um frame customizado DENTRO da página da aba
+local customPage = Instance.new("Frame")
+customPage.Name = "ChatSpyCustomPage"
+customPage.Size = UDim2.new(1, 0, 1, 0)
+customPage.BackgroundTransparency = 1
+customPage.Visible = true -- Sempre visível dentro da aba
+customPage.Parent = chatTab.page
+
+-- Agora, coloque todo o conteúdo do ChatSpy DENTRO do customPage:
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Name = "MainFrame"
+MainFrame.Size = UDim2.new(0.95, 0, 0.9, 0)
+MainFrame.Position = UDim2.new(0.025, 0, 0.05, 0)
+MainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+MainFrame.BackgroundTransparency = 0.2
+MainFrame.Parent = customPage
+
+local UICorner = Instance.new("UICorner")
+UICorner.Parent = MainFrame
+
+local MessageList = Instance.new("ScrollingFrame")
+MessageList.Name = "MessageList"
+MessageList.Size = UDim2.new(1, 0, 0.85, 0)
+MessageList.Position = UDim2.new(0, 0, 0.08, 0)
+MessageList.CanvasSize = UDim2.new(0, 0, 0, 0)
+MessageList.AutomaticCanvasSize = Enum.AutomaticSize.Y
+MessageList.ScrollBarThickness = 8
+MessageList.BackgroundTransparency = 1
+MessageList.Parent = MainFrame
+
+local UIListLayout = Instance.new("UIListLayout")
+UIListLayout.Parent = MessageList
+UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
+UIListLayout.Padding = UDim.new(0, 5)
+
+local CloseButton = Instance.new("TextButton")
+CloseButton.Name = "CloseButton"
+CloseButton.Size = UDim2.new(0, 30, 0, 30)
+CloseButton.Position = UDim2.new(1, -35, 0, 5)
+CloseButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+CloseButton.BackgroundTransparency = 0.3
+CloseButton.Text = "X"
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.Parent = MainFrame
+
+local UICornerButton = Instance.new("UICorner")
+UICornerButton.Parent = CloseButton
+
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+
+local Connections = {}
+
+-- Função para adicionar mensagem
+local function AddMessage(senderName, senderUserId, text)
+    local MessageFrame = Instance.new("Frame")
+    MessageFrame.Size = UDim2.new(1, -10, 0, 60)
+    MessageFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+    MessageFrame.BackgroundTransparency = 0.35
+    MessageFrame.Parent = MessageList
+    MessageFrame.Position = UDim2.new(0, 5, 0, 0)
+
+    local UICorner = Instance.new("UICorner")
+    UICorner.CornerRadius = UDim.new(0, 10)
+    UICorner.Parent = MessageFrame
+
+    local Avatar = Instance.new("ImageLabel")
+    Avatar.Size = UDim2.new(0, 40, 0, 40)
+    Avatar.Position = UDim2.new(0, 5, 0, 10)
+    Avatar.BackgroundTransparency = 0.15
+    Avatar.Image = "https://www.roblox.com/headshot-thumbnail/image?userId="..senderUserId.."&width=420&height=420&format=png"
+    Avatar.Parent = MessageFrame
+    Avatar.ScaleType = Enum.ScaleType.Fit
+    Avatar.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+
+    local UICorner2 = Instance.new("UICorner")
+    UICorner2.CornerRadius = UDim.new(0, 10)
+    UICorner2.Parent = Avatar
+
+    local NameAndText = Instance.new("TextLabel")
+    NameAndText.Size = UDim2.new(1, -60, 1, -10)
+    NameAndText.Position = UDim2.new(0, 50, 0, 5)
+    NameAndText.BackgroundTransparency = 1
+    NameAndText.TextXAlignment = Enum.TextXAlignment.Left
+    NameAndText.TextYAlignment = Enum.TextYAlignment.Top
+    NameAndText.Font = Enum.Font.SourceSans
+    NameAndText.TextSize = 18
+    NameAndText.TextWrapped = true
+    NameAndText.Text = "{"..senderName.."}: "..text
+    NameAndText.TextColor3 = Color3.fromRGB(255,255,255)
+    NameAndText.Parent = MessageFrame
+
+    -- Atualizar CanvasSize
+    MessageList.CanvasSize = UDim2.new(0, 0, 0, MessageList.UIListLayout.AbsoluteContentSize.Y)
+
+    task.defer(function()
+        MessageList.CanvasPosition = Vector2.new(0, MessageList.CanvasSize.Y.Offset)
+    end)
+end
+
+-- Função para escutar um jogador
+local function SpyPlayer(player)
+    if Connections[player] then
+        Connections[player]:Disconnect()
+    end
+    Connections[player] = player.Chatted:Connect(function(msg)
+        AddMessage(player.Name, player.UserId, msg)
+    end)
+end
+
+-- Conectar todos os jogadores atuais
+for _, player in ipairs(Players:GetPlayers()) do
+    SpyPlayer(player)
+end
+
+-- Conectar novos jogadores que entrarem
+Players.PlayerAdded:Connect(function(player)
+    SpyPlayer(player)
+end)
+
+-- Fechar chat (só esconde o MainFrame, não a aba inteira)
+CloseButton.MouseButton1Click:Connect(function()
+    MainFrame.Visible = false
+end)
