@@ -329,6 +329,14 @@ end
 function DudxJsGUI:AddTab(tabName)
     local self = self
     local tab = {}
+ function DudxJsGUI:AddCustomPage(name)
+    local page = Instance.new("Frame", self.content)
+    page.Name = name or "CustomPage"
+    page.Size = UDim2.new(1, 0, 1, 0)
+    page.BackgroundTransparency = 1
+    page.Visible = true -- Você controla a visibilidade
+    return page
+end 
     -- Botão lateral
     local button = Instance.new("TextButton", self.menu)
     button.Size = UDim2.new(1, 0, 0, 32)
@@ -372,14 +380,6 @@ function DudxJsGUI:AddTab(tabName)
     contentLayout.VerticalAlignment = Enum.VerticalAlignment.Top
     contentLayout.Padding = UDim.new(0, 7)
     contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
-function DudxJsGUI:AddCustomPage(name)
-    local page = Instance.new("Frame", self.content)
-    page.Name = name or "CustomPage"
-    page.Size = UDim2.new(1, 0, 1, 0)
-    page.BackgroundTransparency = 1
-    page.Visible = false -- Você controla a visibilidade
-    return page
-end 
     -- Troca de páginas
     button.MouseButton1Click:Connect(function()
         for _, t in pairs(self._tabs) do
