@@ -1,4 +1,4 @@
-loadstring(game:HttpGet("https://pastebin.com/raw/d6B4BhyA", true))()
+loadstring(game:HttpGet("https://pastebin.com/raw/d6B4BhyA", true))() -- Abertura
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/DudxJs/GUI/main/GUI.lua"))()
 
