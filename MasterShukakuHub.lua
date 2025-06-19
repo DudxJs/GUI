@@ -1,3 +1,7 @@
+loadstring(game:HttpGet("https://pastebin.com/raw/d6B4BhyA", true))()
+
+task.wait(0.5)
+
 loadstring(game:HttpGet("https://raw.githubusercontent.com/DudxJs/GUI/main/GUI.lua"))()
 
 local gui = _G.DudxJsGUI:New("MasterShukaku Hub", "rbxassetid://92433947031436")
