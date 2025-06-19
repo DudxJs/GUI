@@ -2852,6 +2852,10 @@ local soundList = {
     {Name = "My Heart Is Pure Evil Sound", ID = 106843479364998},    
     {Name = "Laugh Sound", ID = 123106903091799},    
     {Name = "Error Sound", ID = 3893790326},
+    {Name = "I Ghost The Down Cool", ID = 115471962120051},
+    {Name = "Lula e Alexandre", ID = 133885860917947},
+    {Name = "Ai Lula, Ejacula Lula", ID = 18585340476},
+    {Name = "Ah Lula", ID = 115491944196079},
 
 }
 
