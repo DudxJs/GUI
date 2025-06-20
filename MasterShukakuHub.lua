@@ -2765,7 +2765,7 @@ Misc:AddButton("Ant Lag All", function()
     end)
 end)
 
-Misc:AddLabel("Audio All FE")
+Misc:AddLabel("Áudio All FE")
 
 -- Inicialização das variáveis
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -2944,7 +2944,7 @@ Misc:AddSwitch("AUDIO ALL - Loop (Fast)", function(state)
                     warn("[Áudio ALL] Nenhum áudio válido no loop.")
                 end
 
-                task.wait(0.1) -- Intervalo entre ciclos
+                 -- Intervalo entre ciclos
             end
             warn("[Áudio ALL] Loop turbo encerrado. Ouvidos agradecem.")
         end)
