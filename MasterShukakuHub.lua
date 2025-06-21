@@ -2926,44 +2926,6 @@ Misc:AddSwitch("AUDIO ALL - Loop (Normal)", function(state)
     end
 end)
 
--- Novo Toggle para loop de áudio rápido
-Misc:AddSwitch("AUDIO ALL - Loop (Fast)", function(state)
-    getgenv().Audio_All_loop = state
-
-    if state then
-        warn("[Áudio ALL] Loop turbo iniciado. Se prepare pra rave 🔊")
-        task.spawn(function()
-            while getgenv().Audio_All_loop do
-                if audio_all_dropdown_value then
-                    for i = 1, 1 do -- 30 sons por ciclo
-                        task.spawn(function()
-                            playAudio(audio_all_dropdown_value)
-                        end)
-                    end
-                else
-                    warn("[Áudio ALL] Nenhum áudio válido no loop.")
-                end
-
-                 -- Intervalo entre ciclos
-            end
-            warn("[Áudio ALL] Loop turbo encerrado. Ouvidos agradecem.")
-        end)
-    else
-        warn("[Áudio ALL] Loop desligado.")
-    end
-end)
-
--- ID do áudio que será spammado
-local audioID = 7236490488
-
--- Intervalo entre cada lote de spam (0.1 segundos)
-local spamInterval = 0.03
--- Quantidade de sons por lote
-local soundsPerCycle = 20
-
--- Referência para o loop de spam
-local spamLoop = nil
-
 -- Criação do toggle no menu Misc
 Misc:AddSwitch("Áudio Spam Fast Glitcher", function(state)
     -- Define flag global
