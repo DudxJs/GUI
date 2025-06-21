@@ -19,9 +19,9 @@ local PlayerPoints = {}
 
 -- É obrigatório colocar o comando aqui, após criar um "elseif cmd" novo
 local Classes = {
-    ["Membro"] = { "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "ajuda" },
-    ["ADM"] = { "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp", "ajuda", "responder" },
-    ["✨DEV✨"] = { "mudarprefixo", "quest", "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp", "setrank", "ban", "unban", "responder" }
+    ["Membro"] = { "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2" },
+    ["ADM"] = { "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp" },
+    ["✨DEV✨"] = { "mudarprefixo", "quest", "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp", "setrank", "ban", "unban" }
 }
 
 -- Função para enviar mensagens no chat
@@ -270,10 +270,12 @@ end
     elseif cmd == "comandos2" then
         SendChatMessage("Oi\r[System]: Comandos adicionais: " ..
             CommandPrefix .. "zoar [jogador] [texto], " ..
-            CommandPrefix .. "kill, " ..
+            CommandPrefix .. "kill [jogador]" ..
             CommandPrefix .. "quest, " ..
             CommandPrefix .. "mudarprefixo, " ..
-            CommandPrefix .. "setrank"
+            CommandPrefix .. "setrank" ..
+            CommandPrefix .. "ban" ..
+            CommandPrefix .. "unban"
         )
 
     elseif cmd == "fps" then
