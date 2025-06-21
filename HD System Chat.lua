@@ -496,137 +496,156 @@ elseif cmd == "kill" then
         end
     end)
     
-    -- Comando: /tp [NomeDoPlayerQueVai] to [NomeDoDestino]
--- Adicione isso no seu bloco de comandos do chat principal
-
-    elseif cmd == "tp" then
+    -- Comando: /levar [Alvo] ate [Destino]
+    elseif cmd == "levar" then
         local args = message:split(" ")
-        -- Exemplo: /tp JogadorA to JogadorB
-        if #args < 4 or args[3]:lower() ~= "to" then
-            SendChatMessage("Oi\r[Erro]: Use " .. CommandPrefix .. "tp [QuemVai] to [Destino]")
+        -- Exemplo: /levar JogadorA ate JogadorB
+        if #args < 4 or args[3]:lower() ~= "ate" then
+            SendChatMessage("Oi\r[Erro]: Use " .. CommandPrefix .. "levar [Alvo] ate [Destino]")
             return
         end
 
-        local whoName = args[2]
-        local toName = args[4]
+        local alvoName = args[2]
+        local destinoName = args[4]
 
-        local who = Players:FindFirstChild(whoName)
-        local to = Players:FindFirstChild(toName)
+        local Players = game:GetService("Players")
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local Player = Players.LocalPlayer
+        local Character = Player.Character or Player.CharacterAdded:Wait()
+        local Humanoid = Character:WaitForChild("Humanoid")
+        local RootPart = Character:WaitForChild("HumanoidRootPart")
+        local Backpack = Player:WaitForChild("Backpack")
 
-        if not who or not who.Character then
-            SendChatMessage("Oi\r[Erro]: Jogador '"..whoName.."' não encontrado ou sem personagem.")
-            return
-        end
-        if not to or not to.Character or not to.Character:FindFirstChild("HumanoidRootPart") then
-            SendChatMessage("Oi\r[Erro]: Destino '"..toName.."' não encontrado ou sem personagem.")
-            return
-        end
-
-        -- Só o executor pode usar o comando para si mesmo ou se for DEV
-        if LocalPlayer ~= who and PlayerClasses[LocalPlayer.UserId] ~= "✨DEV✨" then
-            SendChatMessage("Oi\r[Erro]: Você só pode se teleportar ou ser DEV.")
-            return
-        end
-
-        -- Função utilitária: garantir Couch equipado para o "who"
-        local function EnsureCouch(forPlayer)
-            local Backpack = forPlayer:WaitForChild("Backpack")
-            local Character = forPlayer.Character or forPlayer.CharacterAdded:Wait()
-            local Humanoid = Character:WaitForChild("Humanoid")
-            local Couch = Backpack:FindFirstChild("Couch") or Character:FindFirstChild("Couch")
-            if not Couch then
+        -- Função para equipar a Couch
+        local function EquipCouch()
+            local couchTool = Backpack:FindFirstChild("Couch") or Character:FindFirstChild("Couch")
+            if not couchTool then
+                local args = { [1] = "PickingTools", [2] = "Couch" }
                 local remote = ReplicatedStorage:FindFirstChild("RE") and ReplicatedStorage.RE:FindFirstChild("1Too1l")
-                if not remote then
-                    SendChatMessage("Oi\r[Erro]: Remote para equipar Couch não encontrado.")
-                    return false
-                end
-                local args = { "PickingTools", "Couch" }
-                remote:InvokeServer(unpack(args))
-                local timeout = 5
-                local startTime = tick()
-                while not Backpack:FindFirstChild("Couch") and tick() - startTime < timeout do
-                    task.wait(0.1)
-                end
-                Couch = Backpack:FindFirstChild("Couch")
-                if not Couch then
-                    SendChatMessage("Oi\r[Erro]: Falha ao obter Couch na backpack de " .. forPlayer.Name)
-                    return false
+                if remote then
+                    remote:InvokeServer(unpack(args))
+                    local timeout = 5
+                    local waited = 0
+                    repeat
+                        couchTool = Backpack:FindFirstChild("Couch") or Character:FindFirstChild("Couch")
+                        task.wait(0.1)
+                        waited += 0.1
+                    until couchTool or waited >= timeout
                 end
             end
-            -- Ajusta GripPos
-            if Couch:FindFirstChild("Handle") then
-                Couch.GripPos = Vector3.new(2, 5, -1)
-            end
-            -- Equipa
-            Humanoid:EquipTool(Couch)
-            return true
-        end
 
-        -- Teleportar "who" até "to"
-        local function TeleportPlayerToTarget(who, to)
-            local Character = who.Character
-            local Humanoid = Character:FindFirstChild("Humanoid")
-            local RootPart = Character:FindFirstChild("HumanoidRootPart")
-            local ToRoot = to.Character:FindFirstChild("HumanoidRootPart")
-            if not EnsureCouch(who) then return end
-
-            -- Salva posição original para voltar
-            getgenv().OldPos = RootPart.CFrame
-
-            -- Reposiciona com efeito de "fling"
-            local function FPos(BasePart, Pos, Ang)
-                RootPart.CFrame = BasePart.CFrame * Pos * Ang
-                Character:SetPrimaryPartCFrame(BasePart.CFrame * Pos * Ang)
-                RootPart.Velocity = Vector3.new(9e7, 9e7 * 10, 9e7)
-                RootPart.RotVelocity = Vector3.new(9e8, 9e8, 9e8)
-            end
-
-            local BV = Instance.new("BodyVelocity")
-            BV.Name = "TpVel"
-            BV.Parent = RootPart
-            BV.Velocity = Vector3.new(9e8, 9e8, 9e8)
-            BV.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-            Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
-
-            local startTime = tick()
-            local timeout = 2
-            local arrived = false
-
-            task.spawn(function()
-                local Angle = 0
-                while tick() - startTime < timeout and not arrived do
-                    Angle += 100
-                    FPos(ToRoot, CFrame.new(0, 1.5, 0), CFrame.Angles(math.rad(Angle), 0, 0))
+            if couchTool then
+                if couchTool:FindFirstChild("Handle") then
+                    couchTool.GripPos = Vector3.new(2, 5, -1)
+                end
+                if Backpack:FindFirstChild("Couch") then
+                    Humanoid:EquipTool(couchTool)
+                else
+                    couchTool.Parent = Backpack
                     task.wait()
-                    if (RootPart.Position - ToRoot.Position).Magnitude < 10 then
-                        arrived = true
-                    end
+                    Humanoid:EquipTool(couchTool)
                 end
-                -- Limpa força e estado
-                BV:Destroy()
-                Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
-                workspace.CurrentCamera.CameraSubject = Humanoid
-            end)
-
-            -- Retorna para a posição original após alguns segundos para evitar bugs
-            task.wait(timeout + 0.5)
-            local OldPos = getgenv().OldPos
-            if OldPos then
-                RootPart.CFrame = OldPos * CFrame.new(0, 0.5, 0)
-                Character:SetPrimaryPartCFrame(OldPos * CFrame.new(0, 0.5, 0))
-                Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
-                for _, part in ipairs(Character:GetChildren()) do
-                    if part:IsA("BasePart") then
-                        part.Velocity = Vector3.zero
-                        part.RotVelocity = Vector3.zero
-                    end
-                end
+            else
+                SendChatMessage("Oi\r[Erro]: Couch não encontrado após tentativa de pegar.")
             end
         end
 
-        -- Executar
-        TeleportPlayerToTarget(who, to)
-        SendChatMessage("Oi\r[System]: O jogador '"..whoName.."' foi teleportado até '"..toName.."' com sucesso!")
+        EquipCouch()
+
+        -- Seleção do alvo e do destino
+        local TargetPlayer = Players:FindFirstChild(alvoName)
+        if not TargetPlayer or not TargetPlayer.Character then
+            SendChatMessage("Oi\r[Erro]: Alvo '"..alvoName.."' não encontrado ou sem personagem.")
+            return
+        end
+
+        local TCharacter = TargetPlayer.Character
+        local THumanoid = TCharacter:FindFirstChildOfClass("Humanoid")
+        local TRootPart = THumanoid and (THumanoid.RootPart or TCharacter:FindFirstChild("HumanoidRootPart"))
+
+        local DestinoPlayer = Players:FindFirstChild(destinoName)
+        local DestinoRootPart = DestinoPlayer and DestinoPlayer.Character and DestinoPlayer.Character:FindFirstChild("HumanoidRootPart")
+
+        if not DestinoPlayer or not DestinoRootPart then
+            SendChatMessage("Oi\r[Erro]: Destino '"..destinoName.."' não encontrado ou sem personagem.")
+            return
+        end
+
+        -- Salva posição original
+        if RootPart and RootPart.Position.Magnitude < 99999 then
+            getgenv().OldPos = RootPart.CFrame
+        end
+
+        -- Função para posicionar
+        local function FPos(BasePart, Pos, Ang)
+            local targetCFrame = CFrame.new(BasePart.Position) * Pos * Ang
+            RootPart.CFrame = targetCFrame
+            Character:SetPrimaryPartCFrame(targetCFrame)
+        end
+
+        -- Monitorar se o alvo sentou e teleportar
+        task.spawn(function()
+            local alreadyHandled = false
+            while THumanoid and THumanoid.Parent and Humanoid.Health > 0 and not alreadyHandled do
+                if THumanoid.Sit then
+                    alreadyHandled = true
+                    -- Teleporta o executor (e o alvo junto) para o destino
+                    if DestinoRootPart then
+                        RootPart.CFrame = DestinoRootPart.CFrame
+                        Character:SetPrimaryPartCFrame(DestinoRootPart.CFrame)
+                    else
+                        local escapePos = CFrame.new(0, -700, 0)
+                        RootPart.CFrame = escapePos
+                        Character:SetPrimaryPartCFrame(escapePos)
+                    end
+                    task.wait(1)
+                    -- Limpa Couch
+                    local clearRemote = ReplicatedStorage:FindFirstChild("RE") and ReplicatedStorage.RE:FindFirstChild("1Clea1rTool1s")
+                    if clearRemote then
+                        clearRemote:FireServer("ClearAllTools")
+                    end
+                    task.wait(0.3)
+                    -- Retorna executor para a posição original
+                    if getgenv().OldPos then
+                        RootPart.CFrame = getgenv().OldPos
+                        Character:SetPrimaryPartCFrame(getgenv().OldPos)
+                        Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+                    end
+                end
+                task.wait(0.1)
+            end
+        end)
+
+        -- Força o alvo a sentar ("dança do push")
+        local function SFBasePart(BasePart)
+            local TempoMax = 5
+            local Inicio = tick()
+            local Angulo = 0
+            repeat
+                if not THumanoid or not RootPart then break end
+                if BasePart.Velocity.Magnitude < 50 then
+                    Angulo += 100
+                    FPos(BasePart, CFrame.new(0, 1.5, 0), CFrame.Angles(math.rad(Angulo), 0, 0)); task.wait()
+                    FPos(BasePart, CFrame.new(0, -1.5, 0), CFrame.Angles(math.rad(Angulo), 0, 0)); task.wait()
+                    FPos(BasePart, CFrame.new(2.25, 1.5, -2.25), CFrame.Angles(math.rad(Angulo), 0, 0)); task.wait()
+                    FPos(BasePart, CFrame.new(-2.25, -1.5, 2.25), CFrame.Angles(math.rad(Angulo), 0, 0)); task.wait()
+                    FPos(BasePart, CFrame.new(0, 1.5, THumanoid.WalkSpeed), CFrame.Angles(math.rad(90), 0, 0)); task.wait()
+                    FPos(BasePart, CFrame.new(0, -1.5, -THumanoid.WalkSpeed), CFrame.Angles(0, 0, 0)); task.wait()
+                    FPos(BasePart, CFrame.new(0, 1.5, TRootPart.Velocity.Magnitude / 1.25), CFrame.Angles(math.rad(90), 0, 0)); task.wait()
+                    FPos(BasePart, CFrame.new(0, -1.5, TRootPart.Velocity.Magnitude / -1.25), CFrame.Angles(0, 0, 0)); task.wait()
+                end
+            until tick() > Inicio + TempoMax or THumanoid.Sit or Humanoid.Health <= 0
+        end
+
+        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+        if TRootPart then
+            SFBasePart(TRootPart)
+        else
+            SendChatMessage("Oi\r[Erro]: Parte do corpo do alvo não encontrada para movimentação.")
+        end
+        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+
+        SendChatMessage("Oi\r[System]: O jogador '"..alvoName.."' foi levado até '"..destinoName.."' com sucesso!")
 
     elseif cmd == "mudarprefixo" and PlayerClasses[player.UserId] == "✨DEV✨" then
         local newPrefix = message:match("^" .. CommandPrefix .. "mudarprefixo%s(.+)")
