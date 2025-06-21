@@ -16,10 +16,11 @@ local MessageLoopThread = nil
 local PlayerClasses = {}
 local PlayerPoints = {}
 
+-- É obrigatório colocar o comando aqui, após criar um "elseif cmd" novo
 local Classes = {
     ["Membro"] = { "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2" },
     ["ADM"] = { "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp" },
-    ["✨DEV✨"] = { "mudarprefixo", "quest", "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp" }
+    ["✨DEV✨"] = { "mudarprefixo", "quest", "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp", "setrank" }
 }
 
 -- Função para enviar mensagens no chat
@@ -274,7 +275,7 @@ end
         SendChatMessage("Oi\r[System]: Horário do servidor: " .. os.date("%H:%M:%S"))
 
     elseif cmd == "info" then
-        SendChatMessage("Oi\r[System]: Servidor ativo há " .. math.floor(workspace.DistributedGameTime) .. " segundos.")
+        SendChatMessage("Oi\r[System]: Servidor ativo há " .. math.floor(workspace.DistributedGameTime) .. " segundos.\r[System]: Script Criado Por: Dudx_js")
 
     elseif cmd == "msg" then
         local customMessage = message:match("^" .. CommandPrefix .. "msg%s(.+)")
@@ -653,6 +654,50 @@ end
         Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
 
         SendChatMessage("Oi\r[System]: O jogador '"..alvoName.."' foi levado até '"..destinoName.."' com sucesso!")
+
+elseif cmd == "setrank" and PlayerClasses[player.UserId] == "✨DEV✨" then
+    local args = message:split(" ")
+    local targetName = args[2]
+    local newClass = args[3]
+    if not targetName or not newClass then
+        SendChatMessage("Oi\r[Erro]: Use " .. CommandPrefix .. "setrank [NomeDoJogador] [Membro/ADM]")
+        return
+    end
+
+    -- Impede uso de ✨DEV✨ para outros jogadores
+    if newClass == "✨DEV✨" then
+        SendChatMessage("Oi\r[Erro]: Apenas você pode ser ✨DEV✨. Não é possível promover outros jogadores para DEV!")
+        return
+    end
+
+    -- Apenas valores válidos
+    local validClasses = { ["Membro"] = true, ["ADM"] = true }
+    if not validClasses[newClass] then
+        SendChatMessage("Oi\r[Erro]: Rank inválida! Use apenas: Membro ou ADM")
+        return
+    end
+
+    local targetPlayer = nil
+    for _, p in pairs(Players:GetPlayers()) do
+        if p.Name:lower() == targetName:lower() or p.DisplayName:lower() == targetName:lower() then
+            targetPlayer = p
+            break
+        end
+    end
+
+    if not targetPlayer then
+        SendChatMessage("Oi\r[Erro]: Jogador '" .. targetName .. "' não encontrado.")
+        return
+    end
+
+    PlayerClasses[targetPlayer.UserId] = newClass
+    targetPlayer:SetAttribute("Classe", newClass)
+    local leaderstats = targetPlayer:FindFirstChild("leaderstats")
+    if leaderstats and leaderstats:FindFirstChild("Classe") then
+        leaderstats.Classe.Value = newClass
+    end
+
+    SendChatMessage("Oi\r[System]: Ranking de " .. targetPlayer.DisplayName .. " atualizada para '" .. newClass .. "' com sucesso!")
 
     elseif cmd == "mudarprefixo" and PlayerClasses[player.UserId] == "✨DEV✨" then
         local newPrefix = message:match("^" .. CommandPrefix .. "mudarprefixo%s(.+)")
