@@ -18,8 +18,8 @@ local PlayerPoints = {}
 
 local Classes = {
     ["Membro"] = { "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2" },
-    ["ADM"] = { "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2" },
-    ["✨DEV✨"] = { "mudarprefixo", "quest", "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2" }
+    ["ADM"] = { "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp" },
+    ["✨DEV✨"] = { "mudarprefixo", "quest", "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp" }
 }
 
 -- Função para enviar mensagens no chat
@@ -504,11 +504,11 @@ elseif cmd == "kill" then
 end
     
     -- Comando: /levar [Alvo] ate [Destino]
-    elseif cmd == "levar" then
+    elseif cmd == "tp" then
         local args = message:split(" ")
         -- Exemplo: /levar JogadorA ate JogadorB
-        if #args < 4 or args[3]:lower() ~= "ate" then
-            SendChatMessage("Oi\r[Erro]: Use " .. CommandPrefix .. "levar [Alvo] ate [Destino]")
+        if #args < 4 or args[3]:lower() ~= "to" then
+            SendChatMessage("Oi\r[Erro]: Use " .. CommandPrefix .. "tp [Alvo] to [Destino]")
             return
         end
 
