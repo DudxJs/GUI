@@ -495,25 +495,8 @@ elseif cmd == "kill" then
             end
         end
     end)
-
-    elseif cmd == "mudarprefixo" and PlayerClasses[player.UserId] == "✨DEV✨" then
-        local newPrefix = message:match("^" .. CommandPrefix .. "mudarprefixo%s(.+)")
-        if newPrefix and #newPrefix == 1 then
-            CommandPrefix = newPrefix
-            SendChatMessage("Oi\r[System]: Prefixo alterado para: " .. newPrefix)
-        else
-            SendChatMessage("Oi\r[Erro]: Use apenas um caractere como prefixo.")
-        end
-
-    elseif cmd == "quest" and PlayerClasses[player.UserId] == "✨DEV✨" then
-        if not _G.QuestCommandRegistered then
-            _G.QuestCommandRegistered = true
-            StartQuest()
-        end
-    end
-end)
-
--- Comando: /tp [NomeDoPlayerQueVai] to [NomeDoDestino]
+    
+    -- Comando: /tp [NomeDoPlayerQueVai] to [NomeDoDestino]
 -- Adicione isso no seu bloco de comandos do chat principal
 
 elseif cmd == "tp" then
@@ -644,3 +627,20 @@ elseif cmd == "tp" then
     -- Executar
     TeleportPlayerToTarget(who, to)
     SendChatMessage("Oi\r[System]: O jogador '"..whoName.."' foi teleportado até '"..toName.."' com sucesso!")
+
+    elseif cmd == "mudarprefixo" and PlayerClasses[player.UserId] == "✨DEV✨" then
+        local newPrefix = message:match("^" .. CommandPrefix .. "mudarprefixo%s(.+)")
+        if newPrefix and #newPrefix == 1 then
+            CommandPrefix = newPrefix
+            SendChatMessage("Oi\r[System]: Prefixo alterado para: " .. newPrefix)
+        else
+            SendChatMessage("Oi\r[Erro]: Use apenas um caractere como prefixo.")
+        end
+
+    elseif cmd == "quest" and PlayerClasses[player.UserId] == "✨DEV✨" then
+        if not _G.QuestCommandRegistered then
+            _G.QuestCommandRegistered = true
+            StartQuest()
+        end
+    end
+end)
