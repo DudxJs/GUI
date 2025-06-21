@@ -11,6 +11,7 @@ local SystemVersion = "BETA(Teste)"
 local CommandPrefix = "/"
 local CommandModeActive = false
 local MessageLoopThread = nil
+local BannedPlayers = {} -- [userId] = true
 
 -- Controle de permissões e pontos
 local PlayerClasses = {}
@@ -20,7 +21,7 @@ local PlayerPoints = {}
 local Classes = {
     ["Membro"] = { "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2" },
     ["ADM"] = { "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp" },
-    ["✨DEV✨"] = { "mudarprefixo", "quest", "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp", "setrank" }
+    ["✨DEV✨"] = { "mudarprefixo", "quest", "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp", "setrank", "ban", "unban" }
 }
 
 -- Função para enviar mensagens no chat
@@ -198,6 +199,13 @@ local function StartQuest()
     connection = TextChatService.MessageReceived:Connect(function(messageObject)
         local player = Players:GetPlayerByUserId(messageObject.TextSource.UserId)
         if not player then return end
+        
+        -- Verificação de Ban
+            if BannedPlayers[player.UserId] then
+        SendChatMessage("Oi\r[Erro]: Você está banido do uso de comandos.")
+        return
+    end
+        
         if string.lower(messageObject.Text) == CurrentAnswer then
             if PlayerClasses[player.UserId] == "✨DEV✨" then
                 SendChatMessage("Oi\r[System]: Você não pode responder sua própria pergunta.")
@@ -264,12 +272,13 @@ end
             CommandPrefix .. "zoar [jogador] [texto], " ..
             CommandPrefix .. "kill, " ..
             CommandPrefix .. "quest, " ..
-            CommandPrefix .. "mudarprefixo"
+            CommandPrefix .. "mudarprefixo, " ..
+            CommandPrefix .. "setrank"
         )
 
     elseif cmd == "fps" then
         local fps = math.max(1, math.floor(workspace:GetRealPhysicsFPS()))
-        SendChatMessage("Oi\r[System]: Seu FPS atual: " .. tostring(fps))
+        SendChatMessage("Oi\r[System]: O FPS atual de " .. player.DisplayName .. " é: " .. tostring(fps))
 
     elseif cmd == "tempo" then
         SendChatMessage("Oi\r[System]: Horário do servidor: " .. os.date("%H:%M:%S"))
@@ -285,8 +294,8 @@ end
             SendChatMessage("Oi\r[Erro]: Experimente: '" .. CommandPrefix .. "msg System Bot'.")
         end
 
-    elseif cmd == "rank" then
-        SendChatMessage("Oi\r[System]: Seu rank atual é: " .. (PlayerClasses[player.UserId] or "Membro"))
+        elseif cmd == "rank" then
+        SendChatMessage("Oi\r[System]: O rank atual de " .. player.DisplayName .. " é: " .. (PlayerClasses[player.UserId] or "Membro"))
 
     elseif cmd == "versao" then
         SendChatMessage("Oi\r[System]: Versão atual: " .. SystemVersion)
@@ -698,6 +707,48 @@ elseif cmd == "setrank" and PlayerClasses[player.UserId] == "✨DEV✨" then
     end
 
     SendChatMessage("Oi\r[System]: Ranking de " .. targetPlayer.DisplayName .. " atualizada para '" .. newClass .. "' com sucesso!")
+
+elseif cmd == "ban" then
+    local args = message:split(" ")
+    local targetName = args[2]
+    if not targetName then
+        SendChatMessage("Oi\r[Erro]: Use " .. CommandPrefix .. "ban [NomeDoJogador]")
+        return
+    end
+    local targetPlayer = nil
+    for _, p in pairs(Players:GetPlayers()) do
+        if p.Name:lower() == targetName:lower() or p.DisplayName:lower() == targetName:lower() then
+            targetPlayer = p
+            break
+        end
+    end
+    if not targetPlayer then
+        SendChatMessage("Oi\r[Erro]: Jogador '" .. targetName .. "' não encontrado.")
+        return
+    end
+    BannedPlayers[targetPlayer.UserId] = true
+    SendChatMessage("Oi\r[System]: " .. targetPlayer.DisplayName .. " foi banido do uso de comandos!")
+
+elseif cmd == "unban" then
+    local args = message:split(" ")
+    local targetName = args[2]
+    if not targetName then
+        SendChatMessage("Oi\r[Erro]: Use " .. CommandPrefix .. "unban [NomeDoJogador]")
+        return
+    end
+    local targetPlayer = nil
+    for _, p in pairs(Players:GetPlayers()) do
+        if p.Name:lower() == targetName:lower() or p.DisplayName:lower() == targetName:lower() then
+            targetPlayer = p
+            break
+        end
+    end
+    if not targetPlayer then
+        SendChatMessage("Oi\r[Erro]: Jogador '" .. targetName .. "' não encontrado.")
+        return
+    end
+    BannedPlayers[targetPlayer.UserId] = nil
+    SendChatMessage("Oi\r[System]: " .. targetPlayer.DisplayName .. " foi desbanido e pode usar comandos novamente!")
 
     elseif cmd == "mudarprefixo" and PlayerClasses[player.UserId] == "✨DEV✨" then
         local newPrefix = message:match("^" .. CommandPrefix .. "mudarprefixo%s(.+)")
