@@ -496,6 +496,13 @@ elseif cmd == "kill" then
         end
     end)
     
+    function string:split(sep)
+    local fields = {}
+    local pattern = string.format("([^%s]+)", sep)
+    self:gsub(pattern, function(c) fields[#fields+1] = c end)
+    return fields
+end
+    
     -- Comando: /levar [Alvo] ate [Destino]
     elseif cmd == "levar" then
         local args = message:split(" ")
