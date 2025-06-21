@@ -9,7 +9,6 @@ local LocalPlayer = Players.LocalPlayer
 local ChatEvent = ReplicatedStorage:FindFirstChild("DefaultChatSystemChatEvents")
 local SystemVersion = "BETA(Teste)"
 local CommandPrefix = "/"
-local AllowedUserIds = {2596486665} -- Coloque o UserId autorizado
 local CommandModeActive = false
 local MessageLoopThread = nil
 
@@ -199,7 +198,7 @@ local function StartQuest()
         local player = Players:GetPlayerByUserId(messageObject.TextSource.UserId)
         if not player then return end
         if string.lower(messageObject.Text) == CurrentAnswer then
-            if player.UserId == 2596486665 then
+            if PlayerClasses[player.UserId] == "✨DEV✨" then
                 SendChatMessage("Oi\r[System]: Você não pode responder sua própria pergunta.")
                 return
             end
@@ -224,17 +223,10 @@ TextChatService.MessageReceived:Connect(function(messageObject)
     local player = Players:GetPlayerByUserId(messageObject.TextSource.UserId)
     if not player then return end
 
-    -- Verifica se o jogador está autorizado
-    local isPlayerAllowed = false
-    for _, allowedUserId in ipairs(AllowedUserIds) do
-        if player.UserId == allowedUserId then
-            isPlayerAllowed = true
-            break
-        end
-    end
-
     -- Verifica se modo comandos está ativo
-    if not CommandModeActive and not isPlayerAllowed then return end
+if not CommandModeActive and PlayerClasses[player.UserId] ~= "✨DEV✨" then
+    return
+end
 
     -- Captura comando
     local cmd = message:match("^" .. CommandPrefix .. "(%S+)")
