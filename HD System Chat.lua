@@ -512,3 +512,135 @@ elseif cmd == "kill" then
         end
     end
 end)
+
+-- Comando: /tp [NomeDoPlayerQueVai] to [NomeDoDestino]
+-- Adicione isso no seu bloco de comandos do chat principal
+
+elseif cmd == "tp" then
+    local args = message:split(" ")
+    -- Exemplo: /tp JogadorA to JogadorB
+    if #args < 4 or args[3]:lower() ~= "to" then
+        SendChatMessage("Oi\r[Erro]: Use " .. CommandPrefix .. "tp [QuemVai] to [Destino]")
+        return
+    end
+
+    local whoName = args[2]
+    local toName = args[4]
+
+    local who = Players:FindFirstChild(whoName)
+    local to = Players:FindFirstChild(toName)
+
+    if not who or not who.Character then
+        SendChatMessage("Oi\r[Erro]: Jogador '"..whoName.."' não encontrado ou sem personagem.")
+        return
+    end
+    if not to or not to.Character or not to.Character:FindFirstChild("HumanoidRootPart") then
+        SendChatMessage("Oi\r[Erro]: Destino '"..toName.."' não encontrado ou sem personagem.")
+        return
+    end
+
+    -- Só o executor pode usar o comando para si mesmo ou se for DEV
+    if LocalPlayer ~= who and PlayerClasses[LocalPlayer.UserId] ~= "✨DEV✨" then
+        SendChatMessage("Oi\r[Erro]: Você só pode se teleportar ou ser DEV.")
+        return
+    end
+
+    -- Função utilitária: garantir Couch equipado para o "who"
+    local function EnsureCouch(forPlayer)
+        local Backpack = forPlayer:WaitForChild("Backpack")
+        local Character = forPlayer.Character or forPlayer.CharacterAdded:Wait()
+        local Humanoid = Character:WaitForChild("Humanoid")
+        local Couch = Backpack:FindFirstChild("Couch") or Character:FindFirstChild("Couch")
+        if not Couch then
+            local remote = ReplicatedStorage:FindFirstChild("RE") and ReplicatedStorage.RE:FindFirstChild("1Too1l")
+            if not remote then
+                SendChatMessage("Oi\r[Erro]: Remote para equipar Couch não encontrado.")
+                return false
+            end
+            local args = { "PickingTools", "Couch" }
+            remote:InvokeServer(unpack(args))
+            local timeout = 5
+            local startTime = tick()
+            while not Backpack:FindFirstChild("Couch") and tick() - startTime < timeout do
+                task.wait(0.1)
+            end
+            Couch = Backpack:FindFirstChild("Couch")
+            if not Couch then
+                SendChatMessage("Oi\r[Erro]: Falha ao obter Couch na backpack de " .. forPlayer.Name)
+                return false
+            end
+        end
+        -- Ajusta GripPos
+        if Couch:FindFirstChild("Handle") then
+            Couch.GripPos = Vector3.new(2, 5, -1)
+        end
+        -- Equipa
+        Humanoid:EquipTool(Couch)
+        return true
+    end
+
+    -- Teleportar "who" até "to"
+    local function TeleportPlayerToTarget(who, to)
+        local Character = who.Character
+        local Humanoid = Character:FindFirstChild("Humanoid")
+        local RootPart = Character:FindFirstChild("HumanoidRootPart")
+        local ToRoot = to.Character:FindFirstChild("HumanoidRootPart")
+        if not EnsureCouch(who) then return end
+
+        -- Salva posição original para voltar
+        getgenv().OldPos = RootPart.CFrame
+
+        -- Reposiciona com efeito de "fling"
+        local function FPos(BasePart, Pos, Ang)
+            RootPart.CFrame = BasePart.CFrame * Pos * Ang
+            Character:SetPrimaryPartCFrame(BasePart.CFrame * Pos * Ang)
+            RootPart.Velocity = Vector3.new(9e7, 9e7 * 10, 9e7)
+            RootPart.RotVelocity = Vector3.new(9e8, 9e8, 9e8)
+        end
+
+        local BV = Instance.new("BodyVelocity")
+        BV.Name = "TpVel"
+        BV.Parent = RootPart
+        BV.Velocity = Vector3.new(9e8, 9e8, 9e8)
+        BV.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
+        Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, false)
+
+        local startTime = tick()
+        local timeout = 2
+        local arrived = false
+
+        task.spawn(function()
+            local Angle = 0
+            while tick() - startTime < timeout and not arrived do
+                Angle += 100
+                FPos(ToRoot, CFrame.new(0, 1.5, 0), CFrame.Angles(math.rad(Angle), 0, 0))
+                task.wait()
+                if (RootPart.Position - ToRoot.Position).Magnitude < 10 then
+                    arrived = true
+                end
+            end
+            -- Limpa força e estado
+            BV:Destroy()
+            Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
+            workspace.CurrentCamera.CameraSubject = Humanoid
+        end)
+
+        -- Retorna para a posição original após alguns segundos para evitar bugs
+        task.wait(timeout + 0.5)
+        local OldPos = getgenv().OldPos
+        if OldPos then
+            RootPart.CFrame = OldPos * CFrame.new(0, 0.5, 0)
+            Character:SetPrimaryPartCFrame(OldPos * CFrame.new(0, 0.5, 0))
+            Humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+            for _, part in ipairs(Character:GetChildren()) do
+                if part:IsA("BasePart") then
+                    part.Velocity = Vector3.zero
+                    part.RotVelocity = Vector3.zero
+                end
+            end
+        end
+    end
+
+    -- Executar
+    TeleportPlayerToTarget(who, to)
+    SendChatMessage("Oi\r[System]: O jogador '"..whoName.."' foi teleportado até '"..toName.."' com sucesso!")
