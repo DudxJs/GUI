@@ -2201,7 +2201,7 @@ Itens:AddButton("Start Duplication", function()
             Title = "Duplication",
             Text = "Duplicated [" .. tool .. "] (" .. i .. "/" .. many .. ")",
             Duration = 2,
-            Icon = "rbxthumb://type=Asset&id=122216401159246&w=150&h=150"
+            Icon = "rbxthumb://type=Asset&id=92433947031436&w=150&h=150"
         })
     end
 
@@ -2655,7 +2655,7 @@ local function notify(title, text)
     StarterGui:SetCore("SendNotification", {
         Title = title,
         Text = text,
-        Icon = "rbxthumb://type=Asset&id=122216401159246&w=150&h=150",
+        Icon = "rbxthumb://type=Asset&id=92433947031436&w=150&h=150",
         Duration = 3
     })
 end
@@ -3232,7 +3232,7 @@ local currentTarget = nil
 local characterAddedConn = nil
 local lastValidTarget = nil
 
-local notificationIconId = "rbxassetid://122216401159246"
+local notificationIconId = "rbxassetid://92433947031436"
 
 -- Notificação com headshot
 function notify(title, text, player)
