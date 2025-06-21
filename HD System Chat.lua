@@ -20,8 +20,8 @@ local PlayerPoints = {}
 -- É obrigatório colocar o comando aqui, após criar um "elseif cmd" novo
 local Classes = {
     ["Membro"] = { "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2" },
-    ["ADM"] = { "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp" },
-    ["✨DEV✨"] = { "mudarprefixo", "quest", "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp", "setrank", "ban", "unban" }
+    ["ADM"] = { "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp", "clear" },
+    ["✨DEV✨"] = { "mudarprefixo", "quest", "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp", "setrank", "ban", "unban", "clear" }
 }
 
 -- Função para enviar mensagens no chat
@@ -751,6 +751,9 @@ elseif cmd == "unban" then
     end
     BannedPlayers[targetPlayer.UserId] = nil
     SendChatMessage("Oi\r[System]: " .. targetPlayer.DisplayName .. " foi desbanido e pode usar comandos novamente!")
+
+    elseif cmd == "clear" then
+        SendChatMessage("Dudx_js Script Developer".. string.rep("\r", 97) .. "Chat Limpo!")
 
     elseif cmd == "mudarprefixo" and PlayerClasses[player.UserId] == "✨DEV✨" then
         local newPrefix = message:match("^" .. CommandPrefix .. "mudarprefixo%s(.+)")
