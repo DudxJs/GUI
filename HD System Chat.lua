@@ -364,7 +364,7 @@ local function ReturnToSafePosition(fixedReturnPos, waitTime)
 end
 
 -- Comando /kill
-elseif cmd == "kill" then
+if cmd == "kill" then
     local args = message:split(" ")
     local targetName = args[2]
     if not targetName then
