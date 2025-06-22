@@ -24,42 +24,8 @@ local Classes = {
     ["✨DEV✨"] = { "mudarprefixo", "quest", "zoar", "kill", "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2", "tp", "setrank", "ban", "unban", "clear" }
 }
 
--- Variáveis para sistema anti-spam
-local LastAutoMessage = nil
-local LastAutoMessageTime = 0
-local AutoMessageCooldown = 5 -- segundos
-local AutoMessageQueue = {}
-
--- Função para enviar mensagens no chat (agora com segurança anti-spam para automáticas)
-local function SendChatMessage(message, isAuto)
-    if isAuto then
-        local currentTime = os.clock()
-        -- Se a mesma mensagem foi enviada recentemente, cancelar envio
-        if LastAutoMessage == message and (currentTime - LastAutoMessageTime) < AutoMessageCooldown then
-            -- Não envia mensagem repetida dentro do intervalo
-            return
-        end
-        -- Se está em cooldown, fila a mensagem
-        if (currentTime - LastAutoMessageTime) < AutoMessageCooldown then
-            -- Já tem fila? Acrescenta no fim apenas se não for a mesma mensagem da última da fila
-            if #AutoMessageQueue == 0 or AutoMessageQueue[#AutoMessageQueue] ~= message then
-                table.insert(AutoMessageQueue, message)
-            end
-            return
-        end
-        -- Envia mensagem automática normalmente
-        LastAutoMessage = message
-        LastAutoMessageTime = currentTime
-        -- Depois de enviar, agenda o próximo da fila se houver
-        task.spawn(function()
-            task.wait(AutoMessageCooldown)
-            if #AutoMessageQueue > 0 then
-                local nextMsg = table.remove(AutoMessageQueue, 1)
-                SendChatMessage(nextMsg, true)
-            end
-        end)
-    end
-
+-- Função para enviar mensagens no chat
+local function SendChatMessage(message)
     if TextChatService.ChatVersion == Enum.ChatVersion.TextChatService then
         local textChannel = TextChatService.TextChannels:FindFirstChild("RBXGeneral")
         if textChannel then
@@ -79,7 +45,7 @@ local function ShowBadge()
     })
 end
 
--- Loop de mensagem automática (agora usando SendChatMessage com isAuto = true)
+-- Loop de mensagem automática
 local function StartCommandMessageLoop()
     if MessageLoopThread then
         task.cancel(MessageLoopThread)
@@ -88,7 +54,7 @@ local function StartCommandMessageLoop()
         while CommandModeActive do
             task.wait(180)
             if CommandModeActive then
-                SendChatMessage("Oi\r[System]: Comandos liberados! Digite " .. CommandPrefix .. "comandos para ver a lista de comandos", true)
+                SendChatMessage("Oi\r[System]: Comandos liberados! Digite " .. CommandPrefix .. "comandos para ver a lista de comandos")
             end
         end
     end)
@@ -105,7 +71,7 @@ local function ToggleCommandMode()
         CommandModeActive = false
     else
         CommandModeActive = true
-        SendChatMessage("Oi\r[System]: Comandos liberados! Digite " .. CommandPrefix .. "comandos para ver a lista de comandos", true)
+        SendChatMessage("Oi\r[System]: Comandos liberados! Digite " .. CommandPrefix .. "comandos para ver a lista de comandos")
         task.spawn(StartCommandMessageLoop)
     end
 end
@@ -149,6 +115,22 @@ task.spawn(function()
     LocalPlayer = Players.LocalPlayer
     CreateToggleButton()
 end)
+
+-- Função para verificar permissão do jogador
+local function HasPermission(player, command)
+    local class = PlayerClasses[player.UserId] or "Membro"
+    for _, cmd in ipairs(Classes[class]) do
+        if cmd == command then
+            return true
+        end
+    end
+    return false
+end
+
+-- Mensagem de erro de permissão
+local function SendPermissionError(player, command, requiredClass)
+    SendChatMessage("Oi\r[Erro]: O comando '" .. command .. "' pertence à classe '" .. requiredClass .. "'")
+end
 
 -- Sistema de perguntas e pontuação para o comando "quest"
 local Questions = {
