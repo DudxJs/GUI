@@ -17,6 +17,49 @@ local BannedPlayers = {} -- [userId] = true
 local PlayerClasses = {}
 local PlayerPoints = {}
 
+-- Função utilitária para retornar o executor em segurança após o kill
+local function ReturnToSafePosition(fixedReturnPos, waitTime)
+    getgenv().AllowFling = false
+    getgenv().AllowReturn = false
+
+    local Player = game.Players.LocalPlayer
+    local Character = Player.Character or Player.CharacterAdded:Wait()
+    local RootPart = Character:FindFirstChild("HumanoidRootPart")
+    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
+
+    if not RootPart or not Humanoid then
+        warn("RootPart ou Humanoid não encontrado.")
+        return
+    end
+
+    fixedReturnPos = fixedReturnPos or Vector3.new(1118.81, 75.998, -1138.61)
+    waitTime = waitTime or 3
+
+    -- Limpa forças e constraints
+    for _, obj in ipairs(Character:GetDescendants()) do
+        if obj:IsA("BodyMover") or obj:IsA("Constraint") or obj:IsA("VectorForce")
+            or obj:IsA("AlignPosition") or obj:IsA("AlignOrientation")
+            or obj:IsA("LinearVelocity") or obj:IsA("Torque") then
+            pcall(function() obj:Destroy() end)
+        end
+    end
+
+    -- Paralisa e teleporta
+    Humanoid.PlatformStand = true
+    RootPart.Anchored = true
+    RootPart.AssemblyLinearVelocity = Vector3.zero
+    RootPart.AssemblyAngularVelocity = Vector3.zero
+    RootPart.CFrame = CFrame.new(fixedReturnPos)
+    print("Jogador teleportado para a posição segura.")
+
+    task.wait(waitTime)
+
+    -- Libera jogador
+    RootPart.Anchored = false
+    Humanoid.PlatformStand = false
+    print("Jogador liberado com segurança.")
+end
+
 -- É obrigatório colocar o comando aqui, após criar um "elseif cmd" novo
 local Classes = {
     ["Membro"] = { "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2" },
@@ -318,53 +361,8 @@ end
         end
         SendChatMessage("Oi\r[Erro]: Jogador não encontrado.")
 
--- Novo comando /kill <NomeDoAlvo> (ou prefixo desejado)
-
--- Função utilitária para retornar o executor em segurança após o kill
-local function ReturnToSafePosition(fixedReturnPos, waitTime)
-    getgenv().AllowFling = false
-    getgenv().AllowReturn = false
-
-    local Player = game.Players.LocalPlayer
-    local Character = Player.Character or Player.CharacterAdded:Wait()
-    local RootPart = Character:FindFirstChild("HumanoidRootPart")
-    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-
-    if not RootPart or not Humanoid then
-        warn("RootPart ou Humanoid não encontrado.")
-        return
-    end
-
-    fixedReturnPos = fixedReturnPos or Vector3.new(1118.81, 75.998, -1138.61)
-    waitTime = waitTime or 3
-
-    -- Limpa forças e constraints
-    for _, obj in ipairs(Character:GetDescendants()) do
-        if obj:IsA("BodyMover") or obj:IsA("Constraint") or obj:IsA("VectorForce")
-            or obj:IsA("AlignPosition") or obj:IsA("AlignOrientation")
-            or obj:IsA("LinearVelocity") or obj:IsA("Torque") then
-            pcall(function() obj:Destroy() end)
-        end
-    end
-
-    -- Paralisa e teleporta
-    Humanoid.PlatformStand = true
-    RootPart.Anchored = true
-    RootPart.AssemblyLinearVelocity = Vector3.zero
-    RootPart.AssemblyAngularVelocity = Vector3.zero
-    RootPart.CFrame = CFrame.new(fixedReturnPos)
-    print("Jogador teleportado para a posição segura.")
-
-    task.wait(waitTime)
-
-    -- Libera jogador
-    RootPart.Anchored = false
-    Humanoid.PlatformStand = false
-    print("Jogador liberado com segurança.")
-end
-
 -- Comando /kill
-if cmd == "kill" then
+elseif cmd == "kill" then
     local args = message:split(" ")
     local targetName = args[2]
     if not targetName then
