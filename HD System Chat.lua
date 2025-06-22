@@ -17,49 +17,6 @@ local BannedPlayers = {} -- [userId] = true
 local PlayerClasses = {}
 local PlayerPoints = {}
 
--- Função utilitária para retornar o executor em segurança após o kill
-local function ReturnToSafePosition(fixedReturnPos, waitTime)
-    getgenv().AllowFling = false
-    getgenv().AllowReturn = false
-
-    local Player = game.Players.LocalPlayer
-    local Character = Player.Character or Player.CharacterAdded:Wait()
-    local RootPart = Character:FindFirstChild("HumanoidRootPart")
-    local Humanoid = Character:FindFirstChildOfClass("Humanoid")
-
-    if not RootPart or not Humanoid then
-        warn("RootPart ou Humanoid não encontrado.")
-        return
-    end
-
-    fixedReturnPos = fixedReturnPos or Vector3.new(1118.81, 75.998, -1138.61)
-    waitTime = waitTime or 3
-
-    -- Limpa forças e constraints
-    for _, obj in ipairs(Character:GetDescendants()) do
-        if obj:IsA("BodyMover") or obj:IsA("Constraint") or obj:IsA("VectorForce")
-            or obj:IsA("AlignPosition") or obj:IsA("AlignOrientation")
-            or obj:IsA("LinearVelocity") or obj:IsA("Torque") then
-            pcall(function() obj:Destroy() end)
-        end
-    end
-
-    -- Paralisa e teleporta
-    Humanoid.PlatformStand = true
-    RootPart.Anchored = true
-    RootPart.AssemblyLinearVelocity = Vector3.zero
-    RootPart.AssemblyAngularVelocity = Vector3.zero
-    RootPart.CFrame = CFrame.new(fixedReturnPos)
-    print("Jogador teleportado para a posição segura.")
-
-    task.wait(waitTime)
-
-    -- Libera jogador
-    RootPart.Anchored = false
-    Humanoid.PlatformStand = false
-    print("Jogador liberado com segurança.")
-end
-
 -- É obrigatório colocar o comando aqui, após criar um "elseif cmd" novo
 local Classes = {
     ["Membro"] = { "fps", "tempo", "info", "msg", "rank", "versao", "comandos", "comandos2" },
@@ -361,7 +318,8 @@ end
         end
         SendChatMessage("Oi\r[Erro]: Jogador não encontrado.")
 
--- Comando /kill
+-- Novo comando /kill <NomeDoAlvo> (ou prefixo desejado)
+
 elseif cmd == "kill" then
     local args = message:split(" ")
     local targetName = args[2]
@@ -469,7 +427,7 @@ elseif cmd == "kill" then
         return
     end
 
-    -- Salva posição original (opcional)
+    -- Salva posição original
     local StartPos = RootPart.Position
     local TargetStartPos = BasePart.Position
     local killDone = false
@@ -521,8 +479,6 @@ elseif cmd == "kill" then
                 getgenv().AllowFling = false
                 getgenv().AllowReturn = false
                 SendChatMessage("Oi\r[System]: O Jogador(a) " .. targetName .. " foi Abatido(a) com Sucesso!")
-                -- Retorna o executor em segurança
-                ReturnToSafePosition()
                 break
             end
 
@@ -532,12 +488,31 @@ elseif cmd == "kill" then
                 getgenv().AllowFling = false
                 getgenv().AllowReturn = false
                 -- Parar, limpar forças e retornar player
-                ReturnToSafePosition()
+                local fixedReturnPos = Vector3.new(1118.81, 75.998, -1138.61)
+                for _, obj in ipairs(Character:GetDescendants()) do
+                    if obj:IsA("BodyMover") or obj:IsA("Constraint") or obj:IsA("VectorForce") or obj:IsA("AlignPosition") or obj:IsA("AlignOrientation") or obj:IsA("LinearVelocity") or obj:IsA("Torque") then
+                        pcall(function() obj:Destroy() end)
+                    end
+                end
+                Humanoid.PlatformStand = true
+                RootPart.Anchored = true
+                RootPart.AssemblyLinearVelocity = Vector3.zero
+                RootPart.AssemblyAngularVelocity = Vector3.zero
+                RootPart.CFrame = CFrame.new(fixedReturnPos)
+                task.wait(3)
+                RootPart.Anchored = false
+                Humanoid.PlatformStand = false
                 SendChatMessage("Oi\r[Erro]: Falha ao abater o alvo! Tente novamente.")
                 break
             end
         end
     end)
+    
+    function string:split(sep)
+    local fields = {}
+    local pattern = string.format("([^%s]+)", sep)
+    self:gsub(pattern, function(c) fields[#fields+1] = c end)
+    return fields
 end
     
     -- Comando: /levar [Alvo] ate [Destino]
