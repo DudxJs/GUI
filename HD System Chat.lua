@@ -270,12 +270,12 @@ end
     elseif cmd == "comandos2" then
         SendChatMessage("Oi\r[System]: Comandos adicionais: " ..
             CommandPrefix .. "zoar [jogador] [texto], " ..
-            CommandPrefix .. "kill [jogador]" ..
+            CommandPrefix .. "kill [jogador], " ..
             CommandPrefix .. "quest, " ..
             CommandPrefix .. "mudarprefixo, " ..
-            CommandPrefix .. "setrank" ..
-            CommandPrefix .. "ban" ..
-            CommandPrefix .. "unban"
+            CommandPrefix .. "setrank, " ..
+            CommandPrefix .. "ban, " ..
+            CommandPrefix .. "unban."
         )
 
     elseif cmd == "fps" then
