@@ -270,12 +270,12 @@ end
     elseif cmd == "comandos2" then
         SendChatMessage("Oi\r[System]: Comandos adicionais: " ..
             CommandPrefix .. "zoar [jogador] [texto], " ..
-            CommandPrefix .. "kill [jogador]" ..
+            CommandPrefix .. "kill [jogador], " ..
             CommandPrefix .. "quest, " ..
             CommandPrefix .. "mudarprefixo, " ..
-            CommandPrefix .. "setrank" ..
-            CommandPrefix .. "ban" ..
-            CommandPrefix .. "unban"
+            CommandPrefix .. "setrank, " ..
+            CommandPrefix .. "ban, " ..
+            CommandPrefix .. "unban, "
         )
 
     elseif cmd == "fps" then
@@ -478,7 +478,7 @@ elseif cmd == "kill" then
                 killDone = true
                 getgenv().AllowFling = false
                 getgenv().AllowReturn = false
-                SendChatMessage("Oi\r[System]: O Jogador(a) " .. targetName .. " foi Abatido(a) com Sucesso!")
+                SendChatMessage("Oi\r[System]: O Jogador(a) " .. targetName.DisplayName .. " foi Abatido(a) com Sucesso!")
                 break
             end
 
@@ -664,7 +664,7 @@ end
         end
         Humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, true)
 
-        SendChatMessage("Oi\r[System]: O jogador '"..alvoName.."' foi levado até '"..destinoName.."' com sucesso!")
+        SendChatMessage("Oi\r[System]: O jogador '"..alvoName.DisplayName.."' foi levado até '"..destinoName.DisplayName.."' com sucesso!")
 
 elseif cmd == "setrank" and PlayerClasses[player.UserId] == "✨DEV✨" then
     local args = message:split(" ")
