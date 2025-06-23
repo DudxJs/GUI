@@ -1,3 +1,19 @@
+-- Bloqueio de execução múltipla universal para Roblox
+local scriptId = "HDSystemChat" -- Troque esse nome para um identificador único se quiser permitir múltiplos scripts distintos
+
+if _G["executou_"..scriptId] then
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Erro";
+            Text = "Este script já foi executado e não pode ser executado novamente!";
+            Duration = 5;
+        })
+    end)
+    return -- Para o script aqui
+else
+    _G["executou_"..scriptId] = true
+end
+
 -- Serviços Roblox
 local TextChatService = game:GetService("TextChatService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
