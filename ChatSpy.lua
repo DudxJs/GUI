@@ -4,7 +4,7 @@ local scriptId = "ChatSpy" -- Troque esse nome para um identificador único se q
 if _G["executou_"..scriptId] then
     pcall(function()
         game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "Aviso";
+            Title = "Erro";
             Text = "Este script já foi executado e não pode ser executado novamente!";
             Duration = 5;
         })
