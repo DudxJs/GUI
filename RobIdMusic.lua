@@ -261,7 +261,7 @@ local function mostrarResultado(id)
 	text.ClearTextOnFocus = false
 	text.Font = Enum.Font.GothamBold
 	text.BackgroundColor3 = Color3.fromRGB(28,28,28)
-	text.Zindex = 16
+   text.ZIndex = 16
 	text.TextColor3 = Color3.fromRGB(0,255,255)
 	text.BorderSizePixel = 0
 	createAnimatedGradient(text, 2.5)
