@@ -234,7 +234,7 @@ UIListLayout.Padding = UDim.new(0, 7)
 
 -- Funções de rolagem inteligente
 local function IsAtBottom()
-    local tolerance = 15
+    local tolerance = 90
     return MessageList.CanvasPosition.Y + MessageList.AbsoluteWindowSize.Y >= MessageList.AbsoluteCanvasSize.Y - tolerance
 end
 
