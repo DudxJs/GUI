@@ -8,6 +8,7 @@
     - Botões com hover animado
     - Layout moderno e responsivo
     - Busca por Username ou DisplayName
+    - Notificação/Animação ao copiar
 ]]
 
 local Players = game:GetService("Players")
@@ -230,6 +231,39 @@ closeBtn.MouseButton1Click:Connect(function()
 	screenGui:Destroy()
 end)
 
+-- Notificação de cópia (animação/efeito)
+local function showCopyNotification(parent)
+    local notif = Instance.new("TextLabel")
+    notif.AnchorPoint = Vector2.new(0.5, 0.5)
+    notif.Position = UDim2.new(0.5, 0, 0, -22)
+    notif.Size = UDim2.new(0.7, 0, 0, 32)
+    notif.BackgroundTransparency = 0.15
+    notif.BackgroundColor3 = Color3.fromRGB(14, 22, 24)
+    notif.Text = "ID copiado!"
+    notif.TextColor3 = Color3.fromRGB(0,255,200)
+    notif.TextScaled = true
+    notif.Font = Enum.Font.GothamBold
+    notif.BorderSizePixel = 0
+    notif.ZIndex = 100
+    notif.Parent = parent
+
+    -- Efeito de gradiente RGB na notificação
+    createAnimatedGradient(notif, 6)
+
+    -- Animação de fade in/out
+    notif.TextTransparency = 1
+    notif.BackgroundTransparency = 1
+    local tweenService = game:GetService("TweenService")
+    local t1 = tweenService:Create(notif, TweenInfo.new(0.15), {TextTransparency = 0, BackgroundTransparency = 0.15})
+    t1:Play()
+    t1.Completed:Wait()
+    wait(1.1)
+    local t2 = tweenService:Create(notif, TweenInfo.new(0.25), {TextTransparency = 1, BackgroundTransparency = 1})
+    t2:Play()
+    t2.Completed:Wait()
+    notif:Destroy()
+end
+
 -- Mostrar resultado bonito
 local function mostrarResultado(id)
 	local resultGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
@@ -261,7 +295,7 @@ local function mostrarResultado(id)
 	text.ClearTextOnFocus = false
 	text.Font = Enum.Font.GothamBold
 	text.BackgroundColor3 = Color3.fromRGB(28,28,28)
-   text.ZIndex = 16
+    text.ZIndex = 16
 	text.TextColor3 = Color3.fromRGB(0,255,255)
 	text.BorderSizePixel = 0
 	createAnimatedGradient(text, 2.5)
@@ -284,6 +318,7 @@ local function mostrarResultado(id)
 		if setclipboard then
 			setclipboard(id)
 		end
+        showCopyNotification(box)
 	end)
 	close.MouseButton1Click:Connect(function()
 		resultGui:Destroy()
