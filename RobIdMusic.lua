@@ -7,6 +7,7 @@
     - Sombras suaves e fontes estilizadas
     - Botões com hover animado
     - Layout moderno e responsivo
+    - Busca por Username ou DisplayName
 ]]
 
 local Players = game:GetService("Players")
@@ -25,8 +26,6 @@ local function createAnimatedGradient(parent, rotationSpeed)
         ColorSequenceKeypoint.new(1, Color3.fromRGB(255,0,89)),
     }
     uiGradient.Rotation = 0
-
-    -- Animação
     task.spawn(function()
         while uiGradient.Parent do
             uiGradient.Rotation = (uiGradient.Rotation + (rotationSpeed or 1)) % 360
@@ -36,7 +35,6 @@ local function createAnimatedGradient(parent, rotationSpeed)
     return uiGradient
 end
 
--- Função para criar efeito de sombra
 local function addShadow(parent, transparency)
     local shadow = Instance.new("ImageLabel", parent)
     shadow.Name = "Shadow"
@@ -52,18 +50,15 @@ local function addShadow(parent, transparency)
     return shadow
 end
 
--- Função para tornar uma GUI arrastável
 local function makeDraggable(gui)
 	local dragging, dragInput, dragStart, startPos
 	gui.Active = true
 	gui.Selectable = true
-
 	gui.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 			dragging = true
 			dragStart = input.Position
 			startPos = gui.Position
-
 			input.Changed:Connect(function()
 				if input.UserInputState == Enum.UserInputState.End then
 					dragging = false
@@ -71,13 +66,11 @@ local function makeDraggable(gui)
 			end)
 		end
 	end)
-
 	gui.InputChanged:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
 			dragInput = input
 		end
 	end)
-
 	game:GetService("UserInputService").InputChanged:Connect(function(input)
 		if input == dragInput and dragging then
 			local delta = input.Position - dragStart
@@ -91,7 +84,6 @@ local screenGui = Instance.new("ScreenGui", LocalPlayer:WaitForChild("PlayerGui"
 screenGui.Name = "BoomboxFinderRGB"
 screenGui.ResetOnSpawn = false
 
--- Frame Principal
 local frame = Instance.new("Frame", screenGui)
 frame.Size = UDim2.new(0, 350, 0, 210)
 frame.Position = UDim2.new(0.5, -175, 0.5, -105)
@@ -168,7 +160,7 @@ grad.Transparency = NumberSequence.new{
 local input = Instance.new("TextBox", frame)
 input.Size = UDim2.new(1, -32, 0, 44)
 input.Position = UDim2.new(0, 16, 0, 52)
-input.PlaceholderText = "Digite o nome do jogador"
+input.PlaceholderText = "Digite o nome ou displayname do jogador"
 input.Text = ""
 input.TextScaled = true
 input.Font = Enum.Font.GothamSemibold
@@ -210,7 +202,6 @@ local function styleButton(btn, baseColor)
         NumberSequenceKeypoint.new(0,0.15),
         NumberSequenceKeypoint.new(1,0.15)
     }
-
     btn.MouseEnter:Connect(function()
         btn.BackgroundColor3 = Color3.fromRGB(40,40,40)
         btn.TextColor3 = Color3.fromRGB(0,255,255)
@@ -243,7 +234,6 @@ end)
 local function mostrarResultado(id)
 	local resultGui = Instance.new("ScreenGui", LocalPlayer.PlayerGui)
 	resultGui.Name = "ResultadoBoomboxRGB"
-
 	local box = Instance.new("Frame", resultGui)
 	box.Size = UDim2.new(0, 320, 0, 150)
 	box.Position = UDim2.new(0.5, -160, 0.5, -75)
@@ -253,7 +243,6 @@ local function mostrarResultado(id)
 	makeDraggable(box)
 	addShadow(box, 0.4)
 	createAnimatedGradient(box, 2)
-
 	local glow = Instance.new("ImageLabel", box)
 	glow.BackgroundTransparency = 1
 	glow.Image = "rbxassetid://5028857084"
@@ -272,7 +261,7 @@ local function mostrarResultado(id)
 	text.ClearTextOnFocus = false
 	text.Font = Enum.Font.GothamBold
 	text.BackgroundColor3 = Color3.fromRGB(28,28,28)
-	text.ZIndex = 16
+	text.Zindex = 16
 	text.TextColor3 = Color3.fromRGB(0,255,255)
 	text.BorderSizePixel = 0
 	createAnimatedGradient(text, 2.5)
@@ -296,21 +285,23 @@ local function mostrarResultado(id)
 			setclipboard(id)
 		end
 	end)
-
 	close.MouseButton1Click:Connect(function()
 		resultGui:Destroy()
 	end)
 end
 
--- Lógica de busca
+-- Lógica de busca: agora aceita DisplayName ou Username
 checkButton.MouseButton1Click:Connect(function()
 	local texto = input.Text:lower()
 	local achado = nil
-
 	for _, player in pairs(Players:GetPlayers()) do
-		if player ~= LocalPlayer and player.Name:lower():find(texto) then
-			achado = player
-			break
+		if player ~= LocalPlayer then
+			local nameMatch = player.Name:lower():find(texto)
+			local displayMatch = player.DisplayName and player.DisplayName:lower():find(texto)
+			if nameMatch or displayMatch then
+				achado = player
+				break
+			end
 		end
 	end
 
