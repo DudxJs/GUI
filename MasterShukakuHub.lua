@@ -6576,6 +6576,9 @@ Scripts:AddButton("FreeCam - By Shelby", function()
  loadstring(game:HttpGet('https://pastebin.com/raw/bRW6EMRZ'))()
 end)
 
+Scripts:AddButton("ChapSpy - By Dudx_Js", function()
+ loadstring(game:HttpGet('https://raw.githubusercontent.com/DudxJs/GUI/refs/heads/main/ChatSpy.lua'))()
+
 Scripts:AddButton("ShiftLock - made by fedoratum And Shnmax", function()
  loadstring(game:HttpGet('https://pastebin.com/raw/H0uuimru'))()
 end)
