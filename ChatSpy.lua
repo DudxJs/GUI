@@ -252,7 +252,7 @@ local function AddMessage(senderName, senderUserId, text)
     NameAndText.Font = Enum.Font.GothamSemibold
     NameAndText.TextSize = 18
     NameAndText.TextWrapped = true
-    NameAndText.Text = "<b><font color=\"rgb(255,60,60)\">"..senderName.."</font></b> <font color=\"rgb(255,200,200)\">diz:</font> "..text
+    NameAndText.Text = "<b><font color=\"rgb(255,60,60)\">"..senderName.."</font></b> <font color=\"rgb(255,200,200)\">:</font> "..text
     NameAndText.RichText = true
     NameAndText.TextColor3 = Color3.fromRGB(255,200,200)
     NameAndText.Parent = MessageFrame
