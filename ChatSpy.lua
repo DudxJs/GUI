@@ -19,6 +19,9 @@ local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
 local LocalPlayer = Players.LocalPlayer
 
+-- Tabela para armazenar mensagens (persistente mesmo após respawn)
+local SavedMessages = {}
+
 local Connections = {}
 local unreadCount = 0
 
@@ -31,8 +34,8 @@ local function CreateChatSpyGUI()
     -- Criação da GUI
     local ScreenGui = Instance.new("ScreenGui")
     ScreenGui.Name = "ChatSpyGUI"
-    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
     ScreenGui.IgnoreGuiInset = true
+    ScreenGui.Parent = LocalPlayer:WaitForChild("PlayerGui")
 
     local MainFrame = Instance.new("Frame")
     MainFrame.Name = "MainFrame"
@@ -156,7 +159,7 @@ local function CreateChatSpyGUI()
     local MobileButton = Instance.new("ImageButton")
     MobileButton.Name = "MobileToggleButton"
     MobileButton.Size = UDim2.new(0, 80, 0, 80)
-    MobileButton.Position = UDim2.new(0.5, 0, 1, 40) -- metade da bola 'afundada'
+    MobileButton.Position = UDim2.new(0.5, 0, 1, 40)
     MobileButton.AnchorPoint = Vector2.new(0.5,1)
     MobileButton.BackgroundTransparency = 0
     MobileButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
@@ -192,7 +195,7 @@ local function CreateChatSpyGUI()
     Arrow.Size = UDim2.new(0, 44, 0, 44)
     Arrow.Position = UDim2.new(0.5, -22, 0.45, -22)
     Arrow.BackgroundTransparency = 1
-    Arrow.Text = "˄" -- ou "▲"
+    Arrow.Text = "˄"
     Arrow.TextColor3 = Color3.fromRGB(255, 40, 40)
     Arrow.Font = Enum.Font.GothamBlack
     Arrow.TextSize = 52
@@ -208,7 +211,6 @@ local function CreateChatSpyGUI()
         end
     end
 
-    -- Ao tocar no botão: abre a GUI e esconde o botão
     MobileButton.MouseButton1Click:Connect(function()
         MobileButton.Visible = false
         MainFrame.Position = UDim2.new(0.3, 0, 1, 0)
@@ -216,7 +218,6 @@ local function CreateChatSpyGUI()
         TweenService:Create(MainFrame, TweenInfo.new(0.65, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), {Position = UDim2.new(0.3, 0, 0.2, 0)}):Play()
     end)
 
-    -- Função para fechar a GUI e mostrar o botão mobile novamente
     local function CloseGUI()
         TweenService:Create(MainFrame, TweenInfo.new(0.38, Enum.EasingStyle.Quint), {Position = UDim2.new(0.3, 0, 1.2, 0)}):Play()
         wait(0.38)
@@ -226,7 +227,6 @@ local function CreateChatSpyGUI()
 
     CloseButton.MouseButton1Click:Connect(CloseGUI)
 
-    -- Mensagens (ScrollingFrame)
     local MessageList = Instance.new("ScrollingFrame")
     MessageList.Name = "MessageList"
     MessageList.Size = UDim2.new(1, -18, 1, -65)
@@ -254,7 +254,6 @@ local function CreateChatSpyGUI()
     UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
     UIListLayout.Padding = UDim.new(0, 7)
 
-    -- Funções de rolagem inteligente
     local function IsAtBottom()
         local tolerance = 100
         return MessageList.CanvasPosition.Y + MessageList.AbsoluteWindowSize.Y >= MessageList.AbsoluteCanvasSize.Y - tolerance
@@ -275,7 +274,7 @@ local function CreateChatSpyGUI()
         UnreadLabel.Visible = false
     end)
 
-    -- Função para adicionar mensagem
+    -- Função para adicionar mensagem na GUI (mas não na tabela!)
     local function AddMessage(senderName, senderUserId, text)
         local MessageFrame = Instance.new("Frame")
         MessageFrame.Size = UDim2.new(1, -10, 0, 70)
@@ -362,33 +361,22 @@ local function CreateChatSpyGUI()
         end)
     end
 
-    -- Evento de rolagem manual: esconder botão se voltar ao fim
+    -- Função global para adicionar mensagem tanto na tabela quanto na GUI
+    _G.AddMessageToBoth = function(senderName, senderUserId, text)
+        table.insert(SavedMessages, {name = senderName, userId = senderUserId, text = text})
+        AddMessage(senderName, senderUserId, text)
+    end
+
+    -- Repopula as mensagens já salvas
+    for _, msg in ipairs(SavedMessages) do
+        AddMessage(msg.name, msg.userId, msg.text)
+    end
+
     MessageList:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
         if IsAtBottom() then
             HideGoToBottomButton()
             unreadCount = 0
             UnreadLabel.Visible = false
-        end
-    end)
-
-    -- Conexões para jogadores
-    for _, player in ipairs(Players:GetPlayers()) do
-        if Connections[player] then Connections[player]:Disconnect() end
-        Connections[player] = player.Chatted:Connect(function(msg)
-            AddMessage(player.Name, player.UserId, msg)
-        end)
-    end
-
-    Players.PlayerAdded:Connect(function(player)
-        if Connections[player] then Connections[player]:Disconnect() end
-        Connections[player] = player.Chatted:Connect(function(msg)
-            AddMessage(player.Name, player.UserId, msg)
-        end)
-    end)
-    Players.PlayerRemoving:Connect(function(player)
-        if Connections[player] then
-            Connections[player]:Disconnect()
-            Connections[player] = nil
         end
     end)
 
@@ -450,10 +438,8 @@ local function CreateChatSpyGUI()
         Hint:Destroy()
     end)
 
-    -- Inicializa visibilidade correta do botão
     updateMobileButtonVisibility()
 
-    -- Título animado vermelho-pulso
     spawn(function()
         while Title and Title.Parent do
             TweenService:Create(Title, TweenInfo.new(1.5, Enum.EasingStyle.Linear, Enum.EasingDirection.InOut), {TextColor3 = Color3.fromRGB(255,30,30)}):Play()
@@ -464,11 +450,41 @@ local function CreateChatSpyGUI()
     end)
 end
 
+-- Conexões para jogadores
+local function ConnectAllPlayers()
+    for _, player in ipairs(Players:GetPlayers()) do
+        if Connections[player] then Connections[player]:Disconnect() end
+        Connections[player] = player.Chatted:Connect(function(msg)
+            if _G.AddMessageToBoth then
+                _G.AddMessageToBoth(player.Name, player.UserId, msg)
+            end
+        end)
+    end
+end
+
+Players.PlayerAdded:Connect(function(player)
+    if Connections[player] then Connections[player]:Disconnect() end
+    Connections[player] = player.Chatted:Connect(function(msg)
+        if _G.AddMessageToBoth then
+            _G.AddMessageToBoth(player.Name, player.UserId, msg)
+        end
+    end)
+end)
+
+Players.PlayerRemoving:Connect(function(player)
+    if Connections[player] then
+        Connections[player]:Disconnect()
+        Connections[player] = nil
+    end
+end)
+
 -- Cria GUI no início
 CreateChatSpyGUI()
+ConnectAllPlayers()
 
--- Recria GUI a cada respawn do personagem (inclusive botão mobile)
+-- Recria GUI e reconecta ao respawn
 Players.LocalPlayer.CharacterAdded:Connect(function()
     wait(0.5)
     CreateChatSpyGUI()
+    ConnectAllPlayers()
 end)
