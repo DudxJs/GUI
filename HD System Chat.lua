@@ -233,7 +233,7 @@ local function StartQuest()
         end
     end)
 
-    task.wait(30)
+    task.wait(15)
     if connection.Connected then
         connection:Disconnect()
         SendChatMessage("Oi\r[System]: Tempo Esgotado! Ninguém respondeu Corretamente!")
