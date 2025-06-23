@@ -194,6 +194,41 @@ UIListLayout.Parent = MessageList
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 7)
 
+-- BOTÃO "IR PARA O FIM" (igual WhatsApp)
+local GoToBottomButton = Instance.new("TextButton")
+GoToBottomButton.Name = "GoToBottomButton"
+GoToBottomButton.Size = UDim2.new(0, 180, 0, 38)
+GoToBottomButton.Position = UDim2.new(0.5, -90, 1, -48)
+GoToBottomButton.AnchorPoint = Vector2.new(0.5, 1)
+GoToBottomButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+GoToBottomButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+GoToBottomButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+GoToBottomButton.Text = "▼ Novas mensagens"
+GoToBottomButton.Visible = false
+GoToBottomButton.Parent = MainFrame
+local goBtnCorner = Instance.new("UICorner")
+goBtnCorner.CornerRadius = UDim.new(0, 12)
+goBtnCorner.Parent = GoToBottomButton
+
+-- Funções de rolagem inteligente
+local function IsAtBottom()
+    local tolerance = 2
+    return MessageList.CanvasPosition.Y + MessageList.AbsoluteWindowSize.Y >= MessageList.AbsoluteCanvasSize.Y - tolerance
+end
+
+local function ShowGoToBottomButton()
+    GoToBottomButton.Visible = true
+end
+
+local function HideGoToBottomButton()
+    GoToBottomButton.Visible = false
+end
+
+GoToBottomButton.MouseButton1Click:Connect(function()
+    MessageList.CanvasPosition = Vector2.new(0, MessageList.CanvasSize.Y.Offset)
+    HideGoToBottomButton()
+end)
+
 -- Título animado vermelho-pulso
 spawn(function()
     while Title and Title.Parent do
@@ -276,10 +311,24 @@ local function AddMessage(senderName, senderUserId, text)
 
     -- Atualizar CanvasSize
     MessageList.CanvasSize = UDim2.new(0, 0, 0, MessageList.UIListLayout.AbsoluteContentSize.Y)
-    task.defer(function()
-        MessageList.CanvasPosition = Vector2.new(0, MessageList.CanvasSize.Y.Offset)
-    end)
+
+    -- Lógica WhatsApp rolar para baixo
+    if IsAtBottom() then
+        task.defer(function()
+            MessageList.CanvasPosition = Vector2.new(0, MessageList.CanvasSize.Y.Offset)
+            HideGoToBottomButton()
+        end)
+    else
+        ShowGoToBottomButton()
+    end
 end
+
+-- Evento de rolagem manual: esconder botão se voltar ao fim
+MessageList:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+    if IsAtBottom() then
+        HideGoToBottomButton()
+    end
+end)
 
 -- Conexões para jogadores
 local Connections = {}
