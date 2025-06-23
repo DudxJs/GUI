@@ -229,6 +229,7 @@ local function StartQuest()
             end
             adicionarPonto(player)
             connection:Disconnect()
+            _G.QuestCommandRegistered = false
         end
     end)
 
@@ -237,6 +238,7 @@ local function StartQuest()
         connection:Disconnect()
         SendChatMessage("Oi\r[System]: Tempo Esgotado! Ninguém respondeu Corretamente!")
     end
+    _G.QuestCommandRegistered = false
 end
 
 -- Definir DEV automaticamente
