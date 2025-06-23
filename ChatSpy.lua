@@ -51,7 +51,7 @@ TopBar.Parent = MainFrame
 
 local Title = Instance.new("TextLabel")
 Title.Name = "Title"
-Title.Size = UDim2.new(1, -50, 1, 0)
+Title.Size = UDim2.new(1, -90, 1, 0)
 Title.Position = UDim2.new(0, 15, 0, 0)
 Title.BackgroundTransparency = 1
 Title.Text = "💬 ChatSpy"
@@ -91,6 +91,44 @@ CloseButton.MouseLeave:Connect(function()
     TweenService:Create(CloseButton, TweenInfo.new(0.17), {BackgroundColor3 = Color3.fromRGB(60, 0, 0)}):Play()
     TweenService:Create(CloseButton, TweenInfo.new(0.15), {TextColor3 = Color3.fromRGB(255, 80, 80)}):Play()
 end)
+
+-- BOTÃO "IR PARA O FIM" ao lado do botão de fechar, com contador
+local GoToBottomButton = Instance.new("TextButton")
+GoToBottomButton.Name = "GoToBottomButton"
+GoToBottomButton.Size = UDim2.new(0, 45, 0, 35)
+GoToBottomButton.Position = UDim2.new(1, -85, 0, 5)
+GoToBottomButton.AnchorPoint = Vector2.new(1, 0)
+GoToBottomButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+GoToBottomButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+GoToBottomButton.BorderSizePixel = 2
+GoToBottomButton.TextColor3 = Color3.fromRGB(255, 0, 0)
+GoToBottomButton.Text = "▼"
+GoToBottomButton.Font = Enum.Font.GothamBold
+GoToBottomButton.TextSize = 24
+GoToBottomButton.Visible = false
+GoToBottomButton.Parent = TopBar
+local goBtnCorner = Instance.new("UICorner")
+goBtnCorner.CornerRadius = UDim.new(1, 0)
+goBtnCorner.Parent = GoToBottomButton
+
+-- Notificação de mensagens não lidas
+local UnreadLabel = Instance.new("TextLabel")
+UnreadLabel.Size = UDim2.new(0, 22, 0, 22)
+UnreadLabel.Position = UDim2.new(1, -6, 0, -6)
+UnreadLabel.BackgroundColor3 = Color3.fromRGB(255, 30, 30)
+UnreadLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+UnreadLabel.TextSize = 15
+UnreadLabel.Font = Enum.Font.GothamBold
+UnreadLabel.Text = ""
+UnreadLabel.AnchorPoint = Vector2.new(1, 0)
+UnreadLabel.BackgroundTransparency = 0
+UnreadLabel.Visible = false
+UnreadLabel.Parent = GoToBottomButton
+local unreadCorner = Instance.new("UICorner")
+unreadCorner.CornerRadius = UDim.new(1, 0)
+unreadCorner.Parent = UnreadLabel
+
+local unreadCount = 0
 
 -- Botão mobile REDONDO, metade visível na base, com seta vermelha
 local MobileButton = Instance.new("ImageButton")
@@ -132,7 +170,7 @@ local Arrow = Instance.new("TextLabel")
 Arrow.Size = UDim2.new(0, 44, 0, 44)
 Arrow.Position = UDim2.new(0.5, -22, 0.45, -22)
 Arrow.BackgroundTransparency = 1
-Arrow.Text = "˄" -- ou "▲" (escolha o símbolo que preferir)
+Arrow.Text = "˄" -- ou "▲"
 Arrow.TextColor3 = Color3.fromRGB(255, 40, 40)
 Arrow.Font = Enum.Font.GothamBlack
 Arrow.TextSize = 52
@@ -194,26 +232,9 @@ UIListLayout.Parent = MessageList
 UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
 UIListLayout.Padding = UDim.new(0, 7)
 
--- BOTÃO "IR PARA O FIM" (igual WhatsApp)
-local GoToBottomButton = Instance.new("TextButton")
-GoToBottomButton.Name = "GoToBottomButton"
-GoToBottomButton.Size = UDim2.new(0, 180, 0, 38)
-GoToBottomButton.Position = UDim2.new(0.5, -90, 1, -48)
-GoToBottomButton.AnchorPoint = Vector2.new(0.5, 1)
-GoToBottomButton.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-GoToBottomButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
-GoToBottomButton.TextColor3 = Color3.fromRGB(255, 0, 0)
-GoToBottomButton.ZIndex = 102
-GoToBottomButton.Text = "▼"
-GoToBottomButton.Visible = false
-GoToBottomButton.Parent = MainFrame
-local goBtnCorner = Instance.new("UICorner")
-goBtnCorner.CornerRadius = UDim.new(0, 12)
-goBtnCorner.Parent = GoToBottomButton
-
 -- Funções de rolagem inteligente
 local function IsAtBottom()
-    local tolerance = 2
+    local tolerance = 5
     return MessageList.CanvasPosition.Y + MessageList.AbsoluteWindowSize.Y >= MessageList.AbsoluteCanvasSize.Y - tolerance
 end
 
@@ -228,6 +249,8 @@ end
 GoToBottomButton.MouseButton1Click:Connect(function()
     MessageList.CanvasPosition = Vector2.new(0, MessageList.CanvasSize.Y.Offset)
     HideGoToBottomButton()
+    unreadCount = 0
+    UnreadLabel.Visible = false
 end)
 
 -- Título animado vermelho-pulso
@@ -312,22 +335,27 @@ local function AddMessage(senderName, senderUserId, text)
 
     -- Atualizar CanvasSize
     MessageList.CanvasSize = UDim2.new(0, 0, 0, MessageList.UIListLayout.AbsoluteContentSize.Y)
-
-    -- Lógica WhatsApp rolar para baixo
-    if IsAtBottom() then
-        task.defer(function()
+    task.defer(function()
+        if IsAtBottom() then
             MessageList.CanvasPosition = Vector2.new(0, MessageList.CanvasSize.Y.Offset)
             HideGoToBottomButton()
-        end)
-    else
-        ShowGoToBottomButton()
-    end
+            unreadCount = 0
+            UnreadLabel.Visible = false
+        else
+            unreadCount = unreadCount + 1
+            UnreadLabel.Text = tostring(unreadCount)
+            UnreadLabel.Visible = true
+            ShowGoToBottomButton()
+        end
+    end)
 end
 
 -- Evento de rolagem manual: esconder botão se voltar ao fim
 MessageList:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
     if IsAtBottom() then
         HideGoToBottomButton()
+        unreadCount = 0
+        UnreadLabel.Visible = false
     end
 end)
 
