@@ -1,3 +1,19 @@
+-- Bloqueio de execução múltipla universal para Roblox
+local scriptId = "ChatSpy" -- Troque esse nome para um identificador único se quiser permitir múltiplos scripts distintos
+
+if _G["executou_"..scriptId] then
+    pcall(function()
+        game:GetService("StarterGui"):SetCore("SendNotification", {
+            Title = "Aviso";
+            Text = "Este script já foi executado e não pode ser executado novamente!";
+            Duration = 5;
+        })
+    end)
+    return -- Para o script aqui
+else
+    _G["executou_"..scriptId] = true
+end
+
 -- ChatSpy GUI - Tema preto/vermelho, botão mobile redondo, metade visível no rodapé com seta vermelha para cima
 -- O botão só aparece quando a GUI está fechada, e fica colado no centro inferior da tela
 
