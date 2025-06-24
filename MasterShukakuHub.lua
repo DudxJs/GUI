@@ -1,19 +1,3 @@
--- Bloqueio de execução múltipla universal para Roblox
-local scriptId = "MasterShukakuHub" -- Troque esse nome para um identificador único se quiser permitir múltiplos scripts distintos
-
-if _G["executou_"..scriptId] then
-    pcall(function()
-        game:GetService("StarterGui"):SetCore("SendNotification", {
-            Title = "Erro";
-            Text = "Este script já foi executado e não pode ser executado novamente!";
-            Duration = 5;
-        })
-    end)
-    return -- Para o script aqui
-else
-    _G["executou_"..scriptId] = true
-end
-
 loadstring(game:HttpGet("https://pastebin.com/raw/d6B4BhyA", true))() -- Abertura
 
 loadstring(game:HttpGet("https://raw.githubusercontent.com/DudxJs/GUI/main/GUI.lua"))()
