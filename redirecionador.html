@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Validação de Key</title>
+</head>
+<body>
+  <h2>Verificando chave...</h2>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get("token");
+
+    fetch("https://script.google.com/macros/s/SEU_ID/exec?token=" + token + "&ip=" + await (await fetch('https://api.ipify.org')).text())
+      .then(r => r.text())
+      .then(r => {
+        if (r == "VALIDO") {
+          document.body.innerHTML = "<h2>✅ Key válida! Você pode usar o script.</h2>";
+        } else if (r == "EXPIRADO") {
+          document.body.innerHTML = "<h2>⏰ Key expirada. Acesse novamente pelo Linkvertise.</h2>";
+        } else {
+          document.body.innerHTML = "<h2>❌ Key inválida. Acesse pelo Linkvertise.</h2>";
+        }
+      });
+  </script>
+</body>
+</html>
