@@ -9,7 +9,7 @@
     const params = new URLSearchParams(window.location.search);
     const token = params.get("token");
 
-    fetch("https://script.google.com/macros/s/SEU_ID/exec?token=" + token + "&ip=" + await (await fetch('https://api.ipify.org')).text())
+    fetch("https://script.google.com/macros/s/AKfycbxPQQ-Nbq67wPGpVr1jOwD6RflnAisHhH3DI0YGfNHHEO1V2Pc7exA785Y4AmLPWai4EQ/exec?token=" + token + "&ip=" + await (await fetch('https://api.ipify.org')).text())
       .then(r => r.text())
       .then(r => {
         if (r == "VALIDO") {
