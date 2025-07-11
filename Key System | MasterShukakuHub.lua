@@ -1,135 +1,123 @@
-local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
+local HttpService = game:GetService("HttpService")
 local player = Players.LocalPlayer
 
--- 🔗 SEUS LINKS
-local SCRIPT_API = "https://script.google.com/macros/s/AKfycbygnV5poqrdJlh-jnGszxxyiF2le11dARkZDsughPBL71tCishEpGHZTucDPWwFbd9ekA/exec"
-local REDIRECIONADOR_BASE = "https://dudxjs.github.io/redirecionador.html?token="
+local LINKVERTISE = "https://link-target.net/1365094/MXTCaMBiYdlX"
+local REDIRECIONADOR_BASE = "https://dudxjs.github.io/rv-redirector/redirecionador.html?token="
+local URL_VALIDAR_KEY = "https://script.google.com/macros/s/AKfycbygnV5poqrdJlh-jnGszxxyiF2le11dARkZDsughPBL71tCishEpGHZTucDPWwFbd9ekA/exec"
 
--- 🔧 Função para pegar o IP do jogador
-local function getIP()
-	local success, result = pcall(function()
-		return game:HttpGet("https://api.ipify.org")
-	end)
-	if success then
-		return result
-	else
-		warn("Não foi possível obter o IP.")
-		return nil
-	end
-end
-
--- GUI
+-- Interface
 local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
 screenGui.Name = "KeySystem"
 
 local frame = Instance.new("Frame", screenGui)
-frame.Position = UDim2.new(0.3, 0, 0.3, 0)
 frame.Size = UDim2.new(0, 300, 0, 200)
+frame.Position = UDim2.new(0.5, -150, 0.5, -100)
 frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 frame.BorderSizePixel = 0
 
-local uiCorner = Instance.new("UICorner", frame)
-uiCorner.CornerRadius = UDim.new(0, 10)
-
 local title = Instance.new("TextLabel", frame)
-title.Text = "🔑 Sistema de Key"
-title.Size = UDim2.new(1, 0, 0, 40)
-title.BackgroundTransparency = 1
-title.TextColor3 = Color3.new(1, 1, 1)
+title.Size = UDim2.new(1, 0, 0, 30)
+title.Text = "🔐 Sistema de Key"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+title.BorderSizePixel = 0
 title.Font = Enum.Font.SourceSansBold
-title.TextSize = 20
+title.TextSize = 18
 
-local getKeyBtn = Instance.new("TextButton", frame)
-getKeyBtn.Position = UDim2.new(0.1, 0, 0.3, 0)
-getKeyBtn.Size = UDim2.new(0.8, 0, 0, 35)
-getKeyBtn.Text = "🚀 Obter Key"
-getKeyBtn.BackgroundColor3 = Color3.fromRGB(60, 100, 255)
-getKeyBtn.TextColor3 = Color3.new(1, 1, 1)
-getKeyBtn.Font = Enum.Font.SourceSansBold
-getKeyBtn.TextSize = 18
+local keyInput = Instance.new("TextBox", frame)
+keyInput.PlaceholderText = "Digite sua key aqui"
+keyInput.Size = UDim2.new(1, -20, 0, 30)
+keyInput.Position = UDim2.new(0, 10, 0, 50)
+keyInput.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+keyInput.TextColor3 = Color3.fromRGB(255, 255, 255)
+keyInput.BorderSizePixel = 0
+keyInput.Font = Enum.Font.SourceSans
+keyInput.TextSize = 16
 
-local input = Instance.new("TextBox", frame)
-input.PlaceholderText = "Digite sua key aqui..."
-input.Position = UDim2.new(0.1, 0, 0.55, 0)
-input.Size = UDim2.new(0.8, 0, 0, 35)
-input.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-input.TextColor3 = Color3.new(1, 1, 1)
-input.Font = Enum.Font.SourceSans
-input.TextSize = 16
+local statusLabel = Instance.new("TextLabel", frame)
+statusLabel.Size = UDim2.new(1, -20, 0, 30)
+statusLabel.Position = UDim2.new(0, 10, 0, 90)
+statusLabel.Text = ""
+statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+statusLabel.BackgroundTransparency = 1
+statusLabel.Font = Enum.Font.SourceSans
+statusLabel.TextSize = 16
+statusLabel.TextWrapped = true
 
-local validarBtn = Instance.new("TextButton", frame)
-validarBtn.Position = UDim2.new(0.1, 0, 0.75, 0)
-validarBtn.Size = UDim2.new(0.8, 0, 0, 30)
-validarBtn.Text = "✅ Validar Key"
-validarBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-validarBtn.TextColor3 = Color3.new(1, 1, 1)
-validarBtn.Font = Enum.Font.SourceSansBold
-validarBtn.TextSize = 16
+local getKeyButton = Instance.new("TextButton", frame)
+getKeyButton.Text = "📥 Pegar Key"
+getKeyButton.Size = UDim2.new(0.5, -15, 0, 35)
+getKeyButton.Position = UDim2.new(0, 10, 1, -45)
+getKeyButton.BackgroundColor3 = Color3.fromRGB(0, 170, 255)
+getKeyButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+getKeyButton.Font = Enum.Font.SourceSansBold
+getKeyButton.TextSize = 16
 
-local aviso = Instance.new("TextLabel", frame)
-aviso.Position = UDim2.new(0, 0, 1, 0)
-aviso.Size = UDim2.new(1, 0, 0, 30)
-aviso.BackgroundTransparency = 1
-aviso.TextColor3 = Color3.new(1, 1, 1)
-aviso.Font = Enum.Font.SourceSansItalic
-aviso.TextSize = 14
-aviso.Text = ""
+local validarButton = Instance.new("TextButton", frame)
+validarButton.Text = "✅ Validar Key"
+validarButton.Size = UDim2.new(0.5, -15, 0, 35)
+validarButton.Position = UDim2.new(0.5, 5, 1, -45)
+validarButton.BackgroundColor3 = Color3.fromRGB(0, 200, 100)
+validarButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+validarButton.Font = Enum.Font.SourceSansBold
+validarButton.TextSize = 16
 
--- 🛠️ Ações dos botões
+-- Funções
+local function abrirLinkvertise()
+	local token = tostring(math.random(100000, 999999)) .. tostring(math.random(1000, 9999))
+	local url = REDIRECIONADOR_BASE .. token
 
-getKeyBtn.MouseButton1Click:Connect(function()
-	local ip = getIP()
-	if not ip then
-		aviso.Text = "❌ Erro ao obter IP."
+	-- Registra o IP e token na planilha
+	pcall(function()
+		HttpService:GetAsync(URL_VALIDAR_KEY .. "?registrarToken=" .. token)
+	end)
+
+	-- Abre o Linkvertise (o redirecionador receberá o token)
+	statusLabel.Text = "Redirecionando para o site..."
+	task.wait(0.8)
+	setclipboard(url)
+	statusLabel.Text = "✅ Link copiado! Cole no navegador após passar pelo Linkvertise."
+	task.spawn(function()
+		game:GetService("StarterGui"):SetCore("OpenUrl", LINKVERTISE)
+	end)
+end
+
+local function validarKey()
+	local key = keyInput.Text
+	if key == "" then
+		statusLabel.Text = "❗ Digite a key antes de validar."
 		return
 	end
 
-	local response = http_request({
-		Url = SCRIPT_API,
-		Method = "POST",
-		Headers = {["Content-Type"] = "application/x-www-form-urlencoded"},
-		Body = "ip=" .. ip
-	})
+	statusLabel.Text = "🔄 Validando key..."
 
-	local tokenTemp = response.Body
-	if not tokenTemp or tokenTemp == "" then
-		aviso.Text = "❌ Erro ao gerar token."
+	local success, resposta = pcall(function()
+		return HttpService:GetAsync(URL_VALIDAR_KEY .. "?validarKey=" .. key)
+	end)
+
+	if not success then
+		statusLabel.Text = "❌ Erro ao conectar."
 		return
 	end
 
-	-- Monta o link do redirecionador com token
-	local redirLink = REDIRECIONADOR_BASE .. tokenTemp
-	local encodedLink = HttpService:UrlEncode(redirLink)
+	local status
+	pcall(function()
+		status = HttpService:JSONDecode(resposta).status
+	end)
 
-	-- Monta o Linkvertise (exemplo usando link-hub.net)
-	local linkvertise = "https://link-target.net/1365094/MXTCaMBiYdlX?o=" .. encodedLink
-
-	setclipboard(linkvertise)
-	aviso.Text = "✅ Link copiado! Acesse via navegador."
-end)
-
-validarBtn.MouseButton1Click:Connect(function()
-	local ip = getIP()
-	if not ip then
-		aviso.Text = "❌ Erro ao obter IP."
-		return
-	end
-
-	local keyDigitada = input.Text
-
-	local urlValidar = SCRIPT_API .. "?tokenKey=" .. keyDigitada .. "&ip=" .. ip
-
-	local resposta = http_request({
-		Url = urlValidar,
-		Method = "GET"
-	})
-
-	if resposta.Body == "true" then
-		aviso.Text = "✅ Key válida! Acesso liberado."
-		-- Aqui você pode liberar o script do jogo:
-		print("SCRIPT LIBERADO!")
+	if status == "VALIDA" then
+		statusLabel.Text = "✅ Key válida! Acesso liberado!"
+		-- Libere o script aqui
+	elseif status == "EXPIRADA" then
+		statusLabel.Text = "⏰ Key expirada. Gere uma nova."
+	elseif status == "INVALIDA" then
+		statusLabel.Text = "❌ Key inválida para este dispositivo."
 	else
-		aviso.Text = "❌ Key inválida ou expirada."
+		statusLabel.Text = "❌ Erro inesperado: " .. tostring(resposta)
 	end
-end)
+end
+
+-- Eventos
+getKeyButton.MouseButton1Click:Connect(abrirLinkvertise)
+validarButton.MouseButton1Click:Connect(validarKey)
