@@ -103,7 +103,7 @@ getKeyBtn.MouseButton1Click:Connect(function()
 	local encodedLink = HttpService:UrlEncode(redirLink)
 
 	-- Monta o Linkvertise (exemplo usando link-hub.net)
-	local linkvertise = "https://direct-link.net/1365094/xLN5EoHIKeJz?o=" .. encodedLink
+	local linkvertise = "https://link-target.net/1365094/MXTCaMBiYdlX?o=" .. encodedLink
 
 	setclipboard(linkvertise)
 	aviso.Text = "✅ Link copiado! Acesse via navegador."
