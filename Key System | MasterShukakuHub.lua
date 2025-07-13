@@ -1,135 +1,432 @@
+
+local service = 4700 --Set your Platoboost Id 
+local secret = "c05d9ff2-c2cb-4080-bbe4-8499e318f1d0" --Set Your Platoboost Api key
+local useNonce = true; 
+local onMessage = function(message)  game:GetService("StarterGui"):SetCore("ChatMakeSystemMessage", { Text = message; }) end;
+
+
+repeat task.wait(1) until game:IsLoaded() or game.Players.LocalPlayer;
+
+
+local requestSending = false;
+local fSetClipboard, fRequest, fStringChar, fToString, fStringSub, fOsTime, fMathRandom, fMathFloor, fGetHwid = setclipboard or toclipboard, request or http_request, string.char, tostring, string.sub, os.time, math.random, math.floor, gethwid or function() return game:GetService("Players").LocalPlayer.UserId end
+local cachedLink, cachedTime = "", 0;
 local HttpService = game:GetService("HttpService")
-local Players = game:GetService("Players")
-local player = Players.LocalPlayer
 
--- 🔗 SEUS LINKS
-local SCRIPT_API = "https://script.google.com/macros/s/AKfycbygnV5poqrdJlh-jnGszxxyiF2le11dARkZDsughPBL71tCishEpGHZTucDPWwFbd9ekA/exec"
-local REDIRECIONADOR_BASE = "https://dudxjs.github.io/redirecionador.html?token="
+function lEncode(data)
+    return HttpService:JSONEncode(data)
+end
+function lDecode(data)
+    return HttpService:JSONDecode(data)
+end
+local function lDigest(input)
+    local inputStr = tostring(input)
+    
+    
+    local hash = {}
+    for i = 1, #inputStr do
+        table.insert(hash, string.byte(inputStr, i))
+    end
 
--- 🔧 Função para pegar o IP do jogador
-local function getIP()
-	local success, result = pcall(function()
-		return game:HttpGet("https://api.ipify.org")
-	end)
-	if success then
-		return result
-	else
-		warn("Não foi possível obter o IP.")
-		return nil
-	end
+    local hashHex = ""
+    for _, byte in ipairs(hash) do
+        hashHex = hashHex .. string.format("%02x", byte)
+    end
+    
+    return hashHex
+end
+local host = "https://api.platoboost.com";
+local hostResponse = fRequest({
+    Url = host .. "/public/connectivity",
+    Method = "GET"
+});
+if hostResponse.StatusCode ~= 200 or hostResponse.StatusCode ~= 429 then
+    host = "https://api.platoboost.net";
 end
 
--- GUI
-local screenGui = Instance.new("ScreenGui", player:WaitForChild("PlayerGui"))
-screenGui.Name = "KeySystem"
+function cacheLink()
+    if cachedTime + (10*60) < fOsTime() then
+        local response = fRequest({
+            Url = host .. "/public/start",
+            Method = "POST",
+            Body = lEncode({
+                service = service,
+                identifier = lDigest(fGetHwid())
+            }),
+            Headers = {
+                ["Content-Type"] = "application/json"
+            }
+        });
 
-local frame = Instance.new("Frame", screenGui)
-frame.Position = UDim2.new(0.3, 0, 0.3, 0)
-frame.Size = UDim2.new(0, 300, 0, 200)
-frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-frame.BorderSizePixel = 0
+        if response.StatusCode == 200 then
+            local decoded = lDecode(response.Body);
 
-local uiCorner = Instance.new("UICorner", frame)
-uiCorner.CornerRadius = UDim.new(0, 10)
+            if decoded.success == true then
+                cachedLink = decoded.data.url;
+                cachedTime = fOsTime();
+                return true, cachedLink;
+            else
+                onMessage(decoded.message);
+                return false, decoded.message;
+            end
+        elseif response.StatusCode == 429 then
+            local msg = "you are being rate limited, please wait 20 seconds and try again.";
+            onMessage(msg);
+            return false, msg;
+        end
 
-local title = Instance.new("TextLabel", frame)
-title.Text = "🔑 Sistema de Key"
-title.Size = UDim2.new(1, 0, 0, 40)
-title.BackgroundTransparency = 1
-title.TextColor3 = Color3.new(1, 1, 1)
-title.Font = Enum.Font.SourceSansBold
-title.TextSize = 20
+        local msg = "Failed to cache link.";
+        onMessage(msg);
+        return false, msg;
+    else
+        return true, cachedLink;
+    end
+end
 
-local getKeyBtn = Instance.new("TextButton", frame)
-getKeyBtn.Position = UDim2.new(0.1, 0, 0.3, 0)
-getKeyBtn.Size = UDim2.new(0.8, 0, 0, 35)
-getKeyBtn.Text = "🚀 Obter Key"
-getKeyBtn.BackgroundColor3 = Color3.fromRGB(60, 100, 255)
-getKeyBtn.TextColor3 = Color3.new(1, 1, 1)
-getKeyBtn.Font = Enum.Font.SourceSansBold
-getKeyBtn.TextSize = 18
 
-local input = Instance.new("TextBox", frame)
-input.PlaceholderText = "Digite sua key aqui..."
-input.Position = UDim2.new(0.1, 0, 0.55, 0)
-input.Size = UDim2.new(0.8, 0, 0, 35)
-input.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-input.TextColor3 = Color3.new(1, 1, 1)
-input.Font = Enum.Font.SourceSans
-input.TextSize = 16
 
-local validarBtn = Instance.new("TextButton", frame)
-validarBtn.Position = UDim2.new(0.1, 0, 0.75, 0)
-validarBtn.Size = UDim2.new(0.8, 0, 0, 30)
-validarBtn.Text = "✅ Validar Key"
-validarBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 0)
-validarBtn.TextColor3 = Color3.new(1, 1, 1)
-validarBtn.Font = Enum.Font.SourceSansBold
-validarBtn.TextSize = 16
+cacheLink();
 
-local aviso = Instance.new("TextLabel", frame)
-aviso.Position = UDim2.new(0, 0, 1, 0)
-aviso.Size = UDim2.new(1, 0, 0, 30)
-aviso.BackgroundTransparency = 1
-aviso.TextColor3 = Color3.new(1, 1, 1)
-aviso.Font = Enum.Font.SourceSansItalic
-aviso.TextSize = 14
-aviso.Text = ""
+local generateNonce = function()
+    local str = ""
+    for _ = 1, 16 do
+        str = str .. fStringChar(fMathFloor(fMathRandom() * (122 - 97 + 1)) + 97)
+    end
+    return str
+end
 
--- 🛠️ Ações dos botões
 
-getKeyBtn.MouseButton1Click:Connect(function()
-	local ip = getIP()
-	if not ip then
-		aviso.Text = "❌ Erro ao obter IP."
-		return
-	end
+for _ = 1, 5 do
+    local oNonce = generateNonce();
+    task.wait(0.2)
+    if generateNonce() == oNonce then
+        local msg = "platoboost nonce error.";
+        onMessage(msg);
+        error(msg);
+    end
+end
 
-	local response = http_request({
-		Url = SCRIPT_API,
-		Method = "POST",
-		Headers = {["Content-Type"] = "application/x-www-form-urlencoded"},
-		Body = "ip=" .. ip
-	})
+local copyLink = function()
+    local success, link = cacheLink();
+    
+    if success then
+        print("SetClipBoard")
+        fSetClipboard(link);
+    end
+end
 
-	local tokenTemp = response.Body
-	if not tokenTemp or tokenTemp == "" then
-		aviso.Text = "❌ Erro ao gerar token."
-		return
-	end
+local redeemKey = function(key)
+    local nonce = generateNonce();
+    local endpoint = host .. "/public/redeem/" .. fToString(service);
 
-	-- Monta o link do redirecionador com token
-	local redirLink = REDIRECIONADOR_BASE .. tokenTemp
-	local encodedLink = HttpService:UrlEncode(redirLink)
+    local body = {
+        identifier = lDigest(fGetHwid()),
+        key = key
+    }
 
-	-- Monta o Linkvertise (exemplo usando link-hub.net)
-	local linkvertise = "https://direct-link.net/1365094/xLN5EoHIKeJz?o=" .. encodedLink
+    if useNonce then
+        body.nonce = nonce;
+    end
 
-	setclipboard(linkvertise)
-	aviso.Text = "✅ Link copiado! Acesse via navegador."
-end)
+    local response = fRequest({
+        Url = endpoint,
+        Method = "POST",
+        Body = lEncode(body),
+        Headers = {
+            ["Content-Type"] = "application/json"
+        }
+    });
 
-validarBtn.MouseButton1Click:Connect(function()
-	local ip = getIP()
-	if not ip then
-		aviso.Text = "❌ Erro ao obter IP."
-		return
-	end
+    if response.StatusCode == 200 then
+        local decoded = lDecode(response.Body);
+        if decoded.success == true then
+            if decoded.data.valid == true then
+                if useNonce then
+                    if decoded.data.hash == lDigest("true" .. "-" .. nonce .. "-" .. secret) then
+                        return true;
+                    else
+                        onMessage("failed to verify integrity.");
+                        return false;
+                    end    
+                else
+                    return true;
+                end
+            else
+                onMessage("key is invalid.");
+                return false;
+            end
+        else
+            if fStringSub(decoded.message, 1, 27) == "unique constraint violation" then
+                onMessage("you already have an active key, please wait for it to expire before redeeming it.");
+                return false;
+            else
+                onMessage(decoded.message);
+                return false;
+            end
+        end
+    elseif response.StatusCode == 429 then
+        onMessage("you are being rate limited, please wait 20 seconds and try again.");
+        return false;
+    else
+        onMessage("server returned an invalid status code, please try again later.");
+        return false; 
+    end
+end
 
-	local keyDigitada = input.Text
 
-	local urlValidar = SCRIPT_API .. "?tokenKey=" .. keyDigitada .. "&ip=" .. ip
+local verifyKey = function(key)
+    if requestSending == true then
+        onMessage("a request is already being sent, please slow down.");
+        return false;
+    else
+        requestSending = true;
+    end
 
-	local resposta = http_request({
-		Url = urlValidar,
-		Method = "GET"
-	})
+    local nonce = generateNonce();
+    local endpoint = host .. "/public/whitelist/" .. fToString(service) .. "?identifier=" .. lDigest(fGetHwid()) .. "&key=" .. key;
 
-	if resposta.Body == "true" then
-		aviso.Text = "✅ Key válida! Acesso liberado."
-		-- Aqui você pode liberar o script do jogo:
-		print("SCRIPT LIBERADO!")
-	else
-		aviso.Text = "❌ Key inválida ou expirada."
-	end
+    if useNonce then
+        endpoint = endpoint .. "&nonce=" .. nonce;
+    end
+    local response = fRequest({
+        Url = endpoint,
+        Method = "GET",
+    });
+
+    requestSending = false;
+
+    if response.StatusCode == 200 then
+        local decoded = lDecode(response.Body);
+        if decoded.success == true then
+            if decoded.data.valid == true then
+                if useNonce then
+                    return true;
+                else
+                    return true;
+                end
+            else
+                if fStringSub(key, 1, 4) == "FREE_" then
+                    return redeemKey(key);
+                else
+                    onMessage("key is invalid.");
+                    return false;
+                end
+            end
+        else
+            onMessage(decoded.message);
+            return false;
+        end
+    elseif response.StatusCode == 429 then
+        onMessage("you are being rate limited, please wait 20 seconds and try again.");
+        return false;
+    else
+        onMessage("server returned an invalid status code, please try again later.");
+        return false;
+    end
+end
+
+
+local getFlag = function(name)
+    local nonce = generateNonce();
+    local endpoint = host .. "/public/flag/" .. fToString(service) .. "?name=" .. name;
+
+    if useNonce then
+        endpoint = endpoint .. "&nonce=" .. nonce;
+    end
+
+    local response = fRequest({
+        Url = endpoint,
+        Method = "GET",
+    });
+
+    if response.StatusCode == 200 then
+        local decoded = lDecode(response.Body);
+        if decoded.success == true then
+            if useNonce then
+                if decoded.data.hash == lDigest(fToString(decoded.data.value) .. "-" .. nonce .. "-" .. secret) then
+                    return decoded.data.value;
+                else
+                    onMessage("failed to verify integrity.");
+                    return nil;
+                end
+            else
+                return decoded.data.value;
+            end
+        else
+            onMessage(decoded.message);
+            return nil;
+        end
+    else
+        return nil;
+    end
+end
+
+task.spawn(function()
+    local ScreenGui = Instance.new("ScreenGui")
+    local Frame = Instance.new("Frame")
+    local Topbar = Instance.new("Frame")
+    local Exit = Instance.new("TextButton")
+    local minimize = Instance.new("TextButton")
+    local Frame_2 = Instance.new("Frame")
+    local Getkey = Instance.new("TextButton")
+    local Checkkey = Instance.new("TextButton")
+    local TextBox = Instance.new("TextBox")
+    local TextLabel = Instance.new("TextLabel")
+    
+
+    ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    
+    Frame.Parent = ScreenGui
+    Frame.BackgroundColor3 = Color3.fromRGB(76, 76, 76)
+    Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Frame.BorderSizePixel = 0
+    Frame.Position = UDim2.new(0.286729872, 0, 0.295880139, 0)
+    Frame.Size = UDim2.new(0, 359, 0, 217)
+    
+    Topbar.Name = "Topbar"
+    Topbar.Parent = Frame
+    Topbar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Topbar.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Topbar.BorderSizePixel = 0
+    Topbar.Size = UDim2.new(0, 359, 0, 27)
+    
+    Exit.Name = "Exit"
+    Exit.Parent = Topbar
+    Exit.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+    Exit.BackgroundTransparency = 0.300
+    Exit.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Exit.BorderSizePixel = 0
+    Exit.Position = UDim2.new(0.905292451, 0, 0.111111112, 0)
+    Exit.Size = UDim2.new(0, 25, 0, 20)
+    Exit.Font = Enum.Font.SourceSans
+    Exit.Text = "X"
+    Exit.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Exit.TextScaled = true
+    Exit.TextSize = 14.000
+    Exit.TextWrapped = true
+    
+    minimize.Name = "minimize"
+    minimize.Parent = Topbar
+    minimize.BackgroundColor3 = Color3.fromRGB(85, 255, 0)
+    minimize.BackgroundTransparency = 0.300
+    minimize.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    minimize.BorderSizePixel = 0
+    minimize.Position = UDim2.new(0.810584962, 0, 0.111111112, 0)
+    minimize.Size = UDim2.new(0, 25, 0, 20)
+    minimize.Font = Enum.Font.SourceSans
+    minimize.Text = "-"
+    minimize.TextColor3 = Color3.fromRGB(255, 255, 255)
+    minimize.TextScaled = true
+    minimize.TextSize = 14.000
+    minimize.TextWrapped = true
+    
+    Frame_2.Parent = Frame
+    Frame_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    Frame_2.BackgroundTransparency = 1.000
+    Frame_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Frame_2.BorderSizePixel = 0
+    Frame_2.Position = UDim2.new(0, 0, 0.124423966, 0)
+    Frame_2.Size = UDim2.new(0, 359, 0, 189)
+    
+    Getkey.Name = "Getkey"
+    Getkey.Parent = Frame_2
+    Getkey.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Getkey.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Getkey.BorderSizePixel = 0
+    Getkey.Position = UDim2.new(0.317548752, 0, 0.523809552, 0)
+    Getkey.Size = UDim2.new(0, 130, 0, 32)
+    Getkey.Font = Enum.Font.SourceSans
+    Getkey.Text = "Getkey"
+    Getkey.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Getkey.TextScaled = true
+    Getkey.TextSize = 14.000
+    Getkey.TextWrapped = true
+    
+    Checkkey.Name = "Checkkey"
+    Checkkey.Parent = Frame_2
+    Checkkey.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    Checkkey.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    Checkkey.BorderSizePixel = 0
+    Checkkey.Position = UDim2.new(0.317548752, 0, 0.767195761, 0)
+    Checkkey.Size = UDim2.new(0, 130, 0, 32)
+    Checkkey.Font = Enum.Font.SourceSans
+    Checkkey.Text = "CheckKey"
+    Checkkey.TextColor3 = Color3.fromRGB(255, 255, 255)
+    Checkkey.TextScaled = true
+    Checkkey.TextSize = 14.000
+    Checkkey.TextWrapped = true
+    
+    TextBox.Parent = Frame_2
+    TextBox.BackgroundColor3 = Color3.fromRGB(139, 139, 139)
+    TextBox.BackgroundTransparency = 0.600
+    TextBox.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    TextBox.BorderSizePixel = 0
+    TextBox.Position = UDim2.new(0.0779944286, 0, 0.137566134, 0)
+    TextBox.Size = UDim2.new(0, 304, 0, 42)
+    TextBox.Font = Enum.Font.SourceSans
+    TextBox.Text = ""
+    TextBox.TextTransparency = 1
+    TextBox.TextColor3 = Color3.fromRGB(0, 0, 0)
+    TextBox.TextScaled = true
+    TextBox.TextSize = 14.000
+    TextBox.TextWrapped = true
+    
+    TextLabel.Parent = Frame_2
+    TextLabel.BackgroundColor3 = Color3.fromRGB(211, 211, 211)
+    TextLabel.BackgroundTransparency = 1.000
+    TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
+    TextLabel.BorderSizePixel = 0
+    TextLabel.Position = UDim2.new(0.0779944286, 0, 0.137566134, 0)
+    TextLabel.Size = UDim2.new(0, 304, 0, 42)
+    TextLabel.ZIndex = 2
+    TextLabel.Font = Enum.Font.SourceSans
+    TextLabel.Text = "In Put Your Key"
+    TextLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
+    TextLabel.TextScaled = true
+    TextLabel.TextSize = 14.000
+    TextLabel.TextStrokeTransparency = 0.830
+    TextLabel.TextTransparency = 0.550
+    TextLabel.TextWrapped = true
+    
+    
+    
+    
+    TextBox:GetPropertyChangedSignal("Text"):Connect(function(text)
+        if TextBox.Text == "" then
+            TextLabel.Text =  "In Put Your Key"
+        else
+            TextLabel.Text = TextBox.Text
+        end
+    end)
+    
+    Checkkey.MouseButton1Down:Connect(function() 
+        if TextBox and TextBox.Text then
+            
+            local Verify = verifyKey(TextBox.Text)
+            if Verify then
+                loadstring(game:HttpGet("https://pastebin.com/raw/DTrES0c6"))()
+            else
+                print("Key Is in valid")
+            end 
+        end	
+    end)
+    
+    Getkey.MouseButton1Down:Connect(function() 
+        copyLink()
+    end)
+    
+    Exit.MouseButton1Down:Connect(function()
+        if ScreenGui then
+            ScreenGui:Destroy()
+        end
+    end)
+    
+    
+    minimize.MouseButton1Down:Connect(function()
+        if ScreenGui then
+            ScreenGui.Enabled = false
+        end
+    end)
+    
 end)
