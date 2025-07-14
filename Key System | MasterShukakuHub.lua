@@ -261,172 +261,209 @@ local getFlag = function(name)
     end
 end
 
-task.spawn(function()
-    local ScreenGui = Instance.new("ScreenGui")
-    local Frame = Instance.new("Frame")
-    local Topbar = Instance.new("Frame")
-    local Exit = Instance.new("TextButton")
-    local minimize = Instance.new("TextButton")
-    local Frame_2 = Instance.new("Frame")
-    local Getkey = Instance.new("TextButton")
-    local Checkkey = Instance.new("TextButton")
-    local TextBox = Instance.new("TextBox")
-    local TextLabel = Instance.new("TextLabel")
-    
+-- 🔐 Sistema de salvamento da Key
+local HttpService = game:GetService("HttpService")
+local keyFolder = "MasterShukakuHubKey"
+local keyFile = keyFolder.."/key.json"
 
-    ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
-    ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-    
-    Frame.Parent = ScreenGui
-    Frame.BackgroundColor3 = Color3.fromRGB(76, 76, 76)
-    Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Frame.BorderSizePixel = 0
-    Frame.Position = UDim2.new(0.286729872, 0, 0.295880139, 0)
-    Frame.Size = UDim2.new(0, 359, 0, 217)
-    
-    Topbar.Name = "Topbar"
-    Topbar.Parent = Frame
-    Topbar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    Topbar.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Topbar.BorderSizePixel = 0
-    Topbar.Size = UDim2.new(0, 359, 0, 27)
-    
-    Exit.Name = "Exit"
-    Exit.Parent = Topbar
-    Exit.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
-    Exit.BackgroundTransparency = 0.300
-    Exit.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Exit.BorderSizePixel = 0
-    Exit.Position = UDim2.new(0.905292451, 0, 0.111111112, 0)
-    Exit.Size = UDim2.new(0, 25, 0, 20)
-    Exit.Font = Enum.Font.SourceSans
-    Exit.Text = "X"
-    Exit.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Exit.TextScaled = true
-    Exit.TextSize = 14.000
-    Exit.TextWrapped = true
-    
-    minimize.Name = "minimize"
-    minimize.Parent = Topbar
-    minimize.BackgroundColor3 = Color3.fromRGB(85, 255, 0)
-    minimize.BackgroundTransparency = 0.300
-    minimize.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    minimize.BorderSizePixel = 0
-    minimize.Position = UDim2.new(0.810584962, 0, 0.111111112, 0)
-    minimize.Size = UDim2.new(0, 25, 0, 20)
-    minimize.Font = Enum.Font.SourceSans
-    minimize.Text = "-"
-    minimize.TextColor3 = Color3.fromRGB(255, 255, 255)
-    minimize.TextScaled = true
-    minimize.TextSize = 14.000
-    minimize.TextWrapped = true
-    
-    Frame_2.Parent = Frame
-    Frame_2.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    Frame_2.BackgroundTransparency = 1.000
-    Frame_2.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Frame_2.BorderSizePixel = 0
-    Frame_2.Position = UDim2.new(0, 0, 0.124423966, 0)
-    Frame_2.Size = UDim2.new(0, 359, 0, 189)
-    
-    Getkey.Name = "Getkey"
-    Getkey.Parent = Frame_2
-    Getkey.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    Getkey.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Getkey.BorderSizePixel = 0
-    Getkey.Position = UDim2.new(0.317548752, 0, 0.523809552, 0)
-    Getkey.Size = UDim2.new(0, 130, 0, 32)
-    Getkey.Font = Enum.Font.SourceSans
-    Getkey.Text = "Getkey"
-    Getkey.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Getkey.TextScaled = true
-    Getkey.TextSize = 14.000
-    Getkey.TextWrapped = true
-    
-    Checkkey.Name = "Checkkey"
-    Checkkey.Parent = Frame_2
-    Checkkey.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    Checkkey.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    Checkkey.BorderSizePixel = 0
-    Checkkey.Position = UDim2.new(0.317548752, 0, 0.767195761, 0)
-    Checkkey.Size = UDim2.new(0, 130, 0, 32)
-    Checkkey.Font = Enum.Font.SourceSans
-    Checkkey.Text = "CheckKey"
-    Checkkey.TextColor3 = Color3.fromRGB(255, 255, 255)
-    Checkkey.TextScaled = true
-    Checkkey.TextSize = 14.000
-    Checkkey.TextWrapped = true
-    
-    TextBox.Parent = Frame_2
-    TextBox.BackgroundColor3 = Color3.fromRGB(139, 139, 139)
-    TextBox.BackgroundTransparency = 0.600
-    TextBox.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    TextBox.BorderSizePixel = 0
-    TextBox.Position = UDim2.new(0.0779944286, 0, 0.137566134, 0)
-    TextBox.Size = UDim2.new(0, 304, 0, 42)
-    TextBox.Font = Enum.Font.SourceSans
-    TextBox.Text = ""
-    TextBox.TextTransparency = 1
-    TextBox.TextColor3 = Color3.fromRGB(0, 0, 0)
-    TextBox.TextScaled = true
-    TextBox.TextSize = 14.000
-    TextBox.TextWrapped = true
-    
-    TextLabel.Parent = Frame_2
-    TextLabel.BackgroundColor3 = Color3.fromRGB(211, 211, 211)
-    TextLabel.BackgroundTransparency = 1.000
-    TextLabel.BorderColor3 = Color3.fromRGB(0, 0, 0)
-    TextLabel.BorderSizePixel = 0
-    TextLabel.Position = UDim2.new(0.0779944286, 0, 0.137566134, 0)
-    TextLabel.Size = UDim2.new(0, 304, 0, 42)
-    TextLabel.ZIndex = 2
-    TextLabel.Font = Enum.Font.SourceSans
-    TextLabel.Text = "In Put Your Key"
-    TextLabel.TextColor3 = Color3.fromRGB(0, 0, 0)
-    TextLabel.TextScaled = true
-    TextLabel.TextSize = 14.000
-    TextLabel.TextStrokeTransparency = 0.830
-    TextLabel.TextTransparency = 0.550
-    TextLabel.TextWrapped = true
-    
-    
-    
-    
-    TextBox:GetPropertyChangedSignal("Text"):Connect(function(text)
-        if TextBox.Text == "" then
-            TextLabel.Text =  "In Put Your Key"
-        else
-            TextLabel.Text = TextBox.Text
-        end
-    end)
-    
-    Checkkey.MouseButton1Down:Connect(function() 
-        if TextBox and TextBox.Text then
-            
-            local Verify = verifyKey(TextBox.Text)
-            if Verify then
-                loadstring(game:HttpGet("https://pastebin.com/raw/DTrES0c6"))() -- Script Liberado
-            else
-                print("Key Is in valid")
-            end 
-        end	
-    end)
-    
-    Getkey.MouseButton1Down:Connect(function() 
-        copyLink()
-    end)
-    
-    Exit.MouseButton1Down:Connect(function()
-        if ScreenGui then
-            ScreenGui:Destroy()
-        end
-    end)
-    
-    
-    minimize.MouseButton1Down:Connect(function()
-        if ScreenGui then
-            ScreenGui.Enabled = false
-        end
-    end)
-    
+local function salvarKey(key)
+	if not isfolder(keyFolder) then
+		makefolder(keyFolder)
+	end
+	writefile(keyFile, HttpService:JSONEncode({ key = key }))
+end
+
+local function carregarKey()
+	if isfile(keyFile) then
+		local conteudo = readfile(keyFile)
+		local ok, data = pcall(function()
+			return HttpService:JSONDecode(conteudo)
+		end)
+		if ok and data and data.key then
+			return data.key
+		end
+	end
+	return nil
+end
+
+-- ⏳ Tenta usar a Key salva automaticamente
+local keySalva = carregarKey()
+if keySalva then
+	local valido = verifyKey(keySalva)
+	if valido then
+    _G.KeyOk = true
+     task.wait()
+		loadstring(game:HttpGet("https://raw.githubusercontent.com/DudxJs/Dudx_jsHub/refs/heads/main/MasterShukakuHub_Protected"))()
+		return -- Sai do script, já está liberado
+	end
+end
+
+-- 📦 GUI
+task.spawn(function()
+	local TweenService = game:GetService("TweenService")
+
+	local ScreenGui = Instance.new("ScreenGui")
+	local Frame = Instance.new("Frame")
+	local UICorner = Instance.new("UICorner")
+	local UIStroke = Instance.new("UIStroke")
+	local Exit = Instance.new("TextButton")
+	local Title = Instance.new("TextLabel")
+	local Getkey = Instance.new("TextButton")
+	local Checkkey = Instance.new("TextButton")
+	local GetkeyCorner = Instance.new("UICorner")
+	local CheckkeyCorner = Instance.new("UICorner")
+	local TextBox = Instance.new("TextBox")
+	local TextBoxCorner = Instance.new("UICorner")
+	local TextLabel = Instance.new("TextLabel")
+
+	ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+	ScreenGui.Name = "KeySystemGui"
+
+	Frame.Parent = ScreenGui
+	Frame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+	Frame.Position = UDim2.new(0.3, 0, 0.3, 0)
+	Frame.Size = UDim2.new(0, 360, 0, 230)
+	Frame.ClipsDescendants = true
+	Frame.Active = true
+	Frame.Draggable = true
+
+	UICorner.CornerRadius = UDim.new(0, 12)
+	UICorner.Parent = Frame
+
+	UIStroke.Parent = Frame
+	UIStroke.Color = Color3.fromRGB(255, 0, 0)
+	UIStroke.Thickness = 2
+
+	Exit.Name = "Exit"
+	Exit.Parent = Frame
+	Exit.BackgroundTransparency = 1
+	Exit.Position = UDim2.new(0.93, 0, 0.025, 0)
+	Exit.Size = UDim2.new(0, 25, 0, 20)
+	Exit.Font = Enum.Font.GothamSemibold
+	Exit.Text = "X"
+	Exit.TextColor3 = Color3.fromRGB(255, 0, 0)
+	Exit.TextScaled = true
+	Exit.ZIndex = 2
+
+	Title.Name = "Title"
+	Title.Parent = Frame
+	Title.Text = "KEY SYSTEM"
+	Title.Position = UDim2.new(0, 0, 0, 0)
+	Title.Size = UDim2.new(1, 0, 0, 30)
+	Title.BackgroundTransparency = 1
+	Title.TextColor3 = Color3.fromRGB(255, 0, 0)
+	Title.Font = Enum.Font.GothamSemibold
+	Title.TextScaled = true
+	Title.ZIndex = 1
+
+	Getkey.Name = "Getkey"
+	Getkey.Parent = Frame
+	Getkey.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	Getkey.Position = UDim2.new(0.31, 0, 0.5, 0)
+	Getkey.Size = UDim2.new(0, 130, 0, 32)
+	Getkey.Font = Enum.Font.GothamSemibold
+	Getkey.Text = "GET KEY"
+	Getkey.TextColor3 = Color3.fromRGB(255, 0, 0)
+	Getkey.TextScaled = true
+
+	GetkeyCorner.CornerRadius = UDim.new(0, 8)
+	GetkeyCorner.Parent = Getkey
+
+	Checkkey.Name = "Checkkey"
+	Checkkey.Parent = Frame
+	Checkkey.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+	Checkkey.Position = UDim2.new(0.31, 0, 0.75, 0)
+	Checkkey.Size = UDim2.new(0, 130, 0, 32)
+	Checkkey.Font = Enum.Font.GothamSemibold
+	Checkkey.Text = "CHECK KEY"
+	Checkkey.TextColor3 = Color3.fromRGB(255, 0, 0)
+	Checkkey.TextScaled = true
+
+	CheckkeyCorner.CornerRadius = UDim.new(0, 8)
+	CheckkeyCorner.Parent = Checkkey
+
+	TextBox.Parent = Frame
+	TextBox.Text = ""
+	TextBox.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	TextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextBox.Position = UDim2.new(0.08, 0, 0.17, 0)
+	TextBox.Size = UDim2.new(0, 305, 0, 40)
+	TextBox.Font = Enum.Font.GothamSemibold
+	TextBox.PlaceholderText = "Digite sua Key"
+	TextBox.TextScaled = true
+
+	TextBoxCorner.CornerRadius = UDim.new(0, 6)
+	TextBoxCorner.Parent = TextBox
+
+	TextLabel.Parent = Frame
+	TextLabel.BackgroundTransparency = 1
+	TextLabel.Position = UDim2.new(0.08, 0, 0.17, 0)
+	TextLabel.Size = UDim2.new(0, 305, 0, 40)
+	TextLabel.Font = Enum.Font.GothamSemibold
+	TextLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	TextLabel.TextTransparency = 0.5
+	TextLabel.TextScaled = true
+	TextLabel.Text = "Digite sua Key"
+	TextLabel.ZIndex = 2
+
+	-- Hover animado
+	local function animateButton(button)
+		local original = button.BackgroundColor3
+		local hover = Color3.fromRGB(60, 0, 0)
+		button.MouseEnter:Connect(function()
+			TweenService:Create(button, TweenInfo.new(0.3), { BackgroundColor3 = hover }):Play()
+		end)
+		button.MouseLeave:Connect(function()
+			TweenService:Create(button, TweenInfo.new(0.3), { BackgroundColor3 = original }):Play()
+		end)
+	end
+
+	animateButton(Getkey)
+	animateButton(Checkkey)
+	animateButton(Exit)
+
+	-- Animação de entrada
+	Frame.Position = UDim2.new(0.3, 0, 1.2, 0)
+	TweenService:Create(Frame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {
+		Position = UDim2.new(0.3, 0, 0.3, 0)
+	}):Play()
+
+	-- Texto fantasma no TextBox
+	TextBox:GetPropertyChangedSignal("Text"):Connect(function()
+		if TextBox.Text == "" then
+			TextLabel.Text = "Digite sua Key"
+		else
+			TextLabel.Text = TextBox.Text
+		end
+	end)
+
+	-- CHECK KEY
+	Checkkey.MouseButton1Down:Connect(function()
+		if TextBox and TextBox.Text and TextBox.Text ~= "" then
+			local chave = TextBox.Text
+			local Verify = verifyKey(chave)
+			if Verify then
+				salvarKey(chave)
+            _G.KeyOk = true
+				loadstring(game:HttpGet("https://raw.githubusercontent.com/DudxJs/Dudx_jsHub/refs/heads/main/MasterShukakuHub_Protected"))()
+			else
+				onMessage("Key inválida.")
+			end
+		end
+	end)
+
+	-- GET KEY
+	Getkey.MouseButton1Down:Connect(function()
+		copyLink()
+	end)
+
+	-- FECHAR
+	Exit.MouseButton1Down:Connect(function()
+		TweenService:Create(Frame, TweenInfo.new(0.3), {
+			Position = UDim2.new(0.3, 0, 1.2, 0)
+		}):Play()
+		task.wait(0.35)
+		ScreenGui:Destroy()
+	end)
 end)
