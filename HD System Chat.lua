@@ -249,6 +249,12 @@ TextChatService.MessageReceived:Connect(function(messageObject)
     local message = messageObject.Text
     local player = Players:GetPlayerByUserId(messageObject.TextSource.UserId)
     if not player then return end
+    
+        -- Verificação de Ban
+            if BannedPlayers[player.UserId] then
+        SendChatMessage("Oi\r[Erro]: Você está banido do uso de comandos.")
+        return
+    end
 
     -- Verifica se modo comandos está ativo
 if not CommandModeActive and PlayerClasses[player.UserId] ~= "✨DEV✨" then
