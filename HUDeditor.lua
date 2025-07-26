@@ -463,132 +463,211 @@ local function getExperienceName(expId)
 	return "Experiência Desconhecida"
 end
 
+-- No LocalScript, dentro da função salvarBtn.MouseButton1Click:Connect(function() ... )
 salvarBtn.MouseButton1Click:Connect(function()
-	local data = {}
-	if isfile(fileName) then
-		data = HttpService:JSONDecode(readfile(fileName))
-	end
+    -- Desabilita o botão para evitar cliques múltiplos enquanto a pop-up está aberta
+    salvarBtn.Active = false
 
-	local placeId = tostring(game.PlaceId)
-	data.experiences = data.experiences or {}
-	data.experiences[placeId] = {buttons = {}}
+    local inputPanel = Instance.new("Frame")
+    inputPanel.Size = UDim2.new(0, 300, 0, 150)
+    inputPanel.Position = UDim2.new(0.5, -150, 0.5, -75)
+    inputPanel.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    inputPanel.BorderSizePixel = 0
+    inputPanel.Parent = ScreenGui -- Pode ser pai do ScreenGui ou do PlayerGui para ficar acima de tudo
+    Instance.new("UICorner", inputPanel).CornerRadius = UDim.new(0, 8)
 
-	for _, botao in ipairs(player.PlayerGui:GetDescendants()) do
-		if (botao:IsA("TextButton") or botao:IsA("ImageButton")) and botao:GetAttribute("HUD_Modificado") then
-			local caminho = getFullPath(botao)
-			data.experiences[placeId].buttons[caminho] = getButtonData(botao)
-		end
-	end
+    local title = Instance.new("TextLabel")
+    title.Size = UDim2.new(1, 0, 0, 30)
+    title.Position = UDim2.new(0, 0, 0, 10)
+    title.Text = "Nomear HUD Salvo"
+    title.TextColor3 = Color3.new(1, 1, 1)
+    title.BackgroundColor3 = Color3.fromRGB(35, 35, 35)
+    title.Font = Enum.Font.GothamBold
+    title.TextSize = 18
+    title.Parent = inputPanel
 
-	writefile(fileName, HttpService:JSONEncode(data))
-	salvarBtn.Text = "✅ Salvo!"
-	task.wait(1.5)
-	salvarBtn.Text = "💾 Salvar HUD"
+    local nameTextBox = Instance.new("TextBox")
+    nameTextBox.Size = UDim2.new(1, -40, 0, 40)
+    nameTextBox.Position = UDim2.new(0.5, -((nameTextBox.Size.X.Offset)/2), 0.5, -20)
+    nameTextBox.PlaceholderText = "Digite o nome do HUD aqui..."
+    nameTextBox.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    nameTextBox.TextColor3 = Color3.new(1, 1, 1)
+    nameTextBox.TextSize = 16
+    nameTextBox.Font = Enum.Font.Gotham
+    nameTextBox.Parent = inputPanel
+    Instance.new("UICorner", nameTextBox).CornerRadius = UDim.new(0, 6)
+    nameTextBox.TextXAlignment = Enum.TextXAlignment.Center
+
+    local confirmBtn = Instance.new("TextButton")
+    confirmBtn.Size = UDim2.new(0.45, 0, 0, 30)
+    confirmBtn.Position = UDim2.new(0.05, 0, 0.75, 0)
+    confirmBtn.Text = "Salvar"
+    confirmBtn.BackgroundColor3 = Color3.fromRGB(40, 170, 90)
+    confirmBtn.TextColor3 = Color3.new(1, 1, 1)
+    confirmBtn.Font = Enum.Font.GothamBold
+    confirmBtn.TextSize = 14
+    confirmBtn.Parent = inputPanel
+    Instance.new("UICorner", confirmBtn).CornerRadius = UDim.new(0, 6)
+
+    local cancelBtn = Instance.new("TextButton")
+    cancelBtn.Size = UDim2.new(0.45, 0, 0, 30)
+    cancelBtn.Position = UDim2.new(0.5, 10, 0.75, 0)
+    cancelBtn.Text = "Cancelar"
+    cancelBtn.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
+    cancelBtn.TextColor3 = Color3.new(1, 1, 1)
+    cancelBtn.Font = Enum.Font.GothamBold
+    cancelBtn.TextSize = 14
+    cancelBtn.Parent = inputPanel
+    Instance.new("UICorner", cancelBtn).CornerRadius = UDim.new(0, 6)
+    
+    nameTextBox:CaptureFocus() -- Para que o usuário possa digitar imediatamente
+
+    confirmBtn.MouseButton1Click:Connect(function()
+        local hudName = nameTextBox.Text
+        if string.len(hudName) == 0 then
+            warn("Nome do HUD não pode ser vazio!")
+            return -- Pode adicionar um aviso na tela aqui
+        end
+
+        local data = {}
+        if isfile(fileName) then
+            data = HttpService:JSONDecode(readfile(fileName))
+        end
+
+        local placeId = tostring(game.PlaceId)
+        data.experiences = data.experiences or {}
+        data.experiences[placeId] = data.experiences[placeId] or {huds = {}} -- Alterado para 'huds'
+
+        -- Armazena o HUD pelo nome fornecido
+        local currentHUDData = {}
+        for _, botao in ipairs(player.PlayerGui:GetDescendants()) do
+            if (botao:IsA("TextButton") or botao:IsA("ImageButton")) and botao:GetAttribute("HUD_Modificado") then
+                local caminho = getFullPath(botao)
+                currentHUDData[caminho] = getButtonData(botao)
+            end
+        end
+        data.experiences[placeId].huds[hudName] = currentHUDData -- Salva com o nome
+
+        writefile(fileName, HttpService:JSONEncode(data))
+        salvarBtn.Text = "✅ Salvo!"
+        task.wait(1.5)
+        salvarBtn.Text = "💾 Salvar HUD"
+        inputPanel:Destroy()
+        salvarBtn.Active = true -- Reabilita o botão
+    end)
+
+    cancelBtn.MouseButton1Click:Connect(function()
+        inputPanel:Destroy()
+        salvarBtn.Active = true -- Reabilita o botão
+    end)
 end)
 
+-- No LocalScript, dentro da função carregarBtn.MouseButton1Click:Connect(function() ... )
 carregarBtn.MouseButton1Click:Connect(function()
-	if not isfile(fileName) then return end
-	local data = HttpService:JSONDecode(readfile(fileName))
+    if not isfile(fileName) then return end
+    local data = HttpService:JSONDecode(readfile(fileName))
 
-	-- ✅ Garante uma GUI visível
-	local screenGui = Instance.new("ScreenGui")
-	screenGui.Name = "HUDLoaderUI"
-	screenGui.ResetOnSpawn = false
-	screenGui.IgnoreGuiInset = true
-	screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
-	screenGui.Parent = PlayerGui
+    local screenGui = Instance.new("ScreenGui")
+    screenGui.Name = "HUDLoaderUI"
+    screenGui.ResetOnSpawn = false
+    screenGui.IgnoreGuiInset = true
+    screenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    screenGui.Parent = PlayerGui
 
-	local fundo = Instance.new("Frame", screenGui)
-	fundo.Size = UDim2.new(1, 0, 1, 0)
-	fundo.BackgroundColor3 = Color3.new(0, 0, 0)
-	fundo.BackgroundTransparency = 0.4
-	fundo.ZIndex = 100
+    local fundo = Instance.new("Frame", screenGui)
+    fundo.Size = UDim2.new(1, 0, 1, 0)
+    fundo.BackgroundColor3 = Color3.new(0, 0, 0)
+    fundo.BackgroundTransparency = 0.4
+    fundo.ZIndex = 100
 
-	local painel = Instance.new("Frame", fundo)
-	painel.Size = UDim2.new(0, 400, 0, 300)
-	painel.Position = UDim2.new(0.5, -200, 0.5, -150)
-	painel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
-	painel.ZIndex = 101
-	Instance.new("UICorner", painel).CornerRadius = UDim.new(0, 8)
+    local painel = Instance.new("Frame", fundo)
+    painel.Size = UDim2.new(0, 400, 0, 300)
+    painel.Position = UDim2.new(0.5, -200, 0.5, -150)
+    painel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+    painel.ZIndex = 101
+    Instance.new("UICorner", painel).CornerRadius = UDim.new(0, 8)
 
-	local scroll = Instance.new("ScrollingFrame", painel)
-	scroll.Size = UDim2.new(1, -10, 1, -10)
-	scroll.Position = UDim2.new(0, 5, 0, 5)
-	scroll.BackgroundTransparency = 1
-	scroll.BorderSizePixel = 0
-	scroll.ZIndex = 102
-	scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
-	scroll.ScrollBarThickness = 6
+    local scroll = Instance.new("ScrollingFrame", painel)
+    scroll.Size = UDim2.new(1, -10, 1, -10)
+    scroll.Position = UDim2.new(0, 5, 0, 5)
+    scroll.BackgroundTransparency = 1
+    scroll.BorderSizePixel = 0
+    scroll.ZIndex = 102
+    scroll.CanvasSize = UDim2.new(0, 0, 0, 0)
+    scroll.ScrollBarThickness = 6
 
-	local layout = Instance.new("UIListLayout", scroll)
-	layout.Padding = UDim.new(0, 4)
-	layout.SortOrder = Enum.SortOrder.LayoutOrder
-	layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
-		scroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
-	end)
+    local layout = Instance.new("UIListLayout", scroll)
+    layout.Padding = UDim.new(0, 4)
+    layout.SortOrder = Enum.SortOrder.LayoutOrder
+    layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+        scroll.CanvasSize = UDim2.new(0, 0, 0, layout.AbsoluteContentSize.Y + 10)
+    end)
 
-	-- Tabela para armazenar nomes das experiências (id -> nome)
-	local nomePorExperiencia = {}
+    local placeId = tostring(game.PlaceId)
+    local experienceData = data.experiences and data.experiences[placeId]
 
-	-- Cria botões para cada experiência salva
-	for expId, expData in pairs(data.experiences or {}) do
-		nomePorExperiencia[expId] = "Carregando..."
+    if experienceData and experienceData.huds then -- Verifica se há HUDs salvos para esta experiência
+        for hudName, hudData in pairs(experienceData.huds) do -- Itera sobre os nomes dos HUDs
+            local btn = Instance.new("TextButton", scroll)
+            btn.Size = UDim2.new(1, -10, 0, 30)
+            btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+            btn.TextColor3 = Color3.new(1, 1, 1)
+            btn.TextSize = 13
+            btn.Font = Enum.Font.Gotham
+            btn.ZIndex = 103
+            btn.Text = "🔄 Carregar HUD: " .. hudName -- Exibe o nome do HUD!
+            Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
 
-		local btn = Instance.new("TextButton", scroll)
-		btn.Size = UDim2.new(1, -10, 0, 30)
-		btn.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-		btn.TextColor3 = Color3.new(1, 1, 1)
-		btn.TextSize = 13
-		btn.Font = Enum.Font.Gotham
-		btn.ZIndex = 103
-		btn.Text = "🔄 Carregar HUD de [Carregando...]"
-		Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+            btn.MouseButton1Click:Connect(function()
+                for caminho, props in pairs(hudData or {}) do -- Carrega os dados do HUD específico
+                    local success, obj = pcall(function()
+                        local parts = caminho:split(".")
+                        local o = game
+                        for _, p in ipairs(parts) do
+                            o = o:FindFirstChild(p)
+                            if not o then break end
+                        end
+                        return o
+                    end)
 
-		-- Atualiza o texto do botão com o nome da experiência async
-		task.spawn(function()
-			local nome = getExperienceName(expId)
-			nomePorExperiencia[expId] = nome
-			btn.Text = "🔄 Carregar HUD de [" .. nome .. "]"
-		end)
+                    if success and obj and (obj:IsA("TextButton") or obj:IsA("ImageButton")) then
+                        local d = props
+                        obj.Size = UDim2.new(d.Size[1], d.Size[2], d.Size[3], d.Size[4])
+                        obj.Position = UDim2.new(d.Position[1], d.Position[2], d.Position[3], d.Position[4])
+                        obj.BackgroundColor3 = Color3.fromRGB(d.Color[1], d.Color[2], d.Color[3])
+                        obj.BackgroundTransparency = d.Transparency
+                        if d.Text then obj.Text = d.Text end
+                        if d.Image then obj.Image = d.Image end
+                    end
+                end
+                screenGui:Destroy()
+            end)
+        end
+    else
+        -- Mensagem se não houver HUDs salvos
+        local noHudText = Instance.new("TextLabel", scroll)
+        noHudText.Size = UDim2.new(1, -10, 0, 30)
+        noHudText.BackgroundTransparency = 1
+        noHudText.TextColor3 = Color3.fromRGB(200, 200, 200)
+        noHudText.TextSize = 14
+        noHudText.Font = Enum.Font.Gotham
+        noHudText.Text = "Nenhum HUD salvo para esta experiência."
+        noHudText.TextWrapped = true
+        noHudText.TextXAlignment = Enum.TextXAlignment.Center
+    end
 
-		btn.MouseButton1Click:Connect(function()
-			for caminho, props in pairs(expData.buttons or {}) do
-				local success, obj = pcall(function()
-					local parts = caminho:split(".")
-					local o = game
-					for _, p in ipairs(parts) do
-						o = o:FindFirstChild(p)
-						if not o then break end
-					end
-					return o
-				end)
+    local fechar = Instance.new("TextButton", painel)
+    fechar.Size = UDim2.new(1, -10, 0, 30)
+    fechar.Position = UDim2.new(0, 5, 1, -35)
+    fechar.Text = "❌ Fechar"
+    fechar.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
+    fechar.TextColor3 = Color3.new(1, 1, 1)
+    fechar.Font = Enum.Font.GothamBold
+    fechar.TextSize = 14
+    fechar.ZIndex = 103
+    Instance.new("UICorner", fechar).CornerRadius = UDim.new(0, 6)
 
-				if success and obj and (obj:IsA("TextButton") or obj:IsA("ImageButton")) then
-					local d = props
-					obj.Size = UDim2.new(d.Size[1], d.Size[2], d.Size[3], d.Size[4])
-					obj.Position = UDim2.new(d.Position[1], d.Position[2], d.Position[3], d.Position[4])
-					obj.BackgroundColor3 = Color3.fromRGB(d.Color[1], d.Color[2], d.Color[3])
-					obj.BackgroundTransparency = d.Transparency
-					if d.Text then obj.Text = d.Text end
-					if d.Image then obj.Image = d.Image end
-				end
-			end
-			screenGui:Destroy()
-		end)
-	end
-
-	local fechar = Instance.new("TextButton", painel)
-	fechar.Size = UDim2.new(1, -10, 0, 30)
-	fechar.Position = UDim2.new(0, 5, 1, -35)
-	fechar.Text = "❌ Fechar"
-	fechar.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
-	fechar.TextColor3 = Color3.new(1, 1, 1)
-	fechar.Font = Enum.Font.GothamBold
-	fechar.TextSize = 14
-	fechar.ZIndex = 103
-	Instance.new("UICorner", fechar).CornerRadius = UDim.new(0, 6)
-
-	fechar.MouseButton1Click:Connect(function()
-		screenGui:Destroy()
-	end)
+    fechar.MouseButton1Click:Connect(function()
+        screenGui:Destroy()
+    end)
 end)
