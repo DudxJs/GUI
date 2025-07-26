@@ -1,13 +1,24 @@
 -- Script completo com bolinha vermelha de seleção analógica (touchpad), clique por botão e ajustes finais
+-- Inclui nomeação de HUDs (Universal/Por Experiência) e atribuição de teclas de atalho.
 
--- Esse script deve estar em um LocalScript, por exemplo em StarterPlayerScripts
+-- Este script deve estar em um LocalScript, por exemplo em StarterPlayerScripts
+
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService") -- Necessário para JSONEncode/Decode
+local RS = game:GetService("RunService") -- Adicionei aqui para organização
 
 local player = Players.LocalPlayer
 local PlayerGui = player:WaitForChild("PlayerGui")
 
--- Tela de introdução
+-- Nome do arquivo para salvar/carregar dados
+-- ATENÇÃO: readfile/writefile NÃO FUNCIONAM em jogos publicados no Roblox.
+-- Para persistência real, você DEVE usar DataStoreService (via ServerScript).
+local fileName = "hud_editor_saves.json"
+
+---
+--- 1. Tela de Introdução
+---
 local introGui = Instance.new("ScreenGui", PlayerGui)
 introGui.Name = "HUD_Intro"
 introGui.ResetOnSpawn = false
@@ -30,7 +41,9 @@ Instance.new("UICorner", aviso).CornerRadius = UDim.new(0, 10)
 task.wait(6)
 fundoIntro:Destroy()
 
--- Criar a GUI (pode substituir pelo seu código real de GUI se quiser)
+---
+--- 2. GUI Principal do Editor
+---
 local ScreenGui = Instance.new("ScreenGui")
 ScreenGui.Name = "EditorDeBotoes"
 ScreenGui.ResetOnSpawn = false
@@ -66,6 +79,9 @@ local carregarBtn = criarBotao("📂 HUDs Salvos", 110)
 
 local modoSelecionando = false
 
+---
+--- 3. Cursor Analógico e Controles
+---
 -- Bolinha vermelha
 local cursor = Instance.new("Frame")
 cursor.Size = UDim2.new(0, 12, 0, 12)
@@ -90,17 +106,6 @@ touchpad.Visible = false
 touchpad.Name = "Touchpad"
 touchpad.Parent = ScreenGui
 
--- Inicialmente a GUI fica oculta
-ScreenGui.Enabled = false
-
--- Função para alternar visibilidade ao pressionar Ctrl
-UserInputService.InputBegan:Connect(function(input, gameProcessed)
-	if gameProcessed then return end
-	if input.KeyCode == Enum.KeyCode.F6 or input.KeyCode == Enum.KeyCode.LeftControl then
-		ScreenGui.Enabled = not ScreenGui.Enabled
-	end
-end)
-
 -- Botão de clique
 local clickBtn = Instance.new("TextButton")
 clickBtn.Size = UDim2.new(0, 120, 0, 40)
@@ -115,16 +120,20 @@ clickBtn.Visible = false
 clickBtn.Parent = ScreenGui
 Instance.new("UICorner", clickBtn).CornerRadius = UDim.new(0, 6)
 
--- Movimento analógico
+-- Variáveis para armazenar as conexões de eventos do touchpad e do clickBtn
+local touchpadInputBeganConn
+local touchpadInputChangedConn
+local touchpadInputEndedConn
+local moveConnection -- Já existente
+local clickBtnConnection
+
 local moving = false
 local lastInput = nil
-local moveConnection = nil
-local RS = game:GetService("RunService")
 
 local function updateCursorPosition(dir)
 	if not cursor.Visible then return end
 	local pos = cursor.Position
-	local dx, dy = dir.X * 5, dir.Y * 5 -- sensibilidade aumentada de 2 para 5
+	local dx, dy = dir.X * 5, dir.Y * 5 -- sensibilidade aumentada
 	local newX = math.clamp(pos.X.Offset + dx, 0, ScreenGui.AbsoluteSize.X - cursor.AbsoluteSize.X)
 	local newY = math.clamp(pos.Y.Offset + dy, 0, ScreenGui.AbsoluteSize.Y - cursor.AbsoluteSize.Y)
 	cursor.Position = UDim2.new(0, newX, 0, newY)
@@ -136,48 +145,80 @@ local function enableTouchpad()
 	clickBtn.Visible = true
 	local direction = Vector2.zero
 
-	touchpad.InputBegan:Connect(function(input)
+    -- Desconecta as conexões existentes antes de criar novas
+    if touchpadInputBeganConn then touchpadInputBeganConn:Disconnect() end
+    if touchpadInputChangedConn then touchpadInputChangedConn:Disconnect() end
+    if touchpadInputEndedConn then touchpadInputEndedConn:Disconnect() end
+    if moveConnection then moveConnection:Disconnect() end
+    if clickBtnConnection then clickBtnConnection:Disconnect() end -- Desconecta a conexão do clickBtn também
+
+    touchpadInputBeganConn = touchpad.InputBegan:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.Touch then
 			moving = true
 			lastInput = input.Position
 		end
 	end)
 
-	touchpad.InputChanged:Connect(function(input)
+    touchpadInputChangedConn = touchpad.InputChanged:Connect(function(input)
 		if moving and input.UserInputType == Enum.UserInputType.Touch then
 			direction = (input.Position - lastInput)/6 -- sensibilidade aumentada
 			lastInput = input.Position
 		end
 	end)
 
-	touchpad.InputEnded:Connect(function(input)
+    touchpadInputEndedConn = touchpad.InputEnded:Connect(function(input)
 		if input.UserInputType == Enum.UserInputType.Touch then
 			moving = false
 			direction = Vector2.zero
 		end
 	end)
 
-	if moveConnection then moveConnection:Disconnect() end
 	moveConnection = RS.RenderStepped:Connect(function()
 		if moving then
 			updateCursorPosition(direction)
 		end
 	end)
+
+    -- Conecta o evento MouseButton1Click do clickBtn aqui, para ser gerenciado com o touchpad
+    clickBtnConnection = clickBtn.MouseButton1Click:Connect(function()
+        local pos = Vector2.new(cursor.AbsolutePosition.X + cursor.AbsoluteSize.X/2, cursor.AbsolutePosition.Y + cursor.AbsoluteSize.Y/2)
+        local under = player:WaitForChild("PlayerGui"):GetGuiObjectsAtPosition(pos.X, pos.Y)
+        for _, gui in ipairs(under) do
+            if (gui:IsA("TextButton") or gui:IsA("ImageButton")) and gui.Visible and not gui:IsDescendantOf(ScreenGui) then
+                modoSelecionando = false
+                cursor.Visible = false
+                touchpad.Visible = false
+                clickBtn.Visible = false
+                selecionarBtn.Text = "✏️ Selecionar Botão" -- Resetar o texto do botão "Selecionar Botão"
+                MostrarInfoDoBotao(gui)
+                return
+            end
+        end
+    end)
 end
 
--- Clique no botão clicável
-clickBtn.MouseButton1Click:Connect(function()
-	local pos = Vector2.new(cursor.AbsolutePosition.X + cursor.AbsoluteSize.X/2, cursor.AbsolutePosition.Y + cursor.AbsoluteSize.Y/2)
-	local under = player:WaitForChild("PlayerGui"):GetGuiObjectsAtPosition(pos.X, pos.Y)
-	for _, gui in ipairs(under) do
-		if (gui:IsA("TextButton") or gui:IsA("ImageButton")) and gui.Visible and not gui:IsDescendantOf(ScreenGui) then
-			modoSelecionando = false
-			cursor.Visible = false
-			touchpad.Visible = false
-			clickBtn.Visible = false
-			MostrarInfoDoBotao(gui)
-			return
-		end
+-- Inicialmente a GUI fica oculta
+ScreenGui.Enabled = false
+
+-- Função para alternar visibilidade ao pressionar Ctrl ou F6
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+	if gameProcessed then return end
+	if input.KeyCode == Enum.KeyCode.F6 or input.KeyCode == Enum.KeyCode.LeftControl then
+		ScreenGui.Enabled = not ScreenGui.Enabled
+        -- Garante que o cursor e touchpad sejam desativados se a GUI principal for fechada
+        if not ScreenGui.Enabled then
+            modoSelecionando = false
+            cursor.Visible = false
+            touchpad.Visible = false
+            clickBtn.Visible = false
+            selecionarBtn.Text = "✏️ Selecionar Botão"
+            -- Desconecta todas as conexões do touchpad quando a GUI é fechada
+            if touchpadInputBeganConn then touchpadInputBeganConn:Disconnect() end
+            if touchpadInputChangedConn then touchpadInputChangedConn:Disconnect() end
+            if touchpadInputEndedConn then touchpadInputEndedConn:Disconnect() end
+            if moveConnection then moveConnection:Disconnect() end
+            if clickBtnConnection then clickBtnConnection:Disconnect() end
+        end
 	end
 end)
 
@@ -188,6 +229,12 @@ selecionarBtn.MouseButton1Click:Connect(function()
 		touchpad.Visible = false
 		clickBtn.Visible = false
 		selecionarBtn.Text = "✏️ Selecionar Botão"
+        -- Desconecta todas as conexões do touchpad quando o modo de seleção é desativado manualmente
+        if touchpadInputBeganConn then touchpadInputBeganConn:Disconnect() end
+        if touchpadInputChangedConn then touchpadInputChangedConn:Disconnect() end
+        if touchpadInputEndedConn then touchpadInputEndedConn:Disconnect() end
+        if moveConnection then moveConnection:Disconnect() end
+        if clickBtnConnection then clickBtnConnection:Disconnect() end
 		return
 	end
 
@@ -195,6 +242,10 @@ selecionarBtn.MouseButton1Click:Connect(function()
 	selecionarBtn.Text = "📈 Tocando para selecionar..."
 	enableTouchpad()
 end)
+
+---
+--- 4. Funções de Informação e Edição de Botões
+---
 
 -- Função para mostrar informações antes da edição
 function MostrarInfoDoBotao(botao)
@@ -248,6 +299,14 @@ function MostrarInfoDoBotao(botao)
 
 	AddInfo("🏷️ Nome: " .. botao.Name)
 	AddInfo("📂 Caminho: " .. botao:GetFullName())
+    
+    local hotkey = botao:GetAttribute("HUD_Hotkey")
+    if hotkey then
+        AddInfo("⌨️ Atalho: " .. hotkey)
+    else
+        AddInfo("⌨️ Atalho: Nenhum")
+    end
+
 
 	local prosseguir = Instance.new("TextButton")
 	prosseguir.Size = UDim2.new(1, -20, 0, 30)
@@ -291,12 +350,14 @@ function AbrirEditor(botao)
 	fundo.Parent = ScreenGui
 	
 	local function marcarComoModificado(botao)
-	botao:SetAttribute("HUD_Modificado", true)
-end
+        -- Setar atributo para indicar que o botão foi modificado
+        -- Isso é usado na lógica de salvamento para pegar apenas os botões alterados
+	    botao:SetAttribute("HUD_Modificado", true)
+	end
 
 	local painel = Instance.new("Frame")
-	painel.Size = UDim2.new(0, 260, 0, 300)
-	painel.Position = UDim2.new(0.5, -130, 0.5, -150)
+	painel.Size = UDim2.new(0, 260, 0, 350) -- Aumenta o tamanho para o novo botão
+	painel.Position = UDim2.new(0.5, -130, 0.5, -175) -- Ajusta a posição
 	painel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
 	painel.ZIndex = 101
 	painel.Parent = fundo
@@ -338,7 +399,7 @@ end
 		marcarComoModificado(botao)
 	end)
 
-     CriarBotao("📏 Diminuir Tamanho", function()
+ CriarBotao("📏 Diminuir Tamanho", function()
 		botao.Size = botao.Size + UDim2.new(0, -20, 0, -20)
 		marcarComoModificado(botao)
 	end)
@@ -348,17 +409,17 @@ end
 		marcarComoModificado(botao)
 	end)
 
-    CriarBotao("⬅️ Mover para Esquerda", function()
+ CriarBotao("⬅️ Mover para Esquerda", function()
 		botao.Position = botao.Position + UDim2.new(0, -20, 0, 0)
 		marcarComoModificado(botao)
 	end)
 
-     CriarBotao("⬆️ Mover para Cima", function()
+ CriarBotao("⬆️ Mover para Cima", function()
 		botao.Position = botao.Position + UDim2.new(0, 0, 0, -20)
 		marcarComoModificado(botao)
 	end)
 
-     CriarBotao("⬇️ Mover para Baixo", function()
+ CriarBotao("⬇️ Mover para Baixo", function()
 		botao.Position = botao.Position + UDim2.new(0, 0, 0, 20)
 		marcarComoModificado(botao)
 	end)
@@ -369,12 +430,78 @@ end
 	end)
 
 	CriarBotao("💬 Editar Texto/Imagem", function()
-		if botao:IsA("TextButton") then
-			botao.Text = "Novo Texto"
-		elseif botao:IsA("ImageButton") then
-			botao.Image = "rbxassetid://12345678"
-			marcarComoModificado(botao)
-		end
+        local currentTextOrImage = ""
+        if botao:IsA("TextButton") then
+            currentTextOrImage = botao.Text
+        elseif botao:IsA("ImageButton") then
+            currentTextOrImage = botao.Image
+        end
+
+        local inputPrompt = Instance.new("Frame")
+        inputPrompt.Size = UDim2.new(0, 250, 0, 120)
+        inputPrompt.Position = UDim2.new(0.5, -125, 0.5, -60)
+        inputPrompt.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        inputPrompt.Parent = fundo -- Painel pop-up sobre o fundo escuro
+        Instance.new("UICorner", inputPrompt).CornerRadius = UDim.new(0, 8)
+
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1, -20, 0, 20)
+        label.Position = UDim2.new(0, 10, 0, 10)
+        label.Text = "Novo Texto ou ID de Imagem:"
+        label.TextColor3 = Color3.new(1,1,1)
+        label.BackgroundTransparency = 1
+        label.Font = Enum.Font.Gotham
+        label.TextSize = 14
+        label.Parent = inputPrompt
+
+        local textBoxInput = Instance.new("TextBox")
+        textBoxInput.Size = UDim2.new(1, -20, 0, 30)
+        textBoxInput.Position = UDim2.new(0, 10, 0, 40)
+        textBoxInput.Text = currentTextOrImage
+        textBoxInput.PlaceholderText = "Digite texto ou rbxassetid://..."
+        textBoxInput.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+        textBoxInput.TextColor3 = Color3.new(1,1,1)
+        textBoxInput.TextSize = 14
+        textBoxInput.Font = Enum.Font.Gotham
+        textBoxInput.Parent = inputPrompt
+        Instance.new("UICorner", textBoxInput).CornerRadius = UDim.new(0, 6)
+        textBoxInput:CaptureFocus()
+
+        local applyBtn = Instance.new("TextButton")
+        applyBtn.Size = UDim2.new(0.45, 0, 0, 30)
+        applyBtn.Position = UDim2.new(0.05, 0, 0.7, 0)
+        applyBtn.Text = "Aplicar"
+        applyBtn.BackgroundColor3 = Color3.fromRGB(40, 170, 90)
+        applyBtn.TextColor3 = Color3.new(1,1,1)
+        applyBtn.Font = Enum.Font.GothamBold
+        applyBtn.TextSize = 14
+        applyBtn.Parent = inputPrompt
+        Instance.new("UICorner", applyBtn).CornerRadius = UDim.new(0, 6)
+
+        local cancelInputBtn = Instance.new("TextButton")
+        cancelInputBtn.Size = UDim2.new(0.45, 0, 0, 30)
+        cancelInputBtn.Position = UDim2.new(0.5, 10, 0.7, 0)
+        cancelInputBtn.Text = "Cancelar"
+        cancelInputBtn.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
+        cancelInputBtn.TextColor3 = Color3.new(1,1,1)
+        cancelInputBtn.Font = Enum.Font.GothamBold
+        cancelInputBtn.TextSize = 14
+        cancelInputBtn.Parent = inputPrompt
+        Instance.new("UICorner", cancelInputBtn).CornerRadius = UDim.new(0, 6)
+
+        applyBtn.MouseButton1Click:Connect(function()
+            if botao:IsA("TextButton") then
+                botao.Text = textBoxInput.Text
+            elseif botao:IsA("ImageButton") then
+                botao.Image = textBoxInput.Text
+            end
+            marcarComoModificado(botao)
+            inputPrompt:Destroy()
+        end)
+
+        cancelInputBtn.MouseButton1Click:Connect(function()
+            inputPrompt:Destroy()
+        end)
 	end)
 
 	CriarBotao("🌫️ + Transparência", function()
@@ -382,10 +509,108 @@ end
 		marcarComoModificado(botao)
 	end)
 
-    CriarBotao("🌫️ - Transparência", function()
+ CriarBotao("🌫️ - Transparência", function()
 		botao.BackgroundTransparency = math.clamp(botao.BackgroundTransparency - 0.1, 0, 1)
 		marcarComoModificado(botao)
 	end)
+
+    -- NOVO BOTÃO: ATRIBUIR TECLA DE ATALHO
+    CriarBotao("⌨️ Atribuir Tecla de Atalho", function()
+        local currentKey = botao:GetAttribute("HUD_Hotkey") or "Nenhuma"
+        local waitingForKeyInput = false
+
+        local hotkeyPrompt = Instance.new("Frame")
+        hotkeyPrompt.Size = UDim2.new(0, 280, 0, 120)
+        hotkeyPrompt.Position = UDim2.new(0.5, -140, 0.5, -60)
+        hotkeyPrompt.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        hotkeyPrompt.ZIndex = 150
+        hotkeyPrompt.Parent = fundo
+        Instance.new("UICorner", hotkeyPrompt).CornerRadius = UDim.new(0, 8)
+
+        local label = Instance.new("TextLabel")
+        label.Size = UDim2.new(1, -20, 0, 20)
+        label.Position = UDim2.new(0, 10, 0, 10)
+        label.Text = "Pressione uma tecla para atribuir:"
+        label.TextColor3 = Color3.new(1,1,1)
+        label.BackgroundTransparency = 1
+        label.Font = Enum.Font.Gotham
+        label.TextSize = 14
+        label.ZIndex = 151
+        label.Parent = hotkeyPrompt
+
+        local currentKeyLabel = Instance.new("TextLabel")
+        currentKeyLabel.Size = UDim2.new(1, -20, 0, 20)
+        currentKeyLabel.Position = UDim2.new(0, 10, 0, 40)
+        currentKeyLabel.Text = "Atalho atual: " .. currentKey
+        currentKeyLabel.TextColor3 = Color3.fromRGB(150, 200, 255)
+        currentKeyLabel.BackgroundTransparency = 1
+        currentKeyLabel.Font = Enum.Font.GothamBold
+        currentKeyLabel.TextSize = 14
+        currentKeyLabel.ZIndex = 151
+        currentKeyLabel.Parent = hotkeyPrompt
+
+        local cancelHotKeyBtn = Instance.new("TextButton")
+        cancelHotKeyBtn.Size = UDim2.new(0.45, 0, 0, 30)
+        cancelHotKeyBtn.Position = UDim2.new(0.5, 10, 0.7, 0)
+        cancelHotKeyBtn.Text = "Cancelar"
+        cancelHotKeyBtn.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
+        cancelHotKeyBtn.TextColor3 = Color3.new(1,1,1)
+        cancelHotKeyBtn.Font = Enum.Font.GothamBold
+        cancelHotKeyBtn.TextSize = 14
+        cancelHotKeyBtn.ZIndex = 160
+        cancelHotKeyBtn.Parent = hotkeyPrompt
+        Instance.new("UICorner", cancelHotKeyBtn).CornerRadius = UDim.new(0, 6)
+
+        local clearHotkeyBtn = Instance.new("TextButton")
+        clearHotkeyBtn.Size = UDim2.new(0.45, 0, 0, 30)
+        clearHotkeyBtn.Position = UDim2.new(0.05, 0, 0.7, 0)
+        clearHotkeyBtn.Text = "Limpar Atalho"
+        clearHotkeyBtn.BackgroundColor3 = Color3.fromRGB(200, 120, 50)
+        clearHotkeyBtn.TextColor3 = Color3.new(1,1,1)
+        clearHotkeyBtn.Font = Enum.Font.GothamBold
+        clearHotkeyBtn.TextSize = 14
+        clearHotkeyBtn.ZIndex = 160
+        clearHotkeyBtn.Parent = hotkeyPrompt
+        Instance.new("UICorner", clearHotkeyBtn).CornerRadius = UDim.new(0, 6)
+
+
+        local inputConnection = nil
+        waitingForKeyInput = true
+
+        inputConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
+            if gameProcessed then return end
+            if waitingForKeyInput and input.UserInputType == Enum.UserInputType.Keyboard then
+                local keyCode = input.KeyCode.Name
+                -- Evitar que teclas como LeftControl ou F6 sejam atribuídas a outros botões
+                -- Se você quer que F6 possa ser atribuído a outros botões, remova essa condição.
+                if keyCode ~= "LeftControl" and keyCode ~= "F6" then
+                    botao:SetAttribute("HUD_Hotkey", keyCode)
+                    marcarComoModificado(botao)
+                    currentKeyLabel.Text = "Atalho atual: " .. keyCode
+                    warn("Atalho '" .. keyCode .. "' atribuído ao botão: " .. botao.Name)
+                    -- Não feche o painel automaticamente, para que o usuário veja a atribuição
+                    -- e possa cancelar ou limpar.
+                end
+            end
+        end)
+        
+        cancelHotKeyBtn.MouseButton1Click:Connect(function()
+            waitingForKeyInput = false
+            if inputConnection then inputConnection:Disconnect() end
+            hotkeyPrompt:Destroy()
+        end)
+
+        clearHotkeyBtn.MouseButton1Click:Connect(function()
+            botao:SetAttribute("HUD_Hotkey", nil) -- Remove o atributo
+            marcarComoModificado(botao)
+            currentKeyLabel.Text = "Atalho atual: Nenhuma"
+            warn("Atalho removido do botão: " .. botao.Name)
+            waitingForKeyInput = false
+            if inputConnection then inputConnection:Disconnect() end
+            hotkeyPrompt:Destroy()
+        end)
+    end)
+
 
 	CriarBotao("❌ Excluir Botão", function()
 		botao:Destroy()
@@ -398,18 +623,13 @@ end
 	end)
 end
 
-local HttpService = game:GetService("HttpService")
-local fileName = "hud_editor_saves.json"
-local player = game.Players.LocalPlayer
-local ScreenGui = player:WaitForChild("PlayerGui"):FindFirstChild("EditorDeBotoes") or Instance.new("ScreenGui", player.PlayerGui)
-ScreenGui.Name = "EditorDeBotoes"
-ScreenGui.ResetOnSpawn = false
-ScreenGui.IgnoreGuiInset = true
-ScreenGui.DisplayOrder = 999999
+---
+--- 5. Salvamento e Carregamento de HUDs
+---
 
 -- Função para pegar dados do botão
 local function getButtonData(botao)
-	return {
+	local data = {
 		Size = {botao.Size.X.Scale, botao.Size.X.Offset, botao.Size.Y.Scale, botao.Size.Y.Offset},
 		Position = {botao.Position.X.Scale, botao.Position.X.Offset, botao.Position.Y.Scale, botao.Position.Y.Offset},
 		Color = {math.floor(botao.BackgroundColor3.R * 255), math.floor(botao.BackgroundColor3.G * 255), math.floor(botao.BackgroundColor3.B * 255)},
@@ -417,6 +637,11 @@ local function getButtonData(botao)
 		Text = botao:IsA("TextButton") and botao.Text or nil,
 		Image = botao:IsA("ImageButton") and botao.Image or nil
 	}
+    local hotkey = botao:GetAttribute("HUD_Hotkey")
+    if hotkey then
+        data.Hotkey = hotkey
+    end
+	return data
 end
 
 -- Função para pegar caminho completo do objeto
@@ -430,40 +655,23 @@ local function getFullPath(obj)
 	return path
 end
 
--- Função para buscar nome da experiência via http_request
+-- Função para buscar nome da experiência via HttpService (substituindo http_request)
 local function getExperienceName(expId)
-	if not http_request then
-		-- fallback para RequestAsync se não tiver http_request
-		local success, response = pcall(function()
-			return HttpService:RequestAsync({
-				Url = "https://games.roblox.com/v1/games?universeIds=" .. tostring(expId),
-				Method = "GET"
-			})
-		end)
-		if success and response.Success then
-			local data = HttpService:JSONDecode(response.Body)
-			return data.data and data.data[1] and data.data[1].name or "Experiência Desconhecida"
-		else
-			return "Erro ao buscar nome"
-		end
+	local success, response = pcall(function()
+		return HttpService:RequestAsync({
+			Url = "https://games.roblox.com/v1/games?universeIds=" .. tostring(expId),
+			Method = "GET"
+		})
+	end)
+	if success and response.Success and response.StatusCode == 200 then
+		local data = HttpService:JSONDecode(response.Body)
+		return data.data and data.data[1] and data.data[1].name or "Experiência Desconhecida"
+	else
+		warn("Erro ao buscar nome da experiência: ", response and response.StatusCode, response and response.Body)
+		return "Erro ao buscar nome"
 	end
-
-	local response = http_request({
-		Url = "https://games.roblox.com/v1/games?universeIds=" .. tostring(expId),
-		Method = "GET"
-	})
-
-	if response and response.StatusCode == 200 then
-		local body = HttpService:JSONDecode(response.Body)
-		if body and body.data and body.data[1] and body.data[1].name then
-			return body.data[1].name
-		end
-	end
-
-	return "Experiência Desconhecida"
 end
 
--- No LocalScript, dentro da função salvarBtn.MouseButton1Click:Connect(function() ... )
 salvarBtn.MouseButton1Click:Connect(function()
     -- Desabilita o botão para evitar cliques múltiplos enquanto a pop-up está aberta
     salvarBtn.Active = false
@@ -513,10 +721,10 @@ salvarBtn.MouseButton1Click:Connect(function()
     
     local function updateToggleText()
         if isUniversal then
-            universalToggleBtn.Text = "✅ HUD Universal (Todos os Jogos)"
+            universalToggleBtn.Text = "🌎 HUD Universal (Todos os Jogos)"
             universalToggleBtn.BackgroundColor3 = Color3.fromRGB(40, 90, 170) -- Azul para universal
         else
-            universalToggleBtn.Text = "HUD Por Experiência (Somente Este Jogo)"
+            universalToggleBtn.Text = "🎮 HUD Por Experiência (Somente Este Jogo)"
             universalToggleBtn.BackgroundColor3 = Color3.fromRGB(60, 60, 60) -- Cinza para por experiência
         end
     end
@@ -596,7 +804,6 @@ salvarBtn.MouseButton1Click:Connect(function()
     end)
 end)
 
--- No LocalScript, dentro da função carregarBtn.MouseButton1Click:Connect(function() ... )
 carregarBtn.MouseButton1Click:Connect(function()
     if not isfile(fileName) then return end
     local data = HttpService:JSONDecode(readfile(fileName))
@@ -676,6 +883,11 @@ carregarBtn.MouseButton1Click:Connect(function()
                     obj.BackgroundTransparency = d.Transparency
                     if d.Text then obj.Text = d.Text end
                     if d.Image then obj.Image = d.Image end
+                    if d.Hotkey then -- Se existir um atalho nos dados salvos
+                        obj:SetAttribute("HUD_Hotkey", d.Hotkey) -- Atribui o atalho ao botão
+                    else
+                        obj:SetAttribute("HUD_Hotkey", nil) -- Garante que o atalho seja removido se não estiver nos dados
+                    end
                 end
             end
             screenGui:Destroy()
@@ -715,6 +927,11 @@ carregarBtn.MouseButton1Click:Connect(function()
                     obj.BackgroundTransparency = d.Transparency
                     if d.Text then obj.Text = d.Text end
                     if d.Image then obj.Image = d.Image end
+                    if d.Hotkey then -- Se existir um atalho nos dados salvos
+                        obj:SetAttribute("HUD_Hotkey", d.Hotkey) -- Atribui o atalho ao botão
+                    else
+                        obj:SetAttribute("HUD_Hotkey", nil) -- Garante que o atalho seja removido se não estiver nos dados
+                    end
                 end
             end
             screenGui:Destroy()
@@ -749,3 +966,38 @@ carregarBtn.MouseButton1Click:Connect(function()
         screenGui:Destroy()
     end)
 end)
+
+---
+--- 6. Lógica de Ativação de Botões por Tecla de Atalho
+---
+
+-- Conexão para ativar botões por hotkey.
+-- Deve ser conectada uma única vez e persistir.
+local function activateButtonFromHotkey(input)
+    -- Ignora se o jogo já processou o input (ex: chat box aberta)
+    -- ou se o usuário estiver digitando em uma TextBox do editor
+    if input.UserInputType == Enum.UserInputType.Keyboard and not UserInputService:GetFocusedTextBox() then
+        local keyPressed = input.KeyCode.Name
+        for _, gui in ipairs(player.PlayerGui:GetDescendants()) do
+            -- Apenas tenta ativar botões visíveis e que são TextButton ou ImageButton
+            if (gui:IsA("TextButton") or gui:IsA("ImageButton")) and gui.Visible then
+                local hotkey = gui:GetAttribute("HUD_Hotkey")
+                if hotkey and hotkey == keyPressed then
+                    -- Simula um clique no botão
+                    -- Nota: Cuidado ao simular cliques em botões críticos do jogo.
+                    -- Idealmente, eles deveriam ter uma função separada para ser chamada.
+                    if gui:IsA("TextButton") then
+                        gui:Click()
+                    elseif gui:IsA("ImageButton") then
+                        gui:Click()
+                    end
+                    return -- Ativa apenas o primeiro botão encontrado com a hotkey
+                end
+            end
+        end
+    end
+end
+
+-- Conecta a função de hotkey ao UserInputService.
+-- Esta conexão é global e ativa enquanto o script estiver rodando.
+UserInputService.InputBegan:Connect(activateButtonFromHotkey)
