@@ -1,6 +1,5 @@
 -- Script completo com bolinha vermelha de seleção analógica (touchpad), clique por botão e ajustes finais
 -- Inclui nomeação de HUDs (Universal/Por Experiência) e atribuição de teclas de atalho.
-
 -- Este script deve estar em um LocalScript, por exemplo em StarterPlayerScripts
 
 local Players = game:GetService("Players")
@@ -300,7 +299,7 @@ function MostrarInfoDoBotao(botao)
 	AddInfo("🏷️ Nome: " .. botao.Name)
 	AddInfo("📂 Caminho: " .. botao:GetFullName())
     
-    local hotkey = botao:GetAttribute("HUD_Hotkey")
+    local hotkey = botao:GetAttribute("HUD_Hotkey") -- Mantido para exibir, mas sem a funcionalidade de atribuição
     if hotkey then
         AddInfo("⌨️ Atalho: " .. hotkey)
     else
@@ -399,7 +398,7 @@ function AbrirEditor(botao)
 		marcarComoModificado(botao)
 	end)
 
- CriarBotao("📏 Diminuir Tamanho", function()
+    CriarBotao("📏 Diminuir Tamanho", function()
 		botao.Size = botao.Size + UDim2.new(0, -20, 0, -20)
 		marcarComoModificado(botao)
 	end)
@@ -409,17 +408,17 @@ function AbrirEditor(botao)
 		marcarComoModificado(botao)
 	end)
 
- CriarBotao("⬅️ Mover para Esquerda", function()
+    CriarBotao("⬅️ Mover para Esquerda", function()
 		botao.Position = botao.Position + UDim2.new(0, -20, 0, 0)
 		marcarComoModificado(botao)
 	end)
 
- CriarBotao("⬆️ Mover para Cima", function()
+    CriarBotao("⬆️ Mover para Cima", function()
 		botao.Position = botao.Position + UDim2.new(0, 0, 0, -20)
 		marcarComoModificado(botao)
 	end)
 
- CriarBotao("⬇️ Mover para Baixo", function()
+    CriarBotao("⬇️ Mover para Baixo", function()
 		botao.Position = botao.Position + UDim2.new(0, 0, 0, 20)
 		marcarComoModificado(botao)
 	end)
@@ -509,108 +508,10 @@ function AbrirEditor(botao)
 		marcarComoModificado(botao)
 	end)
 
- CriarBotao("🌫️ - Transparência", function()
+    CriarBotao("🌫️ - Transparência", function()
 		botao.BackgroundTransparency = math.clamp(botao.BackgroundTransparency - 0.1, 0, 1)
 		marcarComoModificado(botao)
 	end)
-
-    -- NOVO BOTÃO: ATRIBUIR TECLA DE ATALHO
-    CriarBotao("⌨️ Atribuir Tecla de Atalho", function()
-        local currentKey = botao:GetAttribute("HUD_Hotkey") or "Nenhuma"
-        local waitingForKeyInput = false
-
-        local hotkeyPrompt = Instance.new("Frame")
-        hotkeyPrompt.Size = UDim2.new(0, 280, 0, 120)
-        hotkeyPrompt.Position = UDim2.new(0.5, -140, 0.5, -60)
-        hotkeyPrompt.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
-        hotkeyPrompt.ZIndex = 150
-        hotkeyPrompt.Parent = fundo
-        Instance.new("UICorner", hotkeyPrompt).CornerRadius = UDim.new(0, 8)
-
-        local label = Instance.new("TextLabel")
-        label.Size = UDim2.new(1, -20, 0, 20)
-        label.Position = UDim2.new(0, 10, 0, 10)
-        label.Text = "Pressione uma tecla para atribuir:"
-        label.TextColor3 = Color3.new(1,1,1)
-        label.BackgroundTransparency = 1
-        label.Font = Enum.Font.Gotham
-        label.TextSize = 14
-        label.ZIndex = 151
-        label.Parent = hotkeyPrompt
-
-        local currentKeyLabel = Instance.new("TextLabel")
-        currentKeyLabel.Size = UDim2.new(1, -20, 0, 20)
-        currentKeyLabel.Position = UDim2.new(0, 10, 0, 40)
-        currentKeyLabel.Text = "Atalho atual: " .. currentKey
-        currentKeyLabel.TextColor3 = Color3.fromRGB(150, 200, 255)
-        currentKeyLabel.BackgroundTransparency = 1
-        currentKeyLabel.Font = Enum.Font.GothamBold
-        currentKeyLabel.TextSize = 14
-        currentKeyLabel.ZIndex = 151
-        currentKeyLabel.Parent = hotkeyPrompt
-
-        local cancelHotKeyBtn = Instance.new("TextButton")
-        cancelHotKeyBtn.Size = UDim2.new(0.45, 0, 0, 30)
-        cancelHotKeyBtn.Position = UDim2.new(0.5, 10, 0.7, 0)
-        cancelHotKeyBtn.Text = "Cancelar"
-        cancelHotKeyBtn.BackgroundColor3 = Color3.fromRGB(170, 50, 50)
-        cancelHotKeyBtn.TextColor3 = Color3.new(1,1,1)
-        cancelHotKeyBtn.Font = Enum.Font.GothamBold
-        cancelHotKeyBtn.TextSize = 14
-        cancelHotKeyBtn.ZIndex = 160
-        cancelHotKeyBtn.Parent = hotkeyPrompt
-        Instance.new("UICorner", cancelHotKeyBtn).CornerRadius = UDim.new(0, 6)
-
-        local clearHotkeyBtn = Instance.new("TextButton")
-        clearHotkeyBtn.Size = UDim2.new(0.45, 0, 0, 30)
-        clearHotkeyBtn.Position = UDim2.new(0.05, 0, 0.7, 0)
-        clearHotkeyBtn.Text = "Limpar Atalho"
-        clearHotkeyBtn.BackgroundColor3 = Color3.fromRGB(200, 120, 50)
-        clearHotkeyBtn.TextColor3 = Color3.new(1,1,1)
-        clearHotkeyBtn.Font = Enum.Font.GothamBold
-        clearHotkeyBtn.TextSize = 14
-        clearHotkeyBtn.ZIndex = 160
-        clearHotkeyBtn.Parent = hotkeyPrompt
-        Instance.new("UICorner", clearHotkeyBtn).CornerRadius = UDim.new(0, 6)
-
-
-        local inputConnection = nil
-        waitingForKeyInput = true
-
-        inputConnection = UserInputService.InputBegan:Connect(function(input, gameProcessed)
-            if gameProcessed then return end
-            if waitingForKeyInput and input.UserInputType == Enum.UserInputType.Keyboard then
-                local keyCode = input.KeyCode.Name
-                -- Evitar que teclas como LeftControl ou F6 sejam atribuídas a outros botões
-                -- Se você quer que F6 possa ser atribuído a outros botões, remova essa condição.
-                if keyCode ~= "LeftControl" and keyCode ~= "F6" then
-                    botao:SetAttribute("HUD_Hotkey", keyCode)
-                    marcarComoModificado(botao)
-                    currentKeyLabel.Text = "Atalho atual: " .. keyCode
-                    warn("Atalho '" .. keyCode .. "' atribuído ao botão: " .. botao.Name)
-                    -- Não feche o painel automaticamente, para que o usuário veja a atribuição
-                    -- e possa cancelar ou limpar.
-                end
-            end
-        end)
-        
-        cancelHotKeyBtn.MouseButton1Click:Connect(function()
-            waitingForKeyInput = false
-            if inputConnection then inputConnection:Disconnect() end
-            hotkeyPrompt:Destroy()
-        end)
-
-        clearHotkeyBtn.MouseButton1Click:Connect(function()
-            botao:SetAttribute("HUD_Hotkey", nil) -- Remove o atributo
-            marcarComoModificado(botao)
-            currentKeyLabel.Text = "Atalho atual: Nenhuma"
-            warn("Atalho removido do botão: " .. botao.Name)
-            waitingForKeyInput = false
-            if inputConnection then inputConnection:Disconnect() end
-            hotkeyPrompt:Destroy()
-        end)
-    end)
-
 
 	CriarBotao("❌ Excluir Botão", function()
 		botao:Destroy()
@@ -637,10 +538,7 @@ local function getButtonData(botao)
 		Text = botao:IsA("TextButton") and botao.Text or nil,
 		Image = botao:IsA("ImageButton") and botao.Image or nil
 	}
-    local hotkey = botao:GetAttribute("HUD_Hotkey")
-    if hotkey then
-        data.Hotkey = hotkey
-    end
+    -- Removido: Hotkey saving
 	return data
 end
 
@@ -883,11 +781,7 @@ carregarBtn.MouseButton1Click:Connect(function()
                     obj.BackgroundTransparency = d.Transparency
                     if d.Text then obj.Text = d.Text end
                     if d.Image then obj.Image = d.Image end
-                    if d.Hotkey then -- Se existir um atalho nos dados salvos
-                        obj:SetAttribute("HUD_Hotkey", d.Hotkey) -- Atribui o atalho ao botão
-                    else
-                        obj:SetAttribute("HUD_Hotkey", nil) -- Garante que o atalho seja removido se não estiver nos dados
-                    end
+                    -- Removido: Hotkey loading
                 end
             end
             screenGui:Destroy()
@@ -927,11 +821,7 @@ carregarBtn.MouseButton1Click:Connect(function()
                     obj.BackgroundTransparency = d.Transparency
                     if d.Text then obj.Text = d.Text end
                     if d.Image then obj.Image = d.Image end
-                    if d.Hotkey then -- Se existir um atalho nos dados salvos
-                        obj:SetAttribute("HUD_Hotkey", d.Hotkey) -- Atribui o atalho ao botão
-                    else
-                        obj:SetAttribute("HUD_Hotkey", nil) -- Garante que o atalho seja removido se não estiver nos dados
-                    end
+                    -- Removido: Hotkey loading
                 end
             end
             screenGui:Destroy()
@@ -966,38 +856,3 @@ carregarBtn.MouseButton1Click:Connect(function()
         screenGui:Destroy()
     end)
 end)
-
----
---- 6. Lógica de Ativação de Botões por Tecla de Atalho
----
-
--- Conexão para ativar botões por hotkey.
--- Deve ser conectada uma única vez e persistir.
-local function activateButtonFromHotkey(input)
-    -- Ignora se o jogo já processou o input (ex: chat box aberta)
-    -- ou se o usuário estiver digitando em uma TextBox do editor
-    if input.UserInputType == Enum.UserInputType.Keyboard and not UserInputService:GetFocusedTextBox() then
-        local keyPressed = input.KeyCode.Name
-        for _, gui in ipairs(player.PlayerGui:GetDescendants()) do
-            -- Apenas tenta ativar botões visíveis e que são TextButton ou ImageButton
-            if (gui:IsA("TextButton") or gui:IsA("ImageButton")) and gui.Visible then
-                local hotkey = gui:GetAttribute("HUD_Hotkey")
-                if hotkey and hotkey == keyPressed then
-                    -- Simula um clique no botão
-                    -- Nota: Cuidado ao simular cliques em botões críticos do jogo.
-                    -- Idealmente, eles deveriam ter uma função separada para ser chamada.
-                    if gui:IsA("TextButton") then
-                        gui:Click()
-                    elseif gui:IsA("ImageButton") then
-                        gui:Click()
-                    end
-                    return -- Ativa apenas o primeiro botão encontrado com a hotkey
-                end
-            end
-        end
-    end
-end
-
--- Conecta a função de hotkey ao UserInputService.
--- Esta conexão é global e ativa enquanto o script estiver rodando.
-UserInputService.InputBegan:Connect(activateButtonFromHotkey)
