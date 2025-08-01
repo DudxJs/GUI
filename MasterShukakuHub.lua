@@ -2664,6 +2664,10 @@ local soundList = {
     {Name = "Lula e Alexandre", ID = 133885860917947},
     {Name = "Ai Lula, Ejacula Lula", ID = 18585340476},
     {Name = "Ah Lula", ID = 115491944196079},
+    {Name = "Sai dae Lava Prato", ID = 101232400175829},
+    {Name = "Slk não Compensa", ID = 78442476709262},
+    {Name = "Deixa os Garoto Brincar", ID = 80291355054807},
+	{Name = "Batida Funk", ID = 75629043263689},
 
 }
 
