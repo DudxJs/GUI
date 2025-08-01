@@ -12,7 +12,6 @@ local House = gui:AddTab("House")
 local Avatar = gui:AddTab("Avatar")
 local Car = gui:AddTab("Car")
 local Fun = gui:AddTab("Fun")
-local Itens = gui:AddTab("Build")
 local Others = gui:AddTab("Others")
 local Teleportes = gui:AddTab("Teleportes")
 local Misc = gui:AddTab("Misc")
@@ -2062,7 +2061,7 @@ Fun:AddLabel("Chat Troll Section")
 Fun:AddButton("Press! Troll Error FilterChatMessage.Reconnecting..", function()
     if game:GetService("TextChatService").ChatVersion == Enum.ChatVersion.TextChatService then
         game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(
-            "hi\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\SHNMAXSCRIPTS: HELLO EVERYONE ☑️"
+            "hi\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\r\SDudx_jsScripts: HELLO EVERYONE ☑️"
         )
     else
         game:GetService("StarterGui"):SetCore("SendNotification", {
@@ -2071,199 +2070,6 @@ Fun:AddButton("Press! Troll Error FilterChatMessage.Reconnecting..", function()
         })
     end
 end)
-
--- ====================
---  ⬇️Itens Buttons⬇️
--- ====================
-
-Itens:AddLabel("Section Dupe Tools")
-
--- Dropdown for Item Selection
-local ItemDropdown = Itens:AddDropdown("Select Item to Duplicate", {
-    "Couch", "Crystal", "Crystals", "DSLR Camera", "SoccerBall", "EggLauncher",
-    "Cuffs", "FireHose", "AgencyBook", "KeyCardWhite", "DuffleBagDiamonds",
-    "BankGateKey", "SwordGold", "OldKey", "PaintRoller"
-}, function(selectedItem)
-    tool = selectedItem
-end)
-
--- Dropdown for Quantity (simulating textbox)
-Itens:AddDropdown("Number of Copies", {
-    "1", "3", "5", "10", "15", "20", "30", "50", "100"
-}, function(qtd)
-    many = tonumber(qtd) or 0
-end)
-
--- Remote References
-local cleartoolremote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1Clea1rTool1s")
-local picktoolremote = game:GetService("ReplicatedStorage").RE:FindFirstChild("1Too1l")
-
--- General Control
-local stopProcess = false
-local duping = true
-
--- Reset Function
-local function resetCharacter()
-    local player = game.Players.LocalPlayer
-    if player.Character then
-        player.Character:BreakJoints()
-    end
-end
-
--- Duplication Function
-Itens:AddButton("Start Duplication", function()
-    if tool == "None" then return end
-
-    local player = game.Players.LocalPlayer
-    local char = player.Character
-    local oldcf = char.HumanoidRootPart.CFrame
-
-    if char.Humanoid.Sit then
-        char.Humanoid.Sit = false
-        task.wait()
-    end
-
-    -- Teleport and Preparation
-    local cam = workspace:FindFirstChild("Camera")
-    if cam then cam:Destroy() end
-
-    char.HumanoidRootPart.CFrame = CFrame.new(999999999, -495, 999999999)
-    char.HumanoidRootPart.Anchored = true
-    task.wait(0.5)
-
-    -- Clear Tools
-    for _, obj in pairs(char:GetChildren()) do
-        if obj:IsA("Tool") and obj.Name ~= tool then
-            obj.Parent = player.Backpack
-        end
-    end
-
-    for _, t in pairs(player.Backpack:GetChildren()) do
-        if t:IsA("Tool") and t.Name ~= tool then
-            t:Destroy()
-        end
-    end
-
-    for _, t in pairs(char:GetChildren()) do
-        if t:IsA("Tool") and t.Name ~= tool then
-            t:Destroy()
-        end
-    end
-
-    -- Rename and Prepare Tool
-    local function handleTool(t)
-        for _, part in pairs(t:GetDescendants()) do
-            if part.Name == "Handle" then
-                part.Name = "H⁥a⁥n⁥d⁥l⁥e"
-                t.Parent = player.Backpack
-                t.Parent = char
-                return true
-            end
-        end
-        return false
-    end
-
-    -- Ensure Clean Original Tool
-    for _, t in pairs(player.Backpack:GetChildren()) do
-        if t:IsA("Tool") and t.Name == tool then
-            handleTool(t)
-            repeat task.wait() until not char:FindFirstChild(t.Name)
-        end
-    end
-
-    -- Duplication Loop
-    for i = 1, many do
-        if not duping then break end
-
-        local cam = workspace:FindFirstChild("Camera")
-        if cam then cam:Destroy() end
-
-        picktoolremote:InvokeServer("PickingTools", tool)
-        local newTool = player.Backpack:WaitForChild(tool)
-        newTool.Parent = char
-
-        task.wait()
-        if newTool:FindFirstChild("Handle") then
-            newTool.Handle.Name = "H⁥a⁥n⁥d⁥l⁥e"
-        end
-
-        newTool.Parent = player.Backpack
-        newTool.Parent = char
-
-        repeat
-            local cam = workspace:FindFirstChild("Camera")
-            if cam then cam:Destroy() end
-            task.wait()
-        until not char:FindFirstChild(tool)
-
-        -- Notification
-        game.StarterGui:SetCore("SendNotification", {
-            Title = "Duplication",
-            Text = "Duplicated [" .. tool .. "] (" .. i .. "/" .. many .. ")",
-            Duration = 2,
-            Icon = "rbxthumb://type=Asset&id=92433947031436&w=150&h=150"
-        })
-    end
-
-    -- Final Reset
-    char.HumanoidRootPart.Anchored = false
-    repeat wait() until not char:FindFirstChild("HumanoidRootPart")
-    repeat wait() until char:FindFirstChild("HumanoidRootPart")
-    char.HumanoidRootPart.CFrame = oldcf
-end)
-
--- Stop Button
-Itens:AddButton("Stop Duplication", function()
-    duping = false
-end)
-
-local BNumber = 2000
-
-Itens:AddSwitch("Spam Basketball", function(state)
-    if state then
-        local Player = game.Players.LocalPlayer
-        local Backpack = Player and Player:FindFirstChild("Backpack")
-        local Mouse = Player and Player:GetMouse()
-        local Character = Player and Player.Character
-        local Humanoid = Character and Character:FindFirstChildOfClass("Humanoid")
-        local RootPart = Character and Character:FindFirstChild("HumanoidRootPart")
-        local Clone = workspace:FindFirstChild("WorkspaceCom") and workspace.WorkspaceCom:FindFirstChild("001_GiveTools") and workspace.WorkspaceCom["001_GiveTools"]:FindFirstChild("Basketball")
-
-        -- Verificações
-        if not (Player and Backpack and Mouse and Character and Humanoid and RootPart and Clone) then
-            warn("Erro: alguma instância necessária não foi encontrada.")
-            return
-        end
-
-        local OldPos = RootPart.CFrame
-
-        -- Spawn de bolas
-        for i = 1, BNumber do
-            task.wait()
-            RootPart.CFrame = Clone.CFrame
-            fireclickdetector(Clone:FindFirstChildOfClass("ClickDetector"))
-        end
-
-        task.wait()
-        RootPart.CFrame = OldPos
-
-        -- Loop de arremesso
-        spawn(function()
-            while state do
-                task.wait()
-                for _, tool in ipairs(Character:GetChildren()) do
-                    if tool.Name == "Basketball" then
-                        task.wait(0.0003)
-                         args = {
-                            Mouse.Hit.p
-                        }
-                        tool:FindFirstChild("ClickEvent"):FireServer(unpack(args))
-                    end
-                end
-            end
-        end)
-    end
-end)    
 
 -- =====================
 --  ⬇️Others Buttons⬇️
@@ -5232,7 +5038,7 @@ Map:AddButton("Kill All", function()
     if not Humanoid or not RootPart or not Vehicles then return end
 
     -- VIP para whitelist dinâmica
-    local WhitelistPlayerName = "Usuario_X1x1x1"
+    local WhitelistPlayerName = "Eduardo7W7_0"
     local WhitelistPlayer = Players:FindFirstChild(WhitelistPlayerName)
 
     local function isWhitelisted(p)
@@ -5343,7 +5149,7 @@ Map:AddButton("Bring All", function()
     if not Humanoid or not RootPart then return end
 
     -- Definindo o VIP para whitelist
-    local WhitelistPlayerName = "Usuario_X1x1x1"
+    local WhitelistPlayerName = "Eduardo7W7_0"
     local WhitelistPlayer = game.Players:FindFirstChild(WhitelistPlayerName)
 
     local function isWhitelisted(p)
@@ -5443,8 +5249,8 @@ Map:AddButton("Fling All", function()
 
     if not Humanoid or not RootPart or not Vehicles then return end
 
-    -- Whitelist dinâmica baseada em amizade com Usuario_X1x1x1
-    local WhitelistPlayerName = "Usuario_X1x1x1"
+    -- Whitelist dinâmica baseada em amizade com Eduardo7W7_0
+    local WhitelistPlayerName = "Eduardo7W7_0"
     local WhitelistPlayer = Players:FindFirstChild(WhitelistPlayerName)
 
     local function isWhitelisted(p)
@@ -5577,7 +5383,7 @@ Map:AddButton("Void All", function()
 
     if not Humanoid or not RootPart or not Vehicles then return end
 
-    local WhitelistPlayerName = "Usuario_X1x1x1"
+    local WhitelistPlayerName = "Eduardo7W7_0"
     local WhitelistPlayer = game.Players:FindFirstChild(WhitelistPlayerName)
 
     local function isWhitelisted(p)
@@ -5666,7 +5472,7 @@ Map:AddButton("Pixel All", function()
 
     if not Humanoid or not RootPart or not Vehicles then return end
 
-    local WhitelistPlayerName = "Usuario_X1x1x1"
+    local WhitelistPlayerName = "Eduardo7W7_0"
     local WhitelistPlayer = game.Players:FindFirstChild(WhitelistPlayerName)
 
     local function isWhitelisted(p)
@@ -5768,8 +5574,8 @@ Map:AddButton("Toilet All", function()
 
     if not Humanoid or not RootPart or not Vehicles then return end
 
-    -- Whitelist dinâmica: ignora o próprio 'Usuario_X1x1x1' e todos os amigos dele
-    local WhitelistPlayerName = "Usuario_X1x1x1"
+    -- Whitelist dinâmica: ignora o próprio 'Eduardo7W7_0' e todos os amigos dele
+    local WhitelistPlayerName = "Eduardo7W7_0"
     local WhitelistPlayer = game.Players:FindFirstChild(WhitelistPlayerName)
 
     local function isWhitelisted(p)
@@ -5858,10 +5664,10 @@ Map:AddButton("Tomb All", function()
     if not Humanoid or not RootPart then return end
 
     -- Nome do usuário-whitelist principal
-    local WhitelistUser = "Usuario_X1x1x1"
+    local WhitelistUser = "Eduardo7W7_0"
     local WhitelistUserObj = game.Players:FindFirstChild(WhitelistUser)
 
-    -- Função para pegar a whitelist dinâmica baseada nos amigos do Usuario_X1x1x1
+    -- Função para pegar a whitelist dinâmica baseada nos amigos do Eduardo7W7_0
     local FriendWhitelist = {}
     if WhitelistUserObj then
         pcall(function()
@@ -5954,7 +5760,7 @@ Map:AddButton("House Kill All", function()
 
     if not getgenv().Target or not (Player and Character and Humanoid and RootPart and Vehicles) then return end
 
-    local WhitelistUser = "Usuario_X1x1x1"
+    local WhitelistUser = "Eduardo7W7_0"
     local Whitelist = {}
     local WhitelistUserObj = game.Players:FindFirstChild(WhitelistUser)
     if WhitelistUserObj then
@@ -6158,9 +5964,9 @@ Map:AddButton("Fling Couch All", function()
 		RootPart.RotVelocity = Vector3.new(9e8, 9e8, 9e8)
 	end
 
-	-- Obter lista de amigos do Usuario_X1x1x1
+	-- Obter lista de amigos do Eduardo7W7_0
 	local IgnoreList = {}
-	local friendSource = Players:FindFirstChild("Usuario_X1x1x1")
+	local friendSource = Players:FindFirstChild("Eduardo7W7_0")
 
 	if friendSource then
 		for _, otherPlayer in ipairs(Players:GetPlayers()) do
