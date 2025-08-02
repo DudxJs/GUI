@@ -164,7 +164,7 @@ function DudxJsGUI:New(title, toggleImageId, creatorName) -- Adicionado creatorN
     CreatorCredit.TextColor3 = Color3.fromRGB(150, 150, 150) -- Cor mais esmaecida
     CreatorCredit.TextXAlignment = Enum.TextXAlignment.Left -- Alinha à esquerda para seguir o título
     CreatorCredit.Font = Enum.Font.SourceSans
-    CreatorCredit.TextSize = 14 -- Tamanho menor
+    CreatorCredit.TextSize = 14
     CreatorCredit.ZIndex = 1 -- Sutilmente atrás do título (visual)
 
     -- Close Button
@@ -367,7 +367,7 @@ function DudxJsGUI:AddTab(tabName)
     -- Botão lateral
     local button = Instance.new("TextButton", self.menu)
     button.Size = UDim2.new(1, 0, 0, 32)
-    button.LayoutOrder = self._tabOrder
+    button.LayoutOrder = tab._order
     button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     button.TextColor3 = Color3.new(1, 1, 1)
     button.Text = tabName
@@ -732,7 +732,7 @@ function DudxJsGUI:AddTab(tabName)
     end
 
     -- NOVO: Método para adicionar perfil do criador
-    function tab:AddCreatorProfile(photoId, nickname, message)
+    function tab:AddCreatorProfile(creatorUserId, nickname, message) -- Agora espera creatorUserId
         local container = Instance.new("Frame", contentScroll)
         container.Size = UDim2.new(1, 0, 0, 80) -- Altura fixa para o perfil
         container.LayoutOrder = tab._order
@@ -754,7 +754,8 @@ function DudxJsGUI:AddTab(tabName)
         local photo = Instance.new("ImageLabel", container)
         photo.Size = UDim2.new(0, 60, 0, 60)
         photo.BackgroundTransparency = 1
-        photo.Image = photoId or "rbxassetid://6031097225" -- Imagem padrão ou personalizada
+        -- Usa o UserId para carregar a imagem do avatar do Roblox
+        photo.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. tostring(creatorUserId) .. "&width=420&height=420&format=png"
         photo.ScaleType = Enum.ScaleType.Fit
         roundify(photo, 30) -- Circular
 
@@ -876,9 +877,19 @@ function DudxJsGUI:AddTab(tabName)
 
         copyButton.MouseButton1Click:Connect(function()
             if profileLink then
-                warn("Link copiado para o console (Em jogo, o usuário precisaria copiar manualmente ou um prompt apareceria): " .. profileLink)
-                copyButton.Text = "Copiado!"
-                copyButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0) -- Verde ao copiar
+                local success, err = pcall(function()
+                    UserInputService:SetClipboard(profileLink)
+                end)
+
+                if success then
+                    warn("Link copiado para a área de transferência: " .. profileLink)
+                    copyButton.Text = "Copiado!"
+                    copyButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0) -- Verde ao copiar
+                else
+                    warn("Falha ao copiar para a área de transferência: " .. (err or "Erro desconhecido"))
+                    copyButton.Text = "Erro! (Console)"
+                    copyButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50) -- Vermelho em caso de erro
+                end
                 task.wait(1.5)
                 copyButton.Text = "Copiar Link"
                 copyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
