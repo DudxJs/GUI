@@ -19,15 +19,15 @@ local function roundify(obj, rad)
 end
 
 -- Cria a base inteira do GUI
-function DudxJsGUI:New(title, toggleImageId)
+function DudxJsGUI:New(title, toggleImageId, creatorName) -- Adicionado creatorName aqui
     local self = setmetatable({}, DudxJsGUI)
-    
+
     -- ScreenGui
     self._gui = Instance.new("ScreenGui")
     self._gui.Name = "DudxJsGUI"
     self._gui.ResetOnSpawn = false
     self._gui.Parent = LocalPlayer:WaitForChild("PlayerGui")
-    
+
     -- Botão móvel para abrir/fechar a GUI
     self.toggleBtn = Instance.new("ImageButton")
     print("Botão Móvel Criado!")
@@ -40,46 +40,48 @@ function DudxJsGUI:New(title, toggleImageId)
     self.toggleBtn.ZIndex = 10
     self.toggleBtn.Visible = true
 
--- Alterna a visibilidade da GUI
-function self:ToggleGUI()
-    local isVisible = self.main.Visible
-    self.main.Visible = not isVisible
-    self.menu.Visible = not isVisible and not isMinimized
-    self.content.Visible = not isVisible and not isMinimized
-end
+    -- Alterna a visibilidade da GUI
+    local isMinimized = false -- Variável local para o estado de minimização
+    function self:ToggleGUI()
+        local isVisible = self.main.Visible
+        self.main.Visible = not isVisible
+        -- A visibilidade do menu e do content depende do estado de minimização e da visibilidade geral
+        self.menu.Visible = not isVisible and not isMinimized
+        self.content.Visible = not isVisible and not isMinimized
+    end
 
--- Clique no botão móvel alterna a GUI
-self.toggleBtn.MouseButton1Click:Connect(function()
-    self:ToggleGUI()
-end)
+    -- Clique no botão móvel alterna a GUI
+    self.toggleBtn.MouseButton1Click:Connect(function()
+        self:ToggleGUI()
+    end)
 
--- (Opcional) Arrastar botão móvel
-local draggingBtn, dragInputBtn, dragStartBtn, startPosBtn = false
-self.toggleBtn.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        draggingBtn = true
-        dragStartBtn = input.Position
-        startPosBtn = self.toggleBtn.Position
-        input.Changed:Connect(function()
-            if input.UserInputState == Enum.UserInputState.End then draggingBtn = false end
-        end)
-    end
-end)
-self.toggleBtn.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-        dragInputBtn = input
-    end
-end)
-UserInputService.InputChanged:Connect(function(input)
-    if input == dragInputBtn and draggingBtn then
-        local delta = input.Position - dragStartBtn
-        self.toggleBtn.Position = UDim2.new(
-            startPosBtn.X.Scale, startPosBtn.X.Offset + delta.X,
-            startPosBtn.Y.Scale, startPosBtn.Y.Offset + delta.Y
-        )
-    end
-end)
-    
+    -- (Opcional) Arrastar botão móvel
+    local draggingBtn, dragInputBtn, dragStartBtn, startPosBtn = false
+    self.toggleBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            draggingBtn = true
+            dragStartBtn = input.Position
+            startPosBtn = self.toggleBtn.Position
+            input.Changed:Connect(function()
+                if input.UserInputState == Enum.UserInputState.End then draggingBtn = false end
+            end)
+        end
+    end)
+    self.toggleBtn.InputChanged:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+            dragInputBtn = input
+        end
+    end)
+    UserInputService.InputChanged:Connect(function(input)
+        if input == dragInputBtn and draggingBtn then
+            local delta = input.Position - dragStartBtn
+            self.toggleBtn.Position = UDim2.new(
+                startPosBtn.X.Scale, startPosBtn.X.Offset + delta.X,
+                startPosBtn.Y.Scale, startPosBtn.Y.Offset + delta.Y
+            )
+        end
+    end)
+
     -- MainFrame
     self.main = Instance.new("Frame", self._gui)
     self.main.Size = UDim2.new(0, 530, 0, 300)
@@ -93,6 +95,7 @@ end)
     pad.PaddingBottom = UDim.new(0, 3)
     pad.PaddingLeft = UDim.new(0, 3)
     pad.PaddingRight = UDim.new(0, 3)
+
     -- TopBar
     local TopBar = Instance.new("Frame", self.main)
     TopBar.Size = UDim2.new(1, 0, 0, 40)
@@ -100,7 +103,8 @@ end)
     TopBar.BorderSizePixel = 0
     TopBar.Active = true
     TopBar.Selectable = true
-    -- Drag
+
+    -- Drag (do TopBar)
     local dragging, dragInput, dragStart, startPos = false
     TopBar.InputBegan:Connect(function(input)
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
@@ -123,16 +127,46 @@ end)
             self.main.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
         end
     end)
+
+    -- Container para Título e Crédito
+    local TitleAndCreditContainer = Instance.new("Frame", TopBar)
+    TitleAndCreditContainer.Size = UDim2.new(1, -120, 1, 0) -- Ajusta a largura total do container (para deixar espaço p/ botões X e -)
+    TitleAndCreditContainer.Position = UDim2.new(0, 10, 0, 0)
+    TitleAndCreditContainer.BackgroundTransparency = 1
+    TitleAndCreditContainer.BorderSizePixel = 0
+    TitleAndCreditContainer.ZIndex = 2 -- Garante que o container esteja na frente dos outros elementos do TopBar
+
+    local Layout = Instance.new("UIListLayout", TitleAndCreditContainer)
+    Layout.FillDirection = Enum.FillDirection.Horizontal
+    Layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+    Layout.VerticalAlignment = Enum.VerticalAlignment.Center
+    Layout.Padding = UDim.new(0, 5) -- Pequeno espaçamento entre título e crédito
+    Layout.SortOrder = Enum.SortOrder.LayoutOrder
+
     -- Title
-    local Title = Instance.new("TextLabel", TopBar)
-    Title.Size = UDim2.new(1, -40, 1, 0)
-    Title.Position = UDim2.new(0, 10, 0, 0)
+    local Title = Instance.new("TextLabel", TitleAndCreditContainer)
+    Title.AutomaticSize = Enum.AutomaticSize.X -- Essencial para o ajuste automático
+    Title.Size = UDim2.new(0, 0, 1, 0) -- Altura fixa, largura automática
+    Title.BackgroundTransparency = 1
     Title.Text = title or "DudxJsGUI"
     Title.TextColor3 = Color3.new(1, 1, 1)
     Title.TextXAlignment = Enum.TextXAlignment.Left
-    Title.BackgroundTransparency = 1
     Title.Font = Enum.Font.SourceSansBold
     Title.TextSize = 20
+    Title.ZIndex = 2 -- O título ainda tem prioridade de ZIndex dentro do container
+
+    -- Script Creator Credit
+    local CreatorCredit = Instance.new("TextLabel", TitleAndCreditContainer)
+    CreatorCredit.AutomaticSize = Enum.AutomaticSize.X -- Essencial para o ajuste automático
+    CreatorCredit.Size = UDim2.new(0, 0, 1, 0) -- Altura fixa, largura automática
+    CreatorCredit.BackgroundTransparency = 1
+    CreatorCredit.Text = "by " .. (creatorName or "DudxJs") -- Usa o parâmetro creatorName ou um padrão
+    CreatorCredit.TextColor3 = Color3.fromRGB(150, 150, 150) -- Cor mais esmaecida
+    CreatorCredit.TextXAlignment = Enum.TextXAlignment.Left -- Alinha à esquerda para seguir o título
+    CreatorCredit.Font = Enum.Font.SourceSans
+    CreatorCredit.TextSize = 14 -- Tamanho menor
+    CreatorCredit.ZIndex = 1 -- Sutilmente atrás do título (visual)
+
     -- Close Button
     local CloseBtn = Instance.new("TextButton", TopBar)
     CloseBtn.Size = UDim2.new(0, 30, 0, 30)
@@ -144,118 +178,119 @@ end)
     CloseBtn.Font = Enum.Font.SourceSansBold
     CloseBtn.TextSize = 18
     CloseBtn.MouseButton1Click:Connect(function()
-    -- Evita criar múltiplas confirmações
-    if self._confirmationFrame and self._confirmationFrame.Parent then
-        self._confirmationFrame.Visible = true
-        return
-    end
-
-    -- Overlay escuro
-    local overlay = Instance.new("Frame")
-    overlay.Size = UDim2.new(1, 0, 1, 0)
-    overlay.Position = UDim2.new(0, 0, 0, 0)
-    overlay.BackgroundColor3 = Color3.new(0, 0, 0)
-    overlay.BackgroundTransparency = 0.3
-    overlay.ZIndex = 9999999999
-    overlay.Parent = self._gui
-
-    -- Quadro central de confirmação
-    local confirmFrame = Instance.new("Frame", overlay)
-    confirmFrame.Size = UDim2.new(0, 340, 0, 170)
-    confirmFrame.Position = UDim2.new(0.5, -170, 0.5, -85)
-    confirmFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-    confirmFrame.BorderSizePixel = 0
-    confirmFrame.ZIndex = 99999999999
-    roundify(confirmFrame, 14)
-
-    -- Borda vermelha estilizada
-    local border = Instance.new("Frame", confirmFrame)
-    border.Size = UDim2.new(1, 0, 1, 0)
-    border.Position = UDim2.new(0, 0, 0, 0)
-    border.BackgroundTransparency = 1
-    border.BorderSizePixel = 4
-    border.BorderColor3 = Color3.fromRGB(200, 0, 0)
-    border.ZIndex = 999999999999
-
-    -- Título
-    local title = Instance.new("TextLabel", confirmFrame)
-    title.Size = UDim2.new(1, -30, 0, 44)
-    title.Position = UDim2.new(0, 15, 0, 10)
-    title.BackgroundTransparency = 1
-    title.Text = "Tem certeza que deseja fechar a GUI?"
-    title.TextColor3 = Color3.new(1,1,1)
-    title.Font = Enum.Font.SourceSansBold
-    title.TextSize = 21
-    title.TextXAlignment = Enum.TextXAlignment.Center
-    title.ZIndex = 9999999999999
-
-    -- Subtítulo/descrição
-    local desc = Instance.new("TextLabel", confirmFrame)
-    desc.Size = UDim2.new(1, -44, 0, 30)
-    desc.Position = UDim2.new(0, 22, 0, 58)
-    desc.BackgroundTransparency = 1
-    desc.Text = "Você perderá todas as configurações não salvas."
-    desc.TextColor3 = Color3.fromRGB(255, 0, 0)
-    desc.Font = Enum.Font.SourceSans
-    desc.TextSize = 16
-    desc.TextXAlignment = Enum.TextXAlignment.Center
-    desc.ZIndex = 9999999999999
-
-    -- Botão Cancelar (vermelho, à direita)
-    local cancelBtn = Instance.new("TextButton", confirmFrame)
-    cancelBtn.Size = UDim2.new(0, 115, 0, 38)
-    cancelBtn.Position = UDim2.new(1, -125, 1, -48)
-    cancelBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-    cancelBtn.Text = "Cancelar"
-    cancelBtn.TextColor3 = Color3.new(1, 1, 1)
-    cancelBtn.Font = Enum.Font.SourceSansBold
-    cancelBtn.TextSize = 18
-    cancelBtn.ZIndex = 99999999999999
-    cancelBtn.BorderSizePixel = 0
-    roundify(cancelBtn, 10)
-
-    -- Botão Confirmar (transparente, à esquerda, só borda vermelha)
-    local confirmBtn = Instance.new("TextButton", confirmFrame)
-    confirmBtn.Size = UDim2.new(0, 115, 0, 38)
-    confirmBtn.Position = UDim2.new(0, 10, 1, -48)
-    confirmBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-    confirmBtn.Text = "Confirmar"
-    confirmBtn.TextColor3 = Color3.fromRGB(200, 0, 0)
-    confirmBtn.Font = Enum.Font.SourceSansBold
-    confirmBtn.TextSize = 18
-    confirmBtn.ZIndex = 99999999999999
-    confirmBtn.BorderColor3 = Color3.fromRGB(200, 0, 0)
-    confirmBtn.BorderSizePixel = 2
-    roundify(confirmBtn, 10)
-
-    -- Efeito hover para o botão confirmar (opcional, deixa mais bonito)
-    confirmBtn.MouseEnter:Connect(function()
-        confirmBtn.BackgroundColor3 = Color3.fromRGB(35, 0, 0)
-    end)
-    confirmBtn.MouseLeave:Connect(function()
-        confirmBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
-    end)
-
-    -- Função dos botões
-    cancelBtn.MouseButton1Click:Connect(function()
-        overlay:Destroy()
-    end)
-    confirmBtn.MouseButton1Click:Connect(function()
-        if self._gui then self._gui:Destroy() end
-    end)
-
-    -- Permite fechar apertando ESC (opcional)
-    local escConn
-    escConn = UserInputService.InputBegan:Connect(function(input, gp)
-        if input.KeyCode == Enum.KeyCode.Escape and not gp then
-            overlay:Destroy()
-            if escConn then escConn:Disconnect() end
+        -- Evita criar múltiplas confirmações
+        if self._confirmationFrame and self._confirmationFrame.Parent then
+            self._confirmationFrame.Visible = true
+            return
         end
+
+        -- Overlay escuro
+        local overlay = Instance.new("Frame")
+        overlay.Size = UDim2.new(1, 0, 1, 0)
+        overlay.Position = UDim2.new(0, 0, 0, 0)
+        overlay.BackgroundColor3 = Color3.new(0, 0, 0)
+        overlay.BackgroundTransparency = 0.3
+        overlay.ZIndex = 9999999999
+        overlay.Parent = self._gui
+
+        -- Quadro central de confirmação
+        local confirmFrame = Instance.new("Frame", overlay)
+        confirmFrame.Size = UDim2.new(0, 340, 0, 170)
+        confirmFrame.Position = UDim2.new(0.5, -170, 0.5, -85)
+        confirmFrame.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+        confirmFrame.BorderSizePixel = 0
+        confirmFrame.ZIndex = 99999999999
+        roundify(confirmFrame, 14)
+
+        -- Borda vermelha estilizada
+        local border = Instance.new("Frame", confirmFrame)
+        border.Size = UDim2.new(1, 0, 1, 0)
+        border.Position = UDim2.new(0, 0, 0, 0)
+        border.BackgroundTransparency = 1
+        border.BorderSizePixel = 4
+        border.BorderColor3 = Color3.fromRGB(200, 0, 0)
+        border.ZIndex = 999999999999
+
+        -- Título
+        local title = Instance.new("TextLabel", confirmFrame)
+        title.Size = UDim2.new(1, -30, 0, 44)
+        title.Position = UDim2.new(0, 15, 0, 10)
+        title.BackgroundTransparency = 1
+        title.Text = "Tem certeza que deseja fechar a GUI?"
+        title.TextColor3 = Color3.new(1,1,1)
+        title.Font = Enum.Font.SourceSansBold
+        title.TextSize = 21
+        title.TextXAlignment = Enum.TextXAlignment.Center
+        title.ZIndex = 9999999999999
+
+        -- Subtítulo/descrição
+        local desc = Instance.new("TextLabel", confirmFrame)
+        desc.Size = UDim2.new(1, -44, 0, 30)
+        desc.Position = UDim2.new(0, 22, 0, 58)
+        desc.BackgroundTransparency = 1
+        desc.Text = "Você perderá todas as configurações não salvas."
+        desc.TextColor3 = Color3.fromRGB(255, 0, 0)
+        desc.Font = Enum.Font.SourceSans
+        desc.TextSize = 16
+        desc.TextXAlignment = Enum.TextXAlignment.Center
+        desc.ZIndex = 9999999999999
+
+        -- Botão Cancelar (vermelho, à direita)
+        local cancelBtn = Instance.new("TextButton", confirmFrame)
+        cancelBtn.Size = UDim2.new(0, 115, 0, 38)
+        cancelBtn.Position = UDim2.new(1, -125, 1, -48)
+        cancelBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        cancelBtn.Text = "Cancelar"
+        cancelBtn.TextColor3 = Color3.new(1, 1, 1)
+        cancelBtn.Font = Enum.Font.SourceSansBold
+        cancelBtn.TextSize = 18
+        cancelBtn.ZIndex = 99999999999999
+        cancelBtn.BorderSizePixel = 0
+        roundify(cancelBtn, 10)
+
+        -- Botão Confirmar (transparente, à esquerda, só borda vermelha)
+        local confirmBtn = Instance.new("TextButton", confirmFrame)
+        confirmBtn.Size = UDim2.new(0, 115, 0, 38)
+        confirmBtn.Position = UDim2.new(0, 10, 1, -48)
+        confirmBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+        confirmBtn.Text = "Confirmar"
+        confirmBtn.TextColor3 = Color3.fromRGB(200, 0, 0)
+        confirmBtn.Font = Enum.Font.SourceSansBold
+        confirmBtn.TextSize = 18
+        confirmBtn.ZIndex = 99999999999999
+        confirmBtn.BorderColor3 = Color3.fromRGB(200, 0, 0)
+        confirmBtn.BorderSizePixel = 2
+        roundify(confirmBtn, 10)
+
+        -- Efeito hover para o botão confirmar (opcional, deixa mais bonito)
+        confirmBtn.MouseEnter:Connect(function()
+            confirmBtn.BackgroundColor3 = Color3.fromRGB(35, 0, 0)
+        end)
+        confirmBtn.MouseLeave:Connect(function()
+            confirmBtn.BackgroundColor3 = Color3.fromRGB(18, 18, 18)
+        end)
+
+        -- Função dos botões
+        cancelBtn.MouseButton1Click:Connect(function()
+            overlay:Destroy()
+        end)
+        confirmBtn.MouseButton1Click:Connect(function()
+            if self._gui then self._gui:Destroy() end
+        end)
+
+        -- Permite fechar apertando ESC (opcional)
+        local escConn
+        escConn = UserInputService.InputBegan:Connect(function(input, gp)
+            if input.KeyCode == Enum.KeyCode.Escape and not gp then
+                overlay:Destroy()
+                if escConn then escConn:Disconnect() end
+            end
+        end)
+
+        -- Guarda referência para não duplicar
+        self._confirmationFrame = overlay
     end)
 
-    -- Guarda referência para não duplicar
-    self._confirmationFrame = overlay
-end)
     -- Minimize Button
     local MinBtn = Instance.new("TextButton", TopBar)
     MinBtn.Size = UDim2.new(0, 30, 0, 30)
@@ -267,31 +302,29 @@ end)
     MinBtn.Font = Enum.Font.SourceSansBold
     MinBtn.TextSize = 25
 
-local isMinimized = false
-local debounce = false
+    MinBtn.MouseButton1Click:Connect(function()
+        if debounce then return end
+        local debounce = false
+        debounce = true
+        isMinimized = not isMinimized
 
-MinBtn.MouseButton1Click:Connect(function()
-    if debounce then return end
-    debounce = true
-    isMinimized = not isMinimized
+        -- Animação de tamanho
+        local newSize = isMinimized and UDim2.new(0, 530, 0, 40) or UDim2.new(0, 530, 0, 300)
+        TweenService:Create(self.main, TweenInfo.new(0.2), {Size = newSize}):Play()
 
-    -- Animação de tamanho
-    local newSize = isMinimized and UDim2.new(0, 530, 0, 40) or UDim2.new(0, 530, 0, 300)
-    TweenService:Create(self.main, TweenInfo.new(0.2), {Size = newSize}):Play()
+        if isMinimized then
+            self.menu.Visible = false
+            self.content.Visible = false
+            MinBtn.Text = "+"
+        else
+            self.menu.Visible = true
+            self.content.Visible = true
+            MinBtn.Text = "-"
+        end
 
-    if isMinimized then
-        self.menu.Visible = false
-        self.content.Visible = false
-        MinBtn.Text = "+"
-    else
-        self.menu.Visible = true
-        self.content.Visible = true
-        MinBtn.Text = "-"
-    end
-
-    wait(0.25)
-    debounce = false
-end)
+        task.wait(0.25)
+        debounce = false
+    end)
 
     -- Menu lateral (Tabs)
     self.menu = Instance.new("ScrollingFrame", self.main)
@@ -313,12 +346,14 @@ end)
     menuLayout.VerticalAlignment = Enum.VerticalAlignment.Top
     menuLayout.Padding = UDim.new(0, 8)
     menuLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
     -- Área de conteúdo
     self.content = Instance.new("Frame", self.main)
     self.content.Size = UDim2.new(1, -195, 1, -40)
     self.content.Position = UDim2.new(0, 195, 0, 40)
     self.content.BackgroundTransparency = 1
     self.content.BorderSizePixel = 0
+
     -- Tabs
     self._tabOrder = 1
     self._tabs = {}
@@ -345,12 +380,14 @@ function DudxJsGUI:AddTab(tabName)
     button.TextWrapped = false
     local padding = Instance.new("UIPadding", button)
     padding.PaddingLeft = UDim.new(0, 12)
+
     -- Página
     local page = Instance.new("Frame", self.content)
     page.Name = tabName:gsub("%s+", "") .. "Page"
     page.Size = UDim2.new(1, 0, 1, 0)
     page.BackgroundTransparency = 1
     page.Visible = (#self._tabs == 0)
+
     -- ScrollFrame na página
     local contentScroll = Instance.new("ScrollingFrame", page)
     contentScroll.Name = "ContentScroll"
@@ -372,6 +409,7 @@ function DudxJsGUI:AddTab(tabName)
     contentLayout.VerticalAlignment = Enum.VerticalAlignment.Top
     contentLayout.Padding = UDim.new(0, 7)
     contentLayout.SortOrder = Enum.SortOrder.LayoutOrder
+
     -- Troca de páginas
     button.MouseButton1Click:Connect(function()
         for _, t in pairs(self._tabs) do
@@ -379,11 +417,13 @@ function DudxJsGUI:AddTab(tabName)
         end
         page.Visible = true
     end)
+
     -- Métodos de Tab
     tab._order = 1
     tab.page = page
     tab.scroll = contentScroll
     tab.button = button
+
     function tab:AddButton(text, callback)
         local btn = Instance.new("TextButton", contentScroll)
         btn.Size = UDim2.new(1, 0, 0, 32)
@@ -415,6 +455,7 @@ function DudxJsGUI:AddTab(tabName)
         tab._order = tab._order + 1
         return btn
     end
+
     function tab:AddSwitch(text, callback)
         local btn = tab:AddButton(text, function() end)
         -- Switch visual
@@ -447,6 +488,7 @@ function DudxJsGUI:AddTab(tabName)
         end)
         return btn
     end
+
     function tab:AddInput(labelText, placeholder, callback)
         local inputContainer = Instance.new("Frame", contentScroll)
         inputContainer.Size = UDim2.new(1, 0, 0, 32)
@@ -480,8 +522,8 @@ function DudxJsGUI:AddTab(tabName)
         local inputHolder = Instance.new("Frame", inputContainer)
         inputHolder.Size = UDim2.new(0.45, 0, 1, 0)
         inputHolder.BackgroundTransparency = 1
-        
-    local inputBox = Instance.new("TextBox", inputHolder)
+
+        local inputBox = Instance.new("TextBox", inputHolder)
         inputBox.AnchorPoint = Vector2.new(0.5, 0.5)
         inputBox.Position = UDim2.new(0.5, 0, 0.5, 0)
         inputBox.Size = UDim2.new(1, 0, 0.75, 0)
@@ -495,23 +537,23 @@ function DudxJsGUI:AddTab(tabName)
         inputBox.BorderSizePixel = 0
         inputBox.ClearTextOnFocus = false
         roundify(inputBox, 6)
-            -- Eventos para alterar a cor do ícone
-    inputBox.Focused:Connect(function()
-        icon.TextColor3 = Color3.new(1, 0, 0) -- Muda para vermelho quando focado
-    end)
-    
-    inputBox.FocusLost:Connect(function(enterPressed)
-        icon.TextColor3 = Color3.new(1, 1, 1) -- Volta para branco quando perde o foco
-        if enterPressed and callback then
-            callback(inputBox.Text)
-        end
-    end)
-    
-    tab._order = tab._order + 1
-    return inputContainer, inputBox
-end
-    
-        function tab:AddDropdown(text, items, callback)
+        -- Eventos para alterar a cor do ícone
+        inputBox.Focused:Connect(function()
+            icon.TextColor3 = Color3.new(1, 0, 0) -- Muda para vermelho quando focado
+        end)
+
+        inputBox.FocusLost:Connect(function(enterPressed)
+            icon.TextColor3 = Color3.new(1, 1, 1) -- Volta para branco quando perde o foco
+            if enterPressed and callback then
+                callback(inputBox.Text)
+            end
+        end)
+
+        tab._order = tab._order + 1
+        return inputContainer, inputBox
+    end
+
+    function tab:AddDropdown(text, items, callback)
         local dropdownContainer = Instance.new("TextButton", contentScroll)
         dropdownContainer.Size = UDim2.new(1, 0, 0, 32)
         dropdownContainer.LayoutOrder = tab._order
@@ -663,31 +705,190 @@ end
         tab._order = tab._order + 1
         return dropdownContainer
     end
-    
+
     function tab:AddLabel(text)
-    local label = Instance.new("TextLabel", contentScroll)
-    label.AutomaticSize = Enum.AutomaticSize.Y
-    label.Size = UDim2.new(1, -40, 0, 0) -- Altura 0 pois é automática
-    label.LayoutOrder = tab._order
-    label.BackgroundTransparency = 1
-    label.TextColor3 = Color3.new(1, 1, 1)
-    label.Text = text or ""
-    label.Font = Enum.Font.SourceSans
-    label.TextSize = 21.5
-    label.TextWrapped = true
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.TextYAlignment = Enum.TextYAlignment.Top
+        local label = Instance.new("TextLabel", contentScroll)
+        label.AutomaticSize = Enum.AutomaticSize.Y
+        label.Size = UDim2.new(1, -40, 0, 0) -- Altura 0 pois é automática
+        label.LayoutOrder = tab._order
+        label.BackgroundTransparency = 1
+        label.TextColor3 = Color3.new(1, 1, 1)
+        label.Text = text or ""
+        label.Font = Enum.Font.SourceSans
+        label.TextSize = 21.5
+        label.TextWrapped = true
+        label.TextXAlignment = Enum.TextXAlignment.Left
+        label.TextYAlignment = Enum.TextYAlignment.Top
 
-    -- Padding igual em cima e embaixo
-    local padding = Instance.new("UIPadding", label)
-    padding.PaddingTop = UDim.new(0, 1)
-    padding.PaddingBottom = UDim.new(0, 1)
-    padding.PaddingLeft = UDim.new(0, 8)
-    padding.PaddingRight = UDim.new(0, 8)
+        -- Padding igual em cima e embaixo
+        local padding = Instance.new("UIPadding", label)
+        padding.PaddingTop = UDim.new(0, 1)
+        padding.PaddingBottom = UDim.new(0, 1)
+        padding.PaddingLeft = UDim.new(0, 8)
+        padding.PaddingRight = UDim.new(0, 8)
 
-    tab._order = tab._order + 1
-    return label
-end
+        tab._order = tab._order + 1
+        return label
+    end
+
+    -- NOVO: Método para adicionar perfil do criador
+    function tab:AddCreatorProfile(photoId, nickname, message)
+        local container = Instance.new("Frame", contentScroll)
+        container.Size = UDim2.new(1, 0, 0, 80) -- Altura fixa para o perfil
+        container.LayoutOrder = tab._order
+        container.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        container.BorderSizePixel = 0
+        roundify(container, 8)
+
+        local layout = Instance.new("UIListLayout", container)
+        layout.FillDirection = Enum.FillDirection.Horizontal
+        layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+        layout.VerticalAlignment = Enum.VerticalAlignment.Center
+        layout.Padding = UDim.new(0, 8)
+
+        local padding = Instance.new("UIPadding", container)
+        padding.PaddingLeft = UDim.new(0, 8)
+        padding.PaddingRight = UDim.new(0, 8)
+
+        -- Photo (ImageLabel)
+        local photo = Instance.new("ImageLabel", container)
+        photo.Size = UDim2.new(0, 60, 0, 60)
+        photo.BackgroundTransparency = 1
+        photo.Image = photoId or "rbxassetid://6031097225" -- Imagem padrão ou personalizada
+        photo.ScaleType = Enum.ScaleType.Fit
+        roundify(photo, 30) -- Circular
+
+        -- Text Info (Nickname and Message)
+        local textInfo = Instance.new("Frame", container)
+        textInfo.Size = UDim2.new(1, -76, 1, 0) -- Ajusta largura para caber ao lado da foto
+        textInfo.BackgroundTransparency = 1
+        local textLayout = Instance.new("UIListLayout", textInfo)
+        textLayout.FillDirection = Enum.FillDirection.Vertical
+        textLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+        textLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+        textLayout.Padding = UDim.new(0, 2)
+
+        -- Nickname (Destaque)
+        local nickLabel = Instance.new("TextLabel", textInfo)
+        nickLabel.Size = UDim2.new(1, 0, 0, 25)
+        nickLabel.BackgroundTransparency = 1
+        nickLabel.Text = nickname or "Creator Nickname"
+        nickLabel.TextColor3 = Color3.new(1, 1, 1)
+        nickLabel.Font = Enum.Font.SourceSansBold
+        nickLabel.TextSize = 20
+        nickLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+        -- Custom Message
+        local msgLabel = Instance.new("TextLabel", textInfo)
+        msgLabel.Size = UDim2.new(1, 0, 0, 40) -- Ajusta altura para a mensagem
+        msgLabel.BackgroundTransparency = 1
+        msgLabel.Text = message or "Thanks for using this GUI!"
+        msgLabel.TextColor3 = Color3.fromRGB(180, 180, 180) -- Mais suave
+        msgLabel.Font = Enum.Font.SourceSans
+        msgLabel.TextSize = 15
+        msgLabel.TextWrapped = true
+        msgLabel.TextXAlignment = Enum.TextXAlignment.Left
+        msgLabel.TextYAlignment = Enum.TextYAlignment.Top
+
+        tab._order = tab._order + 1
+        return container
+    end
+
+    -- NOVO: Método para adicionar créditos de redes sociais
+    function tab:AddSocialCredit(platformName, platformPhotoId, username, message, profileLink)
+        local container = Instance.new("Frame", contentScroll)
+        container.Size = UDim2.new(1, 0, 0, 90) -- Altura para redes sociais
+        container.LayoutOrder = tab._order
+        container.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        container.BorderSizePixel = 0
+        roundify(container, 8)
+
+        local layout = Instance.new("UIListLayout", container)
+        layout.FillDirection = Enum.FillDirection.Horizontal
+        layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+        layout.VerticalAlignment = Enum.VerticalAlignment.Center
+        layout.Padding = UDim.new(0, 8)
+
+        local padding = Instance.new("UIPadding", container)
+        padding.PaddingLeft = UDim.new(0, 8)
+        padding.PaddingRight = UDim.new(0, 8)
+
+        -- Platform Photo (ImageLabel)
+        local platformPhoto = Instance.new("ImageLabel", container)
+        platformPhoto.Size = UDim2.new(0, 60, 0, 60)
+        platformPhoto.BackgroundTransparency = 1
+        platformPhoto.Image = platformPhotoId or "rbxassetid://2526131341" -- Exemplo de ID (ícone do Roblox)
+        platformPhoto.ScaleType = Enum.ScaleType.Fit
+        roundify(platformPhoto, 8) -- Cantos ligeiramente arredondados
+
+        -- Text Info (Platform Name, Username and Message)
+        local textInfo = Instance.new("Frame", container)
+        textInfo.Size = UDim2.new(0.65, 0, 1, 0) -- Ajusta largura
+        textInfo.BackgroundTransparency = 1
+        local textLayout = Instance.new("UIListLayout", textInfo)
+        textLayout.FillDirection = Enum.FillDirection.Vertical
+        textLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+        textLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+        textLayout.Padding = UDim.new(0, 2)
+
+        -- Platform Name
+        local platformNameLabel = Instance.new("TextLabel", textInfo)
+        platformNameLabel.Size = UDim2.new(1, 0, 0, 20)
+        platformNameLabel.BackgroundTransparency = 1
+        platformNameLabel.Text = platformName or "Platform Name"
+        platformNameLabel.TextColor3 = Color3.new(1, 1, 1)
+        platformNameLabel.Font = Enum.Font.SourceSansBold
+        platformNameLabel.TextSize = 16
+        platformNameLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+        -- Username (Destaque)
+        local usernameLabel = Instance.new("TextLabel", textInfo)
+        usernameLabel.Size = UDim2.new(1, 0, 0, 25)
+        usernameLabel.BackgroundTransparency = 1
+        usernameLabel.Text = "@" .. (username or "user")
+        usernameLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Vermelho para destacar o @
+        usernameLabel.Font = Enum.Font.SourceSansBold
+        usernameLabel.TextSize = 18
+        usernameLabel.TextXAlignment = Enum.TextXAlignment.Left
+
+        -- Custom Message
+        local msgLabel = Instance.new("TextLabel", textInfo)
+        msgLabel.Size = UDim2.new(1, 0, 0, 30)
+        msgLabel.BackgroundTransparency = 1
+        msgLabel.Text = message or "Check out my profile!"
+        msgLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+        msgLabel.Font = Enum.Font.SourceSans
+        msgLabel.TextSize = 14
+        msgLabel.TextWrapped = true
+        msgLabel.TextXAlignment = Enum.TextXAlignment.Left
+        msgLabel.TextYAlignment = Enum.TextYAlignment.Top
+
+        -- Copy Link Button
+        local copyButton = Instance.new("TextButton", container)
+        copyButton.Size = UDim2.new(0.2, 0, 0.4, 0) -- Ajusta tamanho do botão
+        copyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+        copyButton.TextColor3 = Color3.new(1, 1, 1)
+        copyButton.Text = "Copiar Link"
+        copyButton.Font = Enum.Font.SourceSansBold
+        copyButton.TextSize = 14
+        copyButton.BorderSizePixel = 0
+        roundify(copyButton, 6)
+
+        copyButton.MouseButton1Click:Connect(function()
+            if profileLink then
+                warn("Link copiado para o console (Em jogo, o usuário precisaria copiar manualmente ou um prompt apareceria): " .. profileLink)
+                copyButton.Text = "Copiado!"
+                copyButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0) -- Verde ao copiar
+                task.wait(1.5)
+                copyButton.Text = "Copiar Link"
+                copyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+            end
+        end)
+
+        tab._order = tab._order + 1
+        return container
+    end
+
     -- Adiciona tab na lista
     table.insert(self._tabs, tab)
     self._tabOrder = self._tabOrder + 1
