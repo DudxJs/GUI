@@ -864,7 +864,7 @@ function DudxJsGUI:AddTab(tabName)
         msgLabel.TextXAlignment = Enum.TextXAlignment.Left
         msgLabel.TextYAlignment = Enum.TextYAlignment.Top
 
-        -- Copy Link Button
+        -- Copy Link Button (Ajustado para exibir um TextBox para cópia manual)
         local copyButton = Instance.new("TextButton", container)
         copyButton.Size = UDim2.new(0.2, 0, 0.4, 0) -- Ajusta tamanho do botão
         copyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
@@ -877,19 +877,51 @@ function DudxJsGUI:AddTab(tabName)
 
         copyButton.MouseButton1Click:Connect(function()
             if profileLink then
-                local success, err = pcall(function()
-                    UserInputService:SetClipboard(profileLink)
+                local linkTextBox = Instance.new("TextBox")
+                linkTextBox.Size = UDim2.new(0, 250, 0, 30)
+                linkTextBox.Position = UDim2.new(0.5, -125, 0.5, -15)
+                linkTextBox.Text = profileLink
+                linkTextBox.TextColor3 = Color3.new(1,1,1)
+                linkTextBox.BackgroundColor3 = Color3.fromRGB(30,30,30)
+                linkTextBox.Font = Enum.Font.SourceSans
+                linkTextBox.TextSize = 16
+                linkTextBox.TextXAlignment = Enum.TextXAlignment.Center
+                linkTextBox.ClearTextOnFocus = false
+                linkTextBox.Parent = self._gui -- Adiciona ao ScreenGui principal
+                linkTextBox.ZIndex = 999999 -- Garante que esteja acima de tudo
+                roundify(linkTextBox, 6)
+
+                local closeBtn = Instance.new("TextButton")
+                closeBtn.Size = UDim2.new(0, 20, 0, 20)
+                closeBtn.Position = UDim2.new(1, -25, 0, 5)
+                closeBtn.Text = "X"
+                closeBtn.TextColor3 = Color3.new(1,0,0)
+                closeBtn.BackgroundColor3 = Color3.fromRGB(50,50,50)
+                closeBtn.Font = Enum.Font.SourceSansBold
+                closeBtn.TextSize = 18
+                closeBtn.Parent = linkTextBox -- Botão de fechar dentro do TextBox
+
+                -- Adiciona evento para focar e selecionar o texto
+                linkTextBox.InputBegan:Connect(function(input)
+                    if input.UserInputType == Enum.UserInputType.MouseButton1 then
+                        linkTextBox:CaptureFocus()
+                        linkTextBox.SelectionStart = 0
+                        linkTextBox.SelectionLength = string.len(linkTextBox.Text)
+                    end
+                end)
+                
+                -- Se o usuário focar no TextBox, seleciona o texto para facilitar a cópia
+                linkTextBox.Focused:Connect(function()
+                    linkTextBox.SelectionStart = 0
+                    linkTextBox.SelectionLength = string.len(linkTextBox.Text)
                 end)
 
-                if success then
-                    warn("Link copiado para a área de transferência: " .. profileLink)
-                    copyButton.Text = "Copiado!"
-                    copyButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0) -- Verde ao copiar
-                else
-                    warn("Falha ao copiar para a área de transferência: " .. (err or "Erro desconhecido"))
-                    copyButton.Text = "Erro! (Console)"
-                    copyButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50) -- Vermelho em caso de erro
-                end
+                closeBtn.MouseButton1Click:Connect(function()
+                    linkTextBox:Destroy()
+                end)
+
+                copyButton.Text = "Link na tela!"
+                copyButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0) -- Verde para indicar sucesso
                 task.wait(1.5)
                 copyButton.Text = "Copiar Link"
                 copyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
