@@ -19,7 +19,7 @@ local function roundify(obj, rad)
 end
 
 -- Cria a base inteira do GUI
-function DudxJsGUI:New(title, toggleImageId, creatorName) -- Adicionado creatorName aqui
+function DudxJsGUI:New(title, toggleImageId, creatorName)
     local self = setmetatable({}, DudxJsGUI)
 
     -- ScreenGui
@@ -663,227 +663,177 @@ function DudxJsGUI:AddTab(tabName)
                 item.MouseButton1Click:Connect(function()
                     selectedLabel.Text = nome
                     listFrame.Visible = false
-                    arrowBtn.Text = "▽"
-                    if callback then callback(nome) end
+                    if callback then callback(nome, idx) end
                 end)
-                totalHeight = totalHeight + 32 + 4
+                totalHeight = totalHeight + item.Size.Y.Offset + lfLayout.Padding.Offset
             end
-            listFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight)
-            listFrame.Size = UDim2.new(0, dropdownContainer.AbsoluteSize.X, 0, math.min(150, totalHeight))
+            listFrame.CanvasSize = UDim2.new(0, 0, 0, totalHeight + padTop.PaddingTop.Offset + padBot.PaddingBottom.Offset)
         end
 
-        -- Mostra lista
-        local function showList()
-            if not listFrame.Parent then
-                listFrame.Parent = gui
+        dropdownContainer.MouseButton1Click:Connect(function()
+            if listFrame.Visible then
+                listFrame.Visible = false
+                return
             end
-            atualizarLista()
-            local absPos = dropdownContainer.AbsolutePosition
-            local absSize = dropdownContainer.AbsoluteSize
-            local viewport = workspace.CurrentCamera and workspace.CurrentCamera.ViewportSize or Vector2.new(1920,1080)
-            local listHeight = listFrame.AbsoluteSize.Y > 0 and listFrame.AbsoluteSize.Y or 150
-            local yBelow = absPos.Y + absSize.Y
-            local yAbove = absPos.Y - listHeight
-            local posY = (yBelow + listHeight > viewport.Y) and yAbove or yBelow
-            listFrame.Position = UDim2.new(0, absPos.X, 0, posY)
-            listFrame.Size = UDim2.new(0, absSize.X, 0, math.min(150, listFrame.CanvasSize.Y.Offset))
-            listFrame.Visible = not listFrame.Visible
-            arrowBtn.Text = listFrame.Visible and "△" or "▽"
-        end
-
-        -- Fecha lista ao clicar fora
-        UserInputService.InputBegan:Connect(function(input)
-            if input.UserInputType == Enum.UserInputType.MouseButton1 then
-                if listFrame.Visible and not dropdownContainer:IsAncestorOf(input.Target) and input.Target ~= listFrame and not listFrame:IsAncestorOf(input.Target) then
-                    listFrame.Visible = false
-                    arrowBtn.Text = "▽"
-                end
-            end
+            atualizarLista() -- Garante que a lista esteja atualizada
+            listFrame.Position = UDim2.new(dropdownContainer.Position.X.Scale, dropdownContainer.Position.X.Offset, dropdownContainer.Position.Y.Scale, dropdownContainer.Position.Y.Offset + dropdownContainer.Size.Y.Offset + lfLayout.Padding.Offset)
+            listFrame.Parent = gui -- Garante que esteja visível globalmente
+            listFrame.Visible = true
         end)
 
-        dropdownContainer.MouseButton1Click:Connect(function() showList() end)
         tab._order = tab._order + 1
-        return dropdownContainer
+        return dropdownContainer, selectedLabel -- Retorna o container e o label do selecionado
     end
 
     function tab:AddLabel(text)
         local label = Instance.new("TextLabel", contentScroll)
-        label.AutomaticSize = Enum.AutomaticSize.Y
-        label.Size = UDim2.new(1, -40, 0, 0) -- Altura 0 pois é automática
+        label.Size = UDim2.new(1, 0, 0, 24)
         label.LayoutOrder = tab._order
         label.BackgroundTransparency = 1
+        label.Text = text
         label.TextColor3 = Color3.new(1, 1, 1)
-        label.Text = text or ""
         label.Font = Enum.Font.SourceSans
-        label.TextSize = 21.5
-        label.TextWrapped = true
+        label.TextSize = 16
         label.TextXAlignment = Enum.TextXAlignment.Left
-        label.TextYAlignment = Enum.TextYAlignment.Top
-
-        -- Padding igual em cima e embaixo
-        local padding = Instance.new("UIPadding", label)
-        padding.PaddingTop = UDim.new(0, 1)
-        padding.PaddingBottom = UDim.new(0, 1)
-        padding.PaddingLeft = UDim.new(0, 8)
-        padding.PaddingRight = UDim.new(0, 8)
-
+        label.TextWrapped = true
+        label.AutomaticSize = Enum.AutomaticSize.Y -- Permite que o label se ajuste ao texto
         tab._order = tab._order + 1
         return label
     end
 
-    -- NOVO: Método para adicionar perfil do criador
     function tab:AddCreatorProfile(photoId, nickname, message)
         local container = Instance.new("Frame", contentScroll)
-        container.Size = UDim2.new(1, 0, 0, 80) -- Altura fixa para o perfil
+        container.Size = UDim2.new(1, 0, 0, 100)
         container.LayoutOrder = tab._order
-        container.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
         container.BorderSizePixel = 0
-        roundify(container, 8)
+        roundify(container, 10)
+
+        local padding = Instance.new("UIPadding", container)
+        padding.PaddingTop = UDim.new(0, 10)
+        padding.PaddingBottom = UDim.new(0, 10)
+        padding.PaddingLeft = UDim.new(0, 10)
+        padding.PaddingRight = UDim.new(0, 10)
 
         local layout = Instance.new("UIListLayout", container)
         layout.FillDirection = Enum.FillDirection.Horizontal
         layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
         layout.VerticalAlignment = Enum.VerticalAlignment.Center
-        layout.Padding = UDim.new(0, 8)
+        layout.Padding = UDim.new(0, 10)
+        layout.SortOrder = Enum.SortOrder.LayoutOrder
 
-        local padding = Instance.new("UIPadding", container)
-        padding.PaddingLeft = UDim.new(0, 8)
-        padding.PaddingRight = UDim.new(0, 8)
+        -- Profile Picture
+        local profileImage = Instance.new("ImageLabel", container)
+        profileImage.Size = UDim2.new(0, 80, 0, 80)
+        profileImage.Image = "rbxassetid://" .. tostring(photoId)
+        profileImage.BackgroundTransparency = 1
+        profileImage.LayoutOrder = 1
+        roundify(profileImage, 40) -- Circular image
 
-        -- Photo (ImageLabel)
-        local photo = Instance.new("ImageLabel", container)
-        photo.Size = UDim2.new(0, 60, 0, 60)
-        photo.BackgroundTransparency = 1
-        photo.Image = photoId or "rbxassetid://6031097225" -- Imagem padrão ou personalizada
-        photo.ScaleType = Enum.ScaleType.Fit
-        roundify(photo, 30) -- Circular
-
-        -- Text Info (Nickname and Message)
-        local textInfo = Instance.new("Frame", container)
-        textInfo.Size = UDim2.new(1, -76, 1, 0) -- Ajusta largura para caber ao lado da foto
-        textInfo.BackgroundTransparency = 1
-        local textLayout = Instance.new("UIListLayout", textInfo)
+        -- Text Content
+        local textContainer = Instance.new("Frame", container)
+        textContainer.Size = UDim2.new(1, -110, 1, 0) -- Ajusta a largura para o texto
+        textContainer.BackgroundTransparency = 1
+        textContainer.LayoutOrder = 2
+        local textLayout = Instance.new("UIListLayout", textContainer)
         textLayout.FillDirection = Enum.FillDirection.Vertical
         textLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
         textLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-        textLayout.Padding = UDim.new(0, 2)
+        textLayout.Padding = UDim.new(0, 5)
 
-        -- Nickname (Destaque)
-        local nickLabel = Instance.new("TextLabel", textInfo)
-        nickLabel.Size = UDim2.new(1, 0, 0, 25)
-        nickLabel.BackgroundTransparency = 1
-        nickLabel.Text = nickname or "Creator Nickname"
-        nickLabel.TextColor3 = Color3.new(1, 1, 1)
-        nickLabel.Font = Enum.Font.SourceSansBold
-        nickLabel.TextSize = 20
-        nickLabel.TextXAlignment = Enum.TextXAlignment.Left
+        local nicknameLabel = Instance.new("TextLabel", textContainer)
+        nicknameLabel.Size = UDim2.new(1, 0, 0, 20)
+        nicknameLabel.BackgroundTransparency = 1
+        nicknameLabel.Text = nickname
+        nicknameLabel.TextColor3 = Color3.new(1, 1, 1)
+        nicknameLabel.Font = Enum.Font.SourceSansBold
+        nicknameLabel.TextSize = 18
+        nicknameLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-        -- Custom Message
-        local msgLabel = Instance.new("TextLabel", textInfo)
-        msgLabel.Size = UDim2.new(1, 0, 0, 40) -- Ajusta altura para a mensagem
-        msgLabel.BackgroundTransparency = 1
-        msgLabel.Text = message or "Thanks for using this GUI!"
-        msgLabel.TextColor3 = Color3.fromRGB(180, 180, 180) -- Mais suave
-        msgLabel.Font = Enum.Font.SourceSans
-        msgLabel.TextSize = 15
-        msgLabel.TextWrapped = true
-        msgLabel.TextXAlignment = Enum.TextXAlignment.Left
-        msgLabel.TextYAlignment = Enum.TextYAlignment.Top
+        local messageLabel = Instance.new("TextLabel", textContainer)
+        messageLabel.Size = UDim2.new(1, 0, 0, 40) -- Ajusta altura para a mensagem
+        messageLabel.BackgroundTransparency = 1
+        messageLabel.Text = message
+        messageLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
+        messageLabel.Font = Enum.Font.SourceSans
+        messageLabel.TextSize = 14
+        messageLabel.TextWrapped = true
+        messageLabel.TextXAlignment = Enum.TextXAlignment.Left
+        messageLabel.TextYAlignment = Enum.TextYAlignment.Top
 
         tab._order = tab._order + 1
         return container
     end
 
-    -- NOVO: Método para adicionar créditos de redes sociais
     function tab:AddSocialCredit(platformName, platformPhotoId, username, message, profileLink)
         local container = Instance.new("Frame", contentScroll)
-        container.Size = UDim2.new(1, 0, 0, 90) -- Altura para redes sociais
+        container.Size = UDim2.new(1, 0, 0, 100) -- Altura um pouco maior para acomodar tudo
         container.LayoutOrder = tab._order
-        container.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
+        container.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
         container.BorderSizePixel = 0
-        roundify(container, 8)
+        roundify(container, 10)
+
+        local padding = Instance.new("UIPadding", container)
+        padding.PaddingTop = UDim.new(0, 10)
+        padding.PaddingBottom = UDim.new(0, 10)
+        padding.PaddingLeft = UDim.new(0, 10)
+        padding.PaddingRight = UDim.new(0, 10)
 
         local layout = Instance.new("UIListLayout", container)
         layout.FillDirection = Enum.FillDirection.Horizontal
         layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
         layout.VerticalAlignment = Enum.VerticalAlignment.Center
-        layout.Padding = UDim.new(0, 8)
+        layout.Padding = UDim.new(0, 10)
+        layout.SortOrder = Enum.SortOrder.LayoutOrder
 
-        local padding = Instance.new("UIPadding", container)
-        padding.PaddingLeft = UDim.new(0, 8)
-        padding.PaddingRight = UDim.new(0, 8)
+        -- Platform Icon
+        local platformImage = Instance.new("ImageLabel", container)
+        platformImage.Size = UDim2.new(0, 60, 0, 60)
+        platformImage.Image = "rbxassetid://" .. tostring(platformPhotoId)
+        platformImage.BackgroundTransparency = 1
+        platformImage.LayoutOrder = 1
+        roundify(platformImage, 30) -- Circular image
 
-        -- Platform Photo (ImageLabel)
-        local platformPhoto = Instance.new("ImageLabel", container)
-        platformPhoto.Size = UDim2.new(0, 60, 0, 60)
-        platformPhoto.BackgroundTransparency = 1
-        platformPhoto.Image = platformPhotoId or "rbxassetid://2526131341" -- Exemplo de ID (ícone do Roblox)
-        platformPhoto.ScaleType = Enum.ScaleType.Fit
-        roundify(platformPhoto, 8) -- Cantos ligeiramente arredondados
-
-        -- Text Info (Platform Name, Username and Message)
-        local textInfo = Instance.new("Frame", container)
-        textInfo.Size = UDim2.new(0.65, 0, 1, 0) -- Ajusta largura
-        textInfo.BackgroundTransparency = 1
-        local textLayout = Instance.new("UIListLayout", textInfo)
+        -- Text Content
+        local textContainer = Instance.new("Frame", container)
+        -- Ajusta a largura para que o texto e o botão se encaixem bem
+        textContainer.Size = UDim2.new(1, -90, 1, 0)
+        textContainer.BackgroundTransparency = 1
+        textContainer.LayoutOrder = 2
+        local textLayout = Instance.new("UIListLayout", textContainer)
         textLayout.FillDirection = Enum.FillDirection.Vertical
         textLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
         textLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-        textLayout.Padding = UDim.new(0, 2)
+        textLayout.Padding = UDim.new(0, 5)
 
-        -- Platform Name
-        local platformNameLabel = Instance.new("TextLabel", textInfo)
+        local platformNameLabel = Instance.new("TextLabel", textContainer)
         platformNameLabel.Size = UDim2.new(1, 0, 0, 20)
         platformNameLabel.BackgroundTransparency = 1
-        platformNameLabel.Text = platformName or "Platform Name"
+        platformNameLabel.Text = platformName
         platformNameLabel.TextColor3 = Color3.new(1, 1, 1)
         platformNameLabel.Font = Enum.Font.SourceSansBold
-        platformNameLabel.TextSize = 16
+        platformNameLabel.TextSize = 18
         platformNameLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-        -- Username (Destaque)
-        local usernameLabel = Instance.new("TextLabel", textInfo)
-        usernameLabel.Size = UDim2.new(1, 0, 0, 25)
+        local usernameLabel = Instance.new("TextLabel", textContainer)
+        usernameLabel.Size = UDim2.new(1, 0, 0, 20)
         usernameLabel.BackgroundTransparency = 1
-        usernameLabel.Text = "@" .. (username or "user")
-        usernameLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Vermelho para destacar o @
-        usernameLabel.Font = Enum.Font.SourceSansBold
-        usernameLabel.TextSize = 18
+        usernameLabel.Text = "@" .. username
+        usernameLabel.TextColor3 = Color3.fromRGB(0, 150, 255) -- Azul para o username
+        usernameLabel.Font = Enum.Font.SourceSansSemibold
+        usernameLabel.TextSize = 16
         usernameLabel.TextXAlignment = Enum.TextXAlignment.Left
 
-        -- Custom Message
-        local msgLabel = Instance.new("TextLabel", textInfo)
-        msgLabel.Size = UDim2.new(1, 0, 0, 30)
+        local msgLabel = Instance.new("TextLabel", textContainer)
+        msgLabel.Size = UDim2.new(1, 0, 0, 30) -- Ajusta altura para a mensagem
         msgLabel.BackgroundTransparency = 1
-        msgLabel.Text = message or "Check out my profile!"
+        msgLabel.Text = message
         msgLabel.TextColor3 = Color3.fromRGB(180, 180, 180)
         msgLabel.Font = Enum.Font.SourceSans
         msgLabel.TextSize = 14
         msgLabel.TextWrapped = true
         msgLabel.TextXAlignment = Enum.TextXAlignment.Left
         msgLabel.TextYAlignment = Enum.TextYAlignment.Top
-
-        -- Copy Link Button
-        local copyButton = Instance.new("TextButton", container)
-        copyButton.Size = UDim2.new(0.2, 0, 0.4, 0) -- Ajusta tamanho do botão
-        copyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-        copyButton.TextColor3 = Color3.new(1, 1, 1)
-        copyButton.Text = "Copiar Link"
-        copyButton.Font = Enum.Font.SourceSansBold
-        copyButton.TextSize = 14
-        copyButton.BorderSizePixel = 0
-        roundify(copyButton, 6)
-
-        copyButton.MouseButton1Click:Connect(function()
-            if profileLink then
-                warn("Link copiado para o console (Em jogo, o usuário precisaria copiar manualmente ou um prompt apareceria): " .. profileLink)
-                copyButton.Text = "Copiado!"
-                copyButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0) -- Verde ao copiar
-                task.wait(1.5)
-                copyButton.Text = "Copiar Link"
-                copyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-            end
-        end)
 
         tab._order = tab._order + 1
         return container
@@ -895,9 +845,13 @@ function DudxJsGUI:AddTab(tabName)
     return tab
 end
 
+-- Destrói a GUI
 function DudxJsGUI:Destroy()
-    if self._gui then self._gui:Destroy() end
+    if self._gui then
+        self._gui:Destroy()
+        self._gui = nil
+    end
 end
 
--- Exporta
+-- Exporta a GUI para _G
 _G.DudxJsGUI = DudxJsGUI
