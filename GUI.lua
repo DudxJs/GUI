@@ -164,7 +164,7 @@ function DudxJsGUI:New(title, toggleImageId, creatorName) -- Adicionado creatorN
     CreatorCredit.TextColor3 = Color3.fromRGB(150, 150, 150) -- Cor mais esmaecida
     CreatorCredit.TextXAlignment = Enum.TextXAlignment.Left -- Alinha à esquerda para seguir o título
     CreatorCredit.Font = Enum.Font.SourceSans
-    CreatorCredit.TextSize = 14 -- Tamanho menor
+    CreatorCredit.TextSize = 14
     CreatorCredit.ZIndex = 1 -- Sutilmente atrás do título (visual)
 
     -- Close Button
@@ -367,7 +367,7 @@ function DudxJsGUI:AddTab(tabName)
     -- Botão lateral
     local button = Instance.new("TextButton", self.menu)
     button.Size = UDim2.new(1, 0, 0, 32)
-    button.LayoutOrder = self._tabOrder
+    button.LayoutOrder = tab._order
     button.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
     button.TextColor3 = Color3.new(1, 1, 1)
     button.Text = tabName
@@ -732,7 +732,7 @@ function DudxJsGUI:AddTab(tabName)
     end
 
     -- NOVO: Método para adicionar perfil do criador
-    function tab:AddCreatorProfile(photoId, nickname, message)
+    function tab:AddCreatorProfile(creatorUserId, nickname, message) -- Agora espera creatorUserId
         local container = Instance.new("Frame", contentScroll)
         container.Size = UDim2.new(1, 0, 0, 80) -- Altura fixa para o perfil
         container.LayoutOrder = tab._order
@@ -754,7 +754,8 @@ function DudxJsGUI:AddTab(tabName)
         local photo = Instance.new("ImageLabel", container)
         photo.Size = UDim2.new(0, 60, 0, 60)
         photo.BackgroundTransparency = 1
-        photo.Image = photoId or "rbxassetid://6031097225" -- Imagem padrão ou personalizada
+        -- Usa o UserId para carregar a imagem do avatar do Roblox
+        photo.Image = "https://www.roblox.com/headshot-thumbnail/image?userId=" .. tostring(creatorUserId) .. "&width=420&height=420&format=png"
         photo.ScaleType = Enum.ScaleType.Fit
         roundify(photo, 30) -- Circular
 
@@ -797,42 +798,46 @@ function DudxJsGUI:AddTab(tabName)
     -- NOVO: Método para adicionar créditos de redes sociais
     function tab:AddSocialCredit(platformName, platformPhotoId, username, message, profileLink)
         local container = Instance.new("Frame", contentScroll)
-        container.Size = UDim2.new(1, 0, 0, 90) -- Altura para redes sociais
+        container.Size = UDim2.new(1, 0, 0, 80) -- Altura ajustada para não ter o botão (era 110)
         container.LayoutOrder = tab._order
         container.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
         container.BorderSizePixel = 0
         roundify(container, 8)
 
-        local layout = Instance.new("UIListLayout", container)
-        layout.FillDirection = Enum.FillDirection.Horizontal
-        layout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-        layout.VerticalAlignment = Enum.VerticalAlignment.Center
-        layout.Padding = UDim.new(0, 8)
+        -- Layout Horizontal principal para a foto e o conteúdo
+        local mainHorizontalLayout = Instance.new("UIListLayout", container)
+        mainHorizontalLayout.FillDirection = Enum.FillDirection.Horizontal
+        mainHorizontalLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+        mainHorizontalLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+        mainHorizontalLayout.Padding = UDim.new(0, 8)
 
         local padding = Instance.new("UIPadding", container)
         padding.PaddingLeft = UDim.new(0, 8)
         padding.PaddingRight = UDim.new(0, 8)
+        padding.PaddingTop = UDim.new(0, 8)
+        padding.PaddingBottom = UDim.new(0, 8)
 
         -- Platform Photo (ImageLabel)
         local platformPhoto = Instance.new("ImageLabel", container)
-        platformPhoto.Size = UDim2.new(0, 60, 0, 60)
+        platformPhoto.Size = UDim2.new(0, 70, 0, 70)
         platformPhoto.BackgroundTransparency = 1
         platformPhoto.Image = platformPhotoId or "rbxassetid://2526131341" -- Exemplo de ID (ícone do Roblox)
         platformPhoto.ScaleType = Enum.ScaleType.Fit
-        roundify(platformPhoto, 8) -- Cantos ligeiramente arredondados
+        roundify(platformPhoto, 8)
 
-        -- Text Info (Platform Name, Username and Message)
-        local textInfo = Instance.new("Frame", container)
-        textInfo.Size = UDim2.new(0.65, 0, 1, 0) -- Ajusta largura
-        textInfo.BackgroundTransparency = 1
-        local textLayout = Instance.new("UIListLayout", textInfo)
-        textLayout.FillDirection = Enum.FillDirection.Vertical
-        textLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-        textLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-        textLayout.Padding = UDim.new(0, 2)
+        -- NOVO: Frame para os Textos (agora não precisa mais do botão)
+        local textWrapper = Instance.new("Frame", container)
+        textWrapper.Size = UDim2.new(1, -94, 1, 0) -- Ocupa o restante do espaço horizontal
+        textWrapper.BackgroundTransparency = 1
+
+        local verticalLayout = Instance.new("UIListLayout", textWrapper)
+        verticalLayout.FillDirection = Enum.FillDirection.Vertical
+        verticalLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+        verticalLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+        verticalLayout.Padding = UDim.new(0, 2) -- Espaçamento entre os elementos verticais
 
         -- Platform Name
-        local platformNameLabel = Instance.new("TextLabel", textInfo)
+        local platformNameLabel = Instance.new("TextLabel", textWrapper)
         platformNameLabel.Size = UDim2.new(1, 0, 0, 20)
         platformNameLabel.BackgroundTransparency = 1
         platformNameLabel.Text = platformName or "Platform Name"
@@ -842,7 +847,7 @@ function DudxJsGUI:AddTab(tabName)
         platformNameLabel.TextXAlignment = Enum.TextXAlignment.Left
 
         -- Username (Destaque)
-        local usernameLabel = Instance.new("TextLabel", textInfo)
+        local usernameLabel = Instance.new("TextLabel", textWrapper)
         usernameLabel.Size = UDim2.new(1, 0, 0, 25)
         usernameLabel.BackgroundTransparency = 1
         usernameLabel.Text = "@" .. (username or "user")
@@ -852,7 +857,7 @@ function DudxJsGUI:AddTab(tabName)
         usernameLabel.TextXAlignment = Enum.TextXAlignment.Left
 
         -- Custom Message
-        local msgLabel = Instance.new("TextLabel", textInfo)
+        local msgLabel = Instance.new("TextLabel", textWrapper)
         msgLabel.Size = UDim2.new(1, 0, 0, 30)
         msgLabel.BackgroundTransparency = 1
         msgLabel.Text = message or "Check out my profile!"
@@ -863,27 +868,7 @@ function DudxJsGUI:AddTab(tabName)
         msgLabel.TextXAlignment = Enum.TextXAlignment.Left
         msgLabel.TextYAlignment = Enum.TextYAlignment.Top
 
-        -- Copy Link Button
-        local copyButton = Instance.new("TextButton", container)
-        copyButton.Size = UDim2.new(0.2, 0, 0.4, 0) -- Ajusta tamanho do botão
-        copyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-        copyButton.TextColor3 = Color3.new(1, 1, 1)
-        copyButton.Text = "Copiar Link"
-        copyButton.Font = Enum.Font.SourceSansBold
-        copyButton.TextSize = 14
-        copyButton.BorderSizePixel = 0
-        roundify(copyButton, 6)
-
-        copyButton.MouseButton1Click:Connect(function()
-            if profileLink then
-                warn("Link copiado para o console (Em jogo, o usuário precisaria copiar manualmente ou um prompt apareceria): " .. profileLink)
-                copyButton.Text = "Copiado!"
-                copyButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0) -- Verde ao copiar
-                task.wait(1.5)
-                copyButton.Text = "Copiar Link"
-                copyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
-            end
-        end)
+        -- O bloco do copyButton foi removido daqui!
 
         tab._order = tab._order + 1
         return container
