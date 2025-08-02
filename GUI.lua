@@ -798,17 +798,18 @@ function DudxJsGUI:AddTab(tabName)
     -- NOVO: Método para adicionar créditos de redes sociais
     function tab:AddSocialCredit(platformName, platformPhotoId, username, message, profileLink)
         local container = Instance.new("Frame", contentScroll)
-        container.Size = UDim2.new(1, 0, 0, 110) -- Aumenta a altura para acomodar o botão abaixo
+        container.Size = UDim2.new(1, 0, 0, 110) -- Altura ajustada para acomodar o botão
         container.LayoutOrder = tab._order
         container.BackgroundColor3 = Color3.fromRGB(45, 45, 45)
         container.BorderSizePixel = 0
         roundify(container, 8)
 
-        local mainLayout = Instance.new("UIListLayout", container) -- NOVO: Layout principal do container social
-        mainLayout.FillDirection = Enum.FillDirection.Horizontal
-        mainLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-        mainLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-        mainLayout.Padding = UDim.new(0, 8)
+        -- Layout Horizontal principal para a foto e o conteúdo
+        local mainHorizontalLayout = Instance.new("UIListLayout", container)
+        mainHorizontalLayout.FillDirection = Enum.FillDirection.Horizontal
+        mainHorizontalLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+        mainHorizontalLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+        mainHorizontalLayout.Padding = UDim.new(0, 8)
 
         local padding = Instance.new("UIPadding", container)
         padding.PaddingLeft = UDim.new(0, 8)
@@ -818,25 +819,25 @@ function DudxJsGUI:AddTab(tabName)
 
         -- Platform Photo (ImageLabel)
         local platformPhoto = Instance.new("ImageLabel", container)
-        platformPhoto.Size = UDim2.new(0, 70, 0, 70) -- Levemente maior
+        platformPhoto.Size = UDim2.new(0, 70, 0, 70)
         platformPhoto.BackgroundTransparency = 1
         platformPhoto.Image = platformPhotoId or "rbxassetid://2526131341" -- Exemplo de ID (ícone do Roblox)
         platformPhoto.ScaleType = Enum.ScaleType.Fit
-        roundify(platformPhoto, 8) -- Cantos ligeiramente arredondados
+        roundify(platformPhoto, 8)
 
-        -- Text and Button Info (Frame que conterá os textos e o botão)
-        local textAndButtonContainer = Instance.new("Frame", container)
-        textAndButtonContainer.Size = UDim2.new(1, -94, 1, 0) -- Ajusta largura para caber ao lado da foto e padding
-        textAndButtonContainer.BackgroundTransparency = 1
+        -- NOVO: Frame para os Textos e o Botão de Cópia (vertical)
+        local textAndButtonWrapper = Instance.new("Frame", container)
+        textAndButtonWrapper.Size = UDim2.new(1, -94, 1, 0) -- Ocupa o restante do espaço horizontal
+        textAndButtonWrapper.BackgroundTransparency = 1
 
-        local textAndButtonLayout = Instance.new("UIListLayout", textAndButtonContainer) -- NOVO: Layout vertical para textos e botão
-        textAndButtonLayout.FillDirection = Enum.FillDirection.Vertical
-        textAndButtonLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
-        textAndButtonLayout.VerticalAlignment = Enum.VerticalAlignment.Center
-        textAndButtonLayout.Padding = UDim.new(0, 2) -- Espaçamento entre os elementos
+        local verticalLayout = Instance.new("UIListLayout", textAndButtonWrapper)
+        verticalLayout.FillDirection = Enum.FillDirection.Vertical
+        verticalLayout.HorizontalAlignment = Enum.HorizontalAlignment.Left
+        verticalLayout.VerticalAlignment = Enum.VerticalAlignment.Center
+        verticalLayout.Padding = UDim.new(0, 2) -- Espaçamento entre os elementos verticais
 
         -- Platform Name
-        local platformNameLabel = Instance.new("TextLabel", textAndButtonContainer)
+        local platformNameLabel = Instance.new("TextLabel", textAndButtonWrapper)
         platformNameLabel.Size = UDim2.new(1, 0, 0, 20)
         platformNameLabel.BackgroundTransparency = 1
         platformNameLabel.Text = platformName or "Platform Name"
@@ -846,7 +847,7 @@ function DudxJsGUI:AddTab(tabName)
         platformNameLabel.TextXAlignment = Enum.TextXAlignment.Left
 
         -- Username (Destaque)
-        local usernameLabel = Instance.new("TextLabel", textAndButtonContainer)
+        local usernameLabel = Instance.new("TextLabel", textAndButtonWrapper)
         usernameLabel.Size = UDim2.new(1, 0, 0, 25)
         usernameLabel.BackgroundTransparency = 1
         usernameLabel.Text = "@" .. (username or "user")
@@ -856,7 +857,7 @@ function DudxJsGUI:AddTab(tabName)
         usernameLabel.TextXAlignment = Enum.TextXAlignment.Left
 
         -- Custom Message
-        local msgLabel = Instance.new("TextLabel", textAndButtonContainer)
+        local msgLabel = Instance.new("TextLabel", textAndButtonWrapper)
         msgLabel.Size = UDim2.new(1, 0, 0, 30)
         msgLabel.BackgroundTransparency = 1
         msgLabel.Text = message or "Check out my profile!"
@@ -867,9 +868,9 @@ function DudxJsGUI:AddTab(tabName)
         msgLabel.TextXAlignment = Enum.TextXAlignment.Left
         msgLabel.TextYAlignment = Enum.TextYAlignment.Top
 
-        -- Copy Link Button (AGORA DENTRO DE textAndButtonContainer)
-        local copyButton = Instance.new("TextButton", textAndButtonContainer)
-        copyButton.Size = UDim2.new(1, -20, 0, 25) -- Ajusta tamanho do botão (largura total menos padding, altura menor)
+        -- Copy Link Button (AGORA DENTRO DE textAndButtonWrapper)
+        local copyButton = Instance.new("TextButton", textAndButtonWrapper)
+        copyButton.Size = UDim2.new(1, 0, 0, 25) -- Ocupa a largura total do wrapper, altura fixa
         copyButton.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
         copyButton.TextColor3 = Color3.new(1, 1, 1)
         copyButton.Text = "Copiar Link"
@@ -881,6 +882,7 @@ function DudxJsGUI:AddTab(tabName)
         copyButton.MouseButton1Click:Connect(function()
             if profileLink then
                 local success, err = pcall(function()
+                    -- AVISO: SetClipboard pode não funcionar em todos os ambientes (exploits, etc.)
                     UserInputService:SetClipboard(profileLink)
                 end)
 
@@ -889,9 +891,16 @@ function DudxJsGUI:AddTab(tabName)
                     copyButton.Text = "Copiado!"
                     copyButton.BackgroundColor3 = Color3.fromRGB(0, 150, 0) -- Verde ao copiar
                 else
+                    -- Exibe o erro de forma mais clara para o usuário
                     warn("Falha ao copiar para a área de transferência: " .. (err or "Erro desconhecido"))
-                    copyButton.Text = "Erro! (Console)"
+                    copyButton.Text = "Erro! (Console)" -- Mensagem para o botão
                     copyButton.BackgroundColor3 = Color3.fromRGB(255, 50, 50) -- Vermelho em caso de erro
+                    -- Opcional: Você pode tentar exibir uma notificação na tela para o usuário
+                    -- game:GetService("StarterGui"):SetCore("SendNotification", {
+                    --     Title = "Erro ao Copiar",
+                    --     Text = "Não foi possível copiar o link para a área de transferência. Tente manualmente.",
+                    --     Duration = 5
+                    -- })
                 end
                 task.wait(1.5)
                 copyButton.Text = "Copiar Link"
